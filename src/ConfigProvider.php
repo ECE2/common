@@ -95,6 +95,12 @@ class ConfigProvider
                     'source' => __DIR__ . '/../publish/nacos.php',
                     'destination' => BASE_PATH . '/config/autoload/nacos.php',
                 ],
+                [
+                    'id' => 'env',
+                    'description' => 'replace env',
+                    'source' => __DIR__ . '/../publish/.env.example',
+                    'destination' => BASE_PATH . '/.env',
+                ],
             ]
         ];
     }

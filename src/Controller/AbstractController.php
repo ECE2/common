@@ -34,7 +34,7 @@ abstract class AbstractController
     /**
      * 返回 json http response 结果.
      * 配合 ant design pro react 统一规范: (https://pro.ant.design/zh-CN/docs/request#%E7%BB%9F%E4%B8%80%E8%A7%84%E8%8C%83).
-     * @param array $data 返回数据
+     * @param mixed $data 返回数据
      * @param bool $success 是否成功
      * @param int $errorCode 错误码
      * @param string $errorMessage 错误信息
@@ -46,7 +46,7 @@ abstract class AbstractController
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function jsonResponse(
-        array $data = [],
+        mixed $data,
         bool $success = true,
         int $errorCode = 0,
         string $errorMessage = '',
