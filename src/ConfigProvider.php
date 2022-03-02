@@ -66,6 +66,12 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/app/Exception/BusinessException.php',
                 ],
                 [
+                    'id' => 'ErrorCode',
+                    'description' => 'initialization ErrorCode',
+                    'source' => __DIR__ . '/../publish/ErrorCode.php',
+                    'destination' => BASE_PATH . '/app/Constants/ErrorCode.php',
+                ],
+                [
                     'id' => 'Model',
                     'description' => 'replace Model',
                     'source' => __DIR__ . '/../publish/Model.php',
