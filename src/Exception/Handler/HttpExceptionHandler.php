@@ -6,10 +6,10 @@ declare(strict_types=1);
  */
 namespace Ece2\HyperfCommon\Exception\Handler;
 
-use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Exception\HttpException;
 use Hyperf\HttpMessage\Stream\SwooleStream;
+use Hyperf\Logger\LoggerFactory;
 use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Codec\Json;
@@ -19,8 +19,11 @@ use Throwable;
 
 class HttpExceptionHandler extends ExceptionHandler
 {
-    public function __construct(protected StdoutLoggerInterface $logger)
+    protected $logger;
+
+    public function __construct(protected LoggerFactory $loggerFactory)
     {
+        $this->logger = $this->loggerFactory->get('log');
     }
 
     /**
