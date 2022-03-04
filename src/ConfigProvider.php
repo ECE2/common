@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Ece2\HyperfCommon;
 
 use Ece2\HyperfCommon\JsonRpc\JsonRpcServices;
-use Ece2\HyperfCommon\Library\IPReader;
+use Hyperf\Paginator\LengthAwarePaginator;
+use Hyperf\Paginator\Paginator;
+use Hyperf\ServiceGovernance\IPReader;
 
 class ConfigProvider
 {
@@ -18,15 +20,19 @@ class ConfigProvider
         ];
 
         return [
-            'dependencies' => [
-                // 替换原有的 ip 获取, 允许使用配置了的服务发现地址
-                \Hyperf\ServiceGovernance\IPReaderInterface::class => IPReader::class,
-            ],
             'annotations' => [
                 'scan' => [
                     'paths' => [
                         __DIR__,
                     ],
+                    // 框架的加载机制, 读取 composer.lock 按照字幕顺序, 这个组件包 dependencies 修改框架类会被覆盖掉, 导致替换的方式达不到修改框架类的情况, 这里修改框架类用 class_map 替代
+                    'class_map' => [
+                        // 替换原有的 ip 获取, 允许使用配置了的服务发现地址
+                        IPReader::class => __DIR__ . '/../class_map/IPReader.php',
+                        // 替换原有分页器, 更换 toArray 字段
+                        LengthAwarePaginator::class => __DIR__ . '/../class_map/LengthAwarePaginator.php',
+                        Paginator::class => __DIR__ . '/../class_map/Paginator.php',
+                    ]
                 ],
             ],
             'services' => [

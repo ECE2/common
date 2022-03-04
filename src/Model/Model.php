@@ -20,8 +20,7 @@ abstract class Model extends BaseModel
     {
         /** @var RequestInterface $request */
         $request = $this->getContainer()->make(RequestInterface::class);
-        $perPage = $request->input('per_page', null) ?: parent::getPerPage();
 
-        return (int) min($perPage, $this->perPage);
+        return (int) $request->input('pageSize', parent::getPerPage());
     }
 }

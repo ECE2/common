@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 /**
- * This file is part of api template.
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
-namespace Ece2\HyperfCommon\Library;
+namespace Hyperf\ServiceGovernance;
 
 use Hyperf\ServiceGovernance\Exception\IPReadFailedException;
-use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Utils\Network;
 
 class IPReader implements IPReaderInterface

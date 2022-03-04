@@ -6,11 +6,12 @@ declare(strict_types=1);
  */
 namespace Ece2\HyperfCommon\Exception\Handler;
 
-use Ece2\HyperfCommon\Library\IPReader;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Exception\HttpException;
 use Hyperf\HttpMessage\Stream\SwooleStream;
+use Hyperf\ServiceGovernance\IPReaderInterface;
+use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Codec\Json;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Status;
@@ -49,12 +50,12 @@ class HttpExceptionHandler extends ExceptionHandler
                 'errorMessage' => $throwable->getMessage(),
                 'showType' => 2, // error display type： 0 silent; 1 message.warn; 2 message.error; 4 notification; 9 page
                 'traceId' => '', // TODO
-                'host' => (new IPReader())->read(),
+                'host' => ApplicationContext::getContainer()->get(IPReaderInterface::class)->read(),
             ])));
     }
 
     public function isValid(Throwable $throwable): bool
     {
-        return $throwable instanceof HttpException;
+        return true;
     }
 }

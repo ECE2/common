@@ -7,9 +7,12 @@ namespace Ece2\HyperfCommon\Controller;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\Logger\LoggerFactory;
 use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Utils\ApplicationContext;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 abstract class AbstractController
 {
@@ -42,11 +45,9 @@ abstract class AbstractController
      * @param string $traceId trace id
      * @param string $host host
      * @return \Psr\Http\Message\ResponseInterface
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function jsonResponse(
-        mixed $data,
+        mixed $data = [],
         bool $success = true,
         int $errorCode = 0,
         string $errorMessage = '',
@@ -54,6 +55,12 @@ abstract class AbstractController
         string $traceId = '',
         string $host = ''
     ): \Psr\Http\Message\ResponseInterface {
+        try {
+            $host = $host ?: (ApplicationContext::getContainer()->get(IPReaderInterface::class))->read();
+        } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
+            $host = '';
+        }
+
         return $this->response->json([
             'success' => $success,
             'data' => $data ?: [],
@@ -61,7 +68,7 @@ abstract class AbstractController
             'errorMessage' => $errorMessage ?: '',
             'showType' => $showType ?: 0, // error display type： 0 silent; 1 message.warn; 2 message.error; 4 notification; 9 page
             'traceId' => $traceId ?: '',
-            'host' => $host ?: (ApplicationContext::getContainer()->get(IPReaderInterface::class))->read(),
+            'host' => $host,
         ]);
     }
 }
