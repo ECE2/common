@@ -9,6 +9,7 @@ use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Utils\ApplicationContext;
+use Hyperf\Utils\Context;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -69,5 +70,18 @@ abstract class AbstractController
             'traceId' => $traceId ?: '',
             'host' => $host,
         ]);
+    }
+
+    /**
+     * 当前管理员.
+     */
+    protected function currentAdmin()
+    {
+        $admin = null;
+        if (($userResolver = Context::get('userResolver')) && is_callable($userResolver)) {
+            $admin = $userResolver();
+        }
+
+        return $admin;
     }
 }

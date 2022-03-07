@@ -84,6 +84,12 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/app/Model/Model.php',
                 ],
                 [
+                    'id' => 'ValidateTokenMiddleware',
+                    'description' => 'initialization ValidateTokenMiddleware',
+                    'source' => __DIR__ . '/../publish/ValidateTokenMiddleware.php',
+                    'destination' => BASE_PATH . '/app/Middleware/Auth/ValidateTokenMiddleware.php',
+                ],
+                [
                     'id' => 'config:exceptions',
                     'description' => 'replace exceptions config',
                     'source' => __DIR__ . '/../publish/config/exceptions.php',
@@ -118,6 +124,12 @@ class ConfigProvider
                     'description' => 'replace config_center config',
                     'source' => __DIR__ . '/../publish/config/config_center.php',
                     'destination' => BASE_PATH . '/config/autoload/config_center.php',
+                ],
+                [
+                    'id' => 'config:routes',
+                    'description' => 'replace routes config',
+                    'source' => __DIR__ . '/../publish/config/routes.php',
+                    'destination' => BASE_PATH . '/config/routes.php',
                 ],
                 [
                     'id' => 'start_hyperf_shell',
