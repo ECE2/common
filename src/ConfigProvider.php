@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ece2\HyperfCommon;
 
-use Ece2\HyperfCommon\JsonRpc\JsonRpcServices;
 use Hyperf\Paginator\LengthAwarePaginator;
 use Hyperf\Paginator\Paginator;
 use Hyperf\ServiceGovernance\IPReader;
@@ -40,7 +39,7 @@ class ConfigProvider
                     $consumers = [];
                     // 这里示例自动创建代理消费者类的配置形式，顾存在 name 和 service 两个配置项，这里的做法不是唯一的，仅说明可以通过 PHP 代码来生成配置
                     // 下面的 FooServiceInterface 和 BarServiceInterface 仅示例多服务，并不是在文档示例中真实存在的
-                    $services = new JsonRpcServices();
+                    $services = new \Ece2\HyperfCommon\JsonRpc\JsonRpcServices();
                     foreach ($services() as $name => $interface) {
                         $consumers[] = [
                             'name' => $name,
@@ -50,6 +49,11 @@ class ConfigProvider
                     }
                     return $consumers;
                 }),
+            ],
+            'middlewares' => [
+                'http' => [
+                    \Ece2\HyperfCommon\Middleware\CorsMiddleware::class,
+                ]
             ],
             'exceptions' => [
                 'handler' => [
