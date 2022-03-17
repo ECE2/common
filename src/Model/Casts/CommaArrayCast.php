@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  * This file is part of api template.
  */
-namespace Ece2\HyperfCommon\Model\Casts;
+namespace Ece2\Common\Model\Casts;
 
 use Hyperf\Contract\CastsAttributes;
 use Hyperf\Utils\Contracts\Arrayable;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  * This file is part of api template.
  */
-namespace Ece2\HyperfCommon\Exception\Handler;
+namespace Ece2\Common\Exception\Handler;
 
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Exception\HttpException;

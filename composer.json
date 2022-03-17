@@ -1,15 +1,14 @@
 {
-    "name": "ece2/hyperf-common",
+    "name": "ece2/common",
     "type": "library",
     "license": "MIT",
     "keywords": [
         "php",
         "hyperf"
     ],
-    "description": "Hyperf common extend",
     "autoload": {
         "psr-4": {
-            "Ece2\\HyperfCommon\\": "src/"
+            "Ece2\\Common\\": "src/"
         }
     },
     "autoload-dev": {
@@ -19,15 +18,27 @@
     },
     "require": {
         "php": ">=7.3",
+        "hyperf/amqp": "^2.2",
+        "hyperf/async-queue": "^2.2",
+        "hyperf/circuit-breaker": "^2.2",
+        "hyperf/config-center": "^2.2",
+        "hyperf/config-nacos": "^2.2",
+        "hyperf/constants": "^2.2",
+        "hyperf/database": "^2.2",
         "hyperf/db-connection": "~2.2.0",
         "hyperf/http-server": "~2.2.0",
-        "hyperf/service-governance": "~2.2.0",
-        "hyperf/service-governance-nacos": "^2.2",
-        "hyperf/constants": "~2.2.0",
-        "hyperf/json-rpc": "~2.2.0",
-        "hyperf/rpc-client": "~2.2.0",
-        "hyperf/rpc-server": "~2.2.0",
+        "hyperf/json-rpc": "^2.2",
+        "hyperf/model-cache": "^2.2",
         "hyperf/paginator": "^2.2",
+        "hyperf/rate-limit": "^2.2",
+        "hyperf/redis": "^2.2",
+        "hyperf/retry": "^2.2",
+        "hyperf/rpc": "^2.2",
+        "hyperf/rpc-client": "^2.2",
+        "hyperf/rpc-server": "^2.2",
+        "hyperf/service-governance": "^2.2",
+        "hyperf/service-governance-nacos": "^2.2",
+        "hyperf/tracer": "^2.2",
         "hyperf/watcher": "^2.2",
         "symfony/var-dumper": "^6.0"
     },
@@ -54,7 +65,7 @@
     },
     "extra": {
         "hyperf": {
-            "config": "Ece2\\HyperfCommon\\ConfigProvider"
+            "config": "Ece2\\Common\\ConfigProvider"
         }
     }
 }

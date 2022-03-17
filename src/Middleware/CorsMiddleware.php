@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ece2\HyperfCommon\Middleware;
+namespace Ece2\Common\Middleware;
 
 use Hyperf\Utils\Context;
 use Psr\Http\Message\ResponseInterface;

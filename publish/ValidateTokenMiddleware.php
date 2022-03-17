@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Middleware\Auth;
 
-use Ece2\HyperfCommon\JsonRpc\Contract\AdministratorServiceInterface;
+use Ece2\Common\JsonRpc\Contract\AdministratorServiceInterface;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpMessage\Exception\HttpException;
 use Hyperf\Utils\Context;

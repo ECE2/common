@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  * This file is part of api template.
  */
-namespace Ece2\HyperfCommon\Model\Scopes;
+namespace Ece2\Common\Model\Scopes;
 
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Model;

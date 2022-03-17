@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ece2\HyperfCommon\Exception;
+namespace Ece2\Common\Exception;
 
 use Hyperf\HttpMessage\Exception\HttpException as BaseHttpException;
 use Throwable;

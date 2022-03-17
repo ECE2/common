@@ -1,6 +1,6 @@
 <?php
 
-namespace Ece2\HyperfCommon\JsonRpc\Contract;
+namespace Ece2\Common\JsonRpc\Contract;
 
 interface AdministratorServiceInterface
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ece2\HyperfCommon\Controller;
+namespace Ece2\Common\Controller;
 
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;

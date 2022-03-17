@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  * This file is part of api template.
  */
-namespace Ece2\HyperfCommon\Model;
+namespace Ece2\Common\Model;
 
 use Hyperf\DbConnection\Model\Model as BaseModel;
 use Hyperf\HttpServer\Contract\RequestInterface;

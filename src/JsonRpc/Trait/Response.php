@@ -1,6 +1,6 @@
 <?php
 
-namespace Ece2\HyperfCommon\JsonRpc\Trait;
+namespace Ece2\Common\JsonRpc\Trait;
 
 use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Utils\ApplicationContext;

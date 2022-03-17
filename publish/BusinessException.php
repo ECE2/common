@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Exception;
 
 use App\Constants\ErrorCode;
-use Ece2\HyperfCommon\Exception\HttpException as BaseHttpException;
+use Ece2\Common\Exception\HttpException as BaseHttpException;
 use Throwable;
 
 class BusinessException extends BaseHttpException
