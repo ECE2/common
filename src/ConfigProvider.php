@@ -154,6 +154,24 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/config/routes.php',
                 ],
                 [
+                    'id' => 'config:aspects',
+                    'description' => 'replace aspects config',
+                    'source' => __DIR__ . '/../publish/config/aspects.php',
+                    'destination' => BASE_PATH . '/config/aspects.php',
+                ],
+                [
+                    'id' => 'config:middlewares',
+                    'description' => 'replace middlewares config',
+                    'source' => __DIR__ . '/../publish/config/middlewares.php',
+                    'destination' => BASE_PATH . '/config/middlewares.php',
+                ],
+                [
+                    'id' => 'config:opentracing',
+                    'description' => 'replace opentracing config',
+                    'source' => __DIR__ . '/../publish/config/opentracing.php',
+                    'destination' => BASE_PATH . '/config/opentracing.php',
+                ],
+                [
                     'id' => 'start_hyperf_shell',
                     'description' => 'start hyperf shell',
                     'source' => __DIR__ . '/../publish/start_hyperf.sh',
