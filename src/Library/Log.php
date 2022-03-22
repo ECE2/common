@@ -29,7 +29,7 @@ class Log
             @[$message, $context, $logName] = $arguments;
         }
 
-        static::get($logName ?? 'log')->{$logLevel}($message ?? '', $context ?? []);
+        static::get($logName ?? 'log')->{$logLevel}($message ?? '', ($context ?? []) + ['traceId' => TraceId::get()]);
     }
 
     public static function get(string $name = 'log'): LoggerInterface

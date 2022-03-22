@@ -6,6 +6,7 @@ declare(strict_types=1);
  */
 namespace Ece2\Common\Exception\Handler;
 
+use Ece2\Common\Library\TraceId;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Exception\HttpException;
 use Hyperf\HttpMessage\Stream\SwooleStream;
@@ -52,7 +53,7 @@ class HttpExceptionHandler extends ExceptionHandler
                 'errorCode' => $throwable->getCode(),
                 'errorMessage' => $throwable->getMessage(),
                 'showType' => 2, // error display type： 0 silent; 1 message.warn; 2 message.error; 4 notification; 9 page
-                'traceId' => '', // TODO
+                'traceId' => TraceId::get(),
                 'host' => ApplicationContext::getContainer()->get(IPReaderInterface::class)->read(),
             ])));
     }

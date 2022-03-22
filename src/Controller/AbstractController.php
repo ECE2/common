@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Controller;
 
+use Ece2\Common\Library\TraceId;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
@@ -67,7 +68,7 @@ abstract class AbstractController
             'errorCode' => $errorCode ?: 0,
             'errorMessage' => $errorMessage ?: '',
             'showType' => $showType ?: 0, // error display type： 0 silent; 1 message.warn; 2 message.error; 4 notification; 9 page
-            'traceId' => $traceId ?: '',
+            'traceId' => $traceId ?: TraceId::get(),
             'host' => $host,
         ]);
     }

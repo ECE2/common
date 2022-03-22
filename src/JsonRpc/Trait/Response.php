@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ece2\Common\JsonRpc\Trait;
 
+use Ece2\Common\Library\TraceId;
 use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Container\ContainerExceptionInterface;
@@ -43,9 +46,8 @@ trait Response
             'errorCode' => $errorCode ?: 0,
             'errorMessage' => $errorMessage ?: '',
             'showType' => $showType ?: 0, // error display type： 0 silent; 1 message.warn; 2 message.error; 4 notification; 9 page
-            'traceId' => $traceId ?: '',
+            'traceId' => $traceId ?: TraceId::get(),
             'host' => $host,
         ];
     }
-
 }
