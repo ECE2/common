@@ -8,7 +8,6 @@ else
   cd $(dirname "$0") || exit
 fi
 
-composer config -g repo.packagist composer https://mirrors.aliyun.com/composer
 composer update
 composer dump-autoload -o # 删除 aop 文件等
 composer run-script cs-fix # 格式化
