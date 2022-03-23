@@ -172,6 +172,12 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/config/opentracing.php',
                 ],
                 [
+                    'id' => 'config:metric',
+                    'description' => 'replace metric config',
+                    'source' => __DIR__ . '/../publish/config/metric.php',
+                    'destination' => BASE_PATH . '/config/metric.php',
+                ],
+                [
                     'id' => 'start_hyperf_shell',
                     'description' => 'start hyperf shell',
                     'source' => __DIR__ . '/../publish/start_hyperf.sh',

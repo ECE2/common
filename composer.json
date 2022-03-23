@@ -28,6 +28,7 @@
         "hyperf/db-connection": "~2.2.0",
         "hyperf/http-server": "~2.2.0",
         "hyperf/json-rpc": "^2.2",
+        "hyperf/metric": "^2.2",
         "hyperf/model-cache": "^2.2",
         "hyperf/paginator": "^2.2",
         "hyperf/rate-limit": "^2.2",
