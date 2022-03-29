@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d26eb3b3-3310-45e4-ab7d-db1714f3fa0f" name="变更" comment="">
-      <change beforePath="$PROJECT_DIR$/src/ConfigProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/ConfigProvider.php" afterDir="false" />
-    </list>
+    <list default="true" id="d26eb3b3-3310-45e4-ab7d-db1714f3fa0f" name="变更" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -60,7 +58,7 @@
       <workItem from="1647834887863" duration="19321000" />
       <workItem from="1648450895962" duration="1694000" />
       <workItem from="1648470774778" duration="2009000" />
-      <workItem from="1648520699143" duration="665000" />
+      <workItem from="1648520699143" duration="1066000" />
     </task>
     <servers />
   </component>
