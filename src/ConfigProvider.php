@@ -188,6 +188,12 @@ class ConfigProvider
                     'source' => __DIR__ . '/../publish/.env.example',
                     'destination' => BASE_PATH . '/.env',
                 ],
+                [
+                    'id' => 'env.example',
+                    'description' => 'replace env.example',
+                    'source' => __DIR__ . '/../publish/.env.example',
+                    'destination' => BASE_PATH . '/.env.example',
+                ],
             ]
         ];
     }

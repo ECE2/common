@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d26eb3b3-3310-45e4-ab7d-db1714f3fa0f" name="变更" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/publish/config/exceptions.php" beforeDir="false" afterPath="$PROJECT_DIR$/publish/config/exceptions.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ConfigProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/ConfigProvider.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Exception/Handler/HttpExceptionHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/publish/AppExceptionHandler.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +59,8 @@
       <updated>1647834885679</updated>
       <workItem from="1647834887863" duration="19321000" />
       <workItem from="1648450895962" duration="1694000" />
-      <workItem from="1648470774778" duration="1904000" />
+      <workItem from="1648470774778" duration="2009000" />
+      <workItem from="1648520699143" duration="601000" />
     </task>
     <servers />
   </component>
