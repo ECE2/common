@@ -159,6 +159,12 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/config/routes.php',
                 ],
                 [
+                    'id' => 'config:config',
+                    'description' => 'replace config config',
+                    'source' => __DIR__ . '/../publish/config/config.php',
+                    'destination' => BASE_PATH . '/config/config.php',
+                ],
+                [
                     'id' => 'start_hyperf_shell',
                     'description' => 'start hyperf shell',
                     'source' => __DIR__ . '/../publish/start_hyperf.sh',
