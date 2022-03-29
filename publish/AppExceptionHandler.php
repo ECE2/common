@@ -1,10 +1,8 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of api template.
- */
-namespace Ece2\Common\Exception\Handler;
+
+namespace App\Exception\Handler;
 
 use Ece2\Common\Library\TraceId;
 use Hyperf\ExceptionHandler\ExceptionHandler;
@@ -18,7 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Status;
 use Throwable;
 
-class HttpExceptionHandler extends ExceptionHandler
+class AppExceptionHandler extends ExceptionHandler
 {
     protected $logger;
 

@@ -73,19 +73,18 @@ class ConfigProvider
                     \Ece2\Common\Middleware\CorsMiddleware::class,
                 ]
             ],
-            'exceptions' => [
-                'handler' => [
-                    'http' => [
-                        \Ece2\Common\Exception\Handler\HttpExceptionHandler::class,
-                    ],
-                ]
-            ],
             'publish' => [
                 [
                     'id' => 'AbstractController',
                     'description' => 'replace AbstractController',
                     'source' => __DIR__ . '/../publish/AbstractController.php',
                     'destination' => BASE_PATH . '/app/Controller/AbstractController.php',
+                ],
+                [
+                    'id' => 'AppExceptionHandler',
+                    'description' => 'replace AppExceptionHandler',
+                    'source' => __DIR__ . '/../publish/AppExceptionHandler.php',
+                    'destination' => BASE_PATH . '/app/Exception/Handler/AppExceptionHandler.php',
                 ],
                 [
                     'id' => 'BusinessException',
