@@ -31,7 +31,7 @@ class ConfigProvider
                         // 替换原有分页器, 更换 toArray 字段
                         LengthAwarePaginator::class => __DIR__ . '/../class_map/LengthAwarePaginator.php',
                         Paginator::class => __DIR__ . '/../class_map/Paginator.php',
-                    ]
+                    ],
                 ],
             ],
             'services' => [
@@ -53,7 +53,7 @@ class ConfigProvider
             'middlewares' => [
                 'http' => [
                     \Ece2\Common\Middleware\CorsMiddleware::class,
-                ]
+                ],
             ],
             'publish' => [
                 [
@@ -182,7 +182,19 @@ class ConfigProvider
                     'source' => __DIR__ . '/../publish/.env.example',
                     'destination' => BASE_PATH . '/.env.example',
                 ],
-            ]
+                [
+                    'id' => '.php-cs-fixer.php',
+                    'description' => 'replace .php-cs-fixer.php',
+                    'source' => __DIR__ . '/../publish/.php-cs-fixer.php',
+                    'destination' => BASE_PATH . '/.php-cs-fixer.php',
+                ],
+                [
+                    'id' => 'create_model_has_attachments_table',
+                    'description' => 'create_model_has_attachments_table',
+                    'source' => __DIR__ . '/../publish/1111_01_11_111111_create_model_has_attachments_table.php',
+                    'destination' => BASE_PATH . '/migrations/1111_01_11_111111_create_model_has_attachments_table.php',
+                ],
+            ],
         ];
     }
 }

@@ -8,6 +8,7 @@ class JsonRpcServices
     {
         return [
             'AdministratorService' => \Ece2\Common\JsonRpc\Contract\AdministratorServiceInterface::class,
+            'AttachmentService' => \Ece2\Common\JsonRpc\Contract\AttachmentServiceInterface::class,
         ];
     }
 }

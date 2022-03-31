@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Exception\Handler;
 
+use Ece2\Common\Library\Log;
 use Ece2\Common\Library\TraceId;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Exception\HttpException;
 use Hyperf\HttpMessage\Stream\SwooleStream;
-use Hyperf\Logger\LoggerFactory;
 use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Codec\Json;
@@ -18,20 +18,13 @@ use Throwable;
 
 class AppExceptionHandler extends ExceptionHandler
 {
-    protected $logger;
-
-    public function __construct(protected LoggerFactory $loggerFactory)
-    {
-        $this->logger = $this->loggerFactory->get('log');
-    }
-
     /**
      * @param HttpException $throwable
      * @return ResponseInterface
      */
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        $this->logger->error(sprintf('%s[%s] in %s', $throwable->getMessage(), $throwable->getLine(), $throwable->getFile()));
+        Log::error(sprintf('%s[%s] in %s', $throwable->getMessage(), $throwable->getLine(), $throwable->getFile()));
 
         $statusCode = $throwable->getCode() ?: Status::INTERNAL_SERVER_ERROR;
         if ($throwable instanceof HttpException) {

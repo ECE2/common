@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Ece2\Common\Controller;
 
 use Ece2\Common\Library\TraceId;
+use Hyperf\DbConnection\Model\Model;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Utils\ApplicationContext;
+use Hyperf\Utils\Collection;
 use Hyperf\Utils\Context;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
@@ -45,7 +47,6 @@ abstract class AbstractController
      * @param int $showType 错误提示类型
      * @param string $traceId trace id
      * @param string $host host
-     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function jsonResponse(
         mixed $data = [],
@@ -75,6 +76,7 @@ abstract class AbstractController
 
     /**
      * 当前管理员.
+     * @return null|Collection|mixed|Model
      */
     protected function currentAdmin()
     {
