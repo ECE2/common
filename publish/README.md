@@ -1,8 +1,17 @@
 ## 说明
 
 ### 启动
+1. 本地有 PHP + Swoole 环境的情况
 ``` 
 sh start_hyerf.sh [dev (加上后可以本地开发热更新)] 
+```
+
+2. 使用 Docker 启动
+```
+sh start_hyperf.sh docker
+...
+进入 docker 交互
+/data/project # sh start_hyerf.sh [dev (加上后可以本地开发热更新)]
 ```
 
 [Hyperf 官方文档](https://hyperf.wiki/2.2/#/)
