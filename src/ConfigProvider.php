@@ -189,6 +189,12 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/.php-cs-fixer.php',
                 ],
                 [
+                    'id' => 'README.md',
+                    'description' => 'replace README.md',
+                    'source' => __DIR__ . '/../publish/README.md',
+                    'destination' => BASE_PATH . '/README.md',
+                ],
+                [
                     'id' => 'create_model_has_attachments_table',
                     'description' => 'create_model_has_attachments_table',
                     'source' => __DIR__ . '/../publish/1111_01_11_111111_create_model_has_attachments_table.php',
