@@ -3,7 +3,7 @@
 安装
 
 ```shell
-composer require ece2/common
+composer require ece2/common -W --ignore-platform-reqs
 ```
 
 初始化, 仅仅用在刚刚创建的 hyperf 项目, 不然会覆盖项目代码
