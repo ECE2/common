@@ -6,11 +6,14 @@ declare(strict_types=1);
  */
 namespace Ece2\Common\Model;
 
+use Ece2\Common\Model\Traits\HasRelationshipsForRpc;
 use Hyperf\DbConnection\Model\Model as BaseModel;
 use Hyperf\HttpServer\Contract\RequestInterface;
 
 abstract class Model extends BaseModel
 {
+    use HasRelationshipsForRpc;
+
     protected $guarded = [];
 
     /**
