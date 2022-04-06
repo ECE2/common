@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Model\Rpc\Model;
 
-use Ece2\Common\JsonRpc\Contract\AttachmentServiceInterface;
+use Ece2\Common\JsonRpc\Contract\AdministratorServiceInterface;
 use Hyperf\Di\Annotation\Inject;
 
-class Attachment extends Base
+class Administrator extends Base
 {
     /**
      * @Inject
-     * @var AttachmentServiceInterface
+     * @var AdministratorServiceInterface
      */
     protected static $service;
 }
