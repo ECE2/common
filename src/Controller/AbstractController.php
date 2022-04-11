@@ -73,18 +73,4 @@ abstract class AbstractController
             'host' => $host,
         ]);
     }
-
-    /**
-     * 当前管理员.
-     * @return null|Collection|mixed|Model
-     */
-    protected function currentAdmin()
-    {
-        $admin = null;
-        if (($userResolver = Context::get('userResolver')) && is_callable($userResolver)) {
-            $admin = $userResolver();
-        }
-
-        return $admin;
-    }
 }

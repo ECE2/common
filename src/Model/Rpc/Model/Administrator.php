@@ -14,4 +14,9 @@ class Administrator extends Base
      * @var AdministratorServiceInterface
      */
     protected static $service;
+
+    public function menusSameLevel()
+    {
+        return static::$service->getMenusSameLevel($this->getKey())['data'] ?? [];
+    }
 }

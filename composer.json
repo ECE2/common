@@ -9,7 +9,10 @@
     "autoload": {
         "psr-4": {
             "Ece2\\Common\\": "src/"
-        }
+        },
+        "files": [
+            "./src/Library/helper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -87,12 +87,6 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/app/Model/Model.php',
                 ],
                 [
-                    'id' => 'ValidateTokenMiddleware',
-                    'description' => 'initialization ValidateTokenMiddleware',
-                    'source' => __DIR__ . '/../publish/ValidateTokenMiddleware.php',
-                    'destination' => BASE_PATH . '/app/Middleware/Auth/ValidateTokenMiddleware.php',
-                ],
-                [
                     'id' => 'config:exceptions',
                     'description' => 'replace exceptions config',
                     'source' => __DIR__ . '/../publish/config/exceptions.php',

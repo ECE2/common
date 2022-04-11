@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 use Hyperf\HttpServer\Router\Router;
-use App\Middleware\Auth\ValidateTokenMiddleware;
+use \Ece2\Common\Middleware\ValidateTokenMiddleware;
+use \Ece2\Common\Middleware\PermissionMiddleware;
 
 Router::get('/favicon.ico', static function () {
     return '';
@@ -19,4 +20,4 @@ Router::get('/favicon.ico', static function () {
  */
 Router::addGroup('/api', static function () {
     Router::addRoute(['GET', 'POST'], '/', 'App\Controller\IndexController@index');
-}, ['middleware' => [ValidateTokenMiddleware::class]]);
+}, ['middleware' => [ValidateTokenMiddleware::class, PermissionMiddleware::class]]);

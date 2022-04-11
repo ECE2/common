@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Middleware\Auth;
+namespace Ece2\Common\Middleware;
 
 use Ece2\Common\JsonRpc\Contract\AdministratorServiceInterface;
+use Ece2\Common\Model\Rpc\Model\Administrator;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpMessage\Exception\HttpException;
 use Hyperf\Utils\Context;
@@ -38,7 +39,8 @@ class ValidateTokenMiddleware implements MiddlewareInterface
             throw new HttpException(401, $admin['errorMessage'] ?? null);
         }
 
-        Context::set('userResolver', static fn () => $admin['data'] ?? []); // 保存当前管理员 上下文
+        // 保存当前管理员 上下文, 注意: 此处的示例为 rpc model
+        Context::set('userResolver', static fn () => new Administrator($admin['data'] ?? []));
 
         return $handler->handle($request);
     }
