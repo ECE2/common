@@ -36,9 +36,9 @@ class JsonRpcIdTransferMiddleware implements MiddlewareInterface
         $rc = $this->container->get(RpcContext::class);
         if ($currentAdmin = $rc->get('current.admin')) {
             if (Composer::getJsonContent()->get('name') === 'base/admin') { // admin 项目使用自己的 db modal 类
-                Context::set('userResolver', static fn () => new BaseDBAdministrator($currentAdmin));
+                Context::set('currentAdmin', static fn () => new BaseDBAdministrator($currentAdmin));
             } else { // 其他项目使用 rpc model 类
-                Context::set('userResolver', static fn () => new RpcAdministrator($currentAdmin));
+                Context::set('currentAdmin', static fn () => new RpcAdministrator($currentAdmin));
             }
         }
 

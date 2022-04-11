@@ -21,7 +21,7 @@ class CompanyIsolateScope implements Scope
         // 上下文里获取, admin 项目用的 jwt 会写入上下文, 其他项目可以手动写入匿名函数返回管理员数据
         $companyId = [];
         try {
-            if (($userResolver = Context::get('userResolver')) && is_callable($userResolver)) {
+            if (($userResolver = Context::get('currentAdmin')) && is_callable($userResolver)) {
                 $admin = $userResolver();
                 if (isset($admin['company_id'])) {
                     $companyId = [$admin['company_id']];

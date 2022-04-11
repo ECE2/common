@@ -13,7 +13,7 @@ function currentAdmin()
 {
     $admin = null;
     try {
-        if (($userResolver = Context::get('userResolver')) && is_callable($userResolver)) {
+        if (($userResolver = Context::get('currentAdmin')) && is_callable($userResolver)) {
             $admin = $userResolver();
         }
     } catch (Exception $e) {

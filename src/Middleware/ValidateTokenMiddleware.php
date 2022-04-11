@@ -40,7 +40,7 @@ class ValidateTokenMiddleware implements MiddlewareInterface
         }
 
         // 保存当前管理员 上下文, 注意: 此处的示例为 rpc model
-        Context::set('userResolver', static fn () => new Administrator($admin['data'] ?? []));
+        Context::set('currentAdmin', static fn () => new Administrator($admin['data'] ?? []));
 
         return $handler->handle($request);
     }
