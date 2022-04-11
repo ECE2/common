@@ -8,5 +8,6 @@ return [
     ],
     'jsonrpc-http' => [
         \Hyperf\Tracer\Middleware\TraceMiddleware::class,
+        \Ece2\Common\Middleware\JsonRpcIdTransferMiddleware::class,
     ],
 ];

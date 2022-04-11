@@ -100,7 +100,6 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
         // 适配前端规范
         // https://pro.ant.design/zh-CN/docs/request#%E7%BB%9F%E4%B8%80%E6%8E%A5%E5%8F%A3%E8%A7%84%E8%8C%83
         return [
-            'success' => true,
             'current' => $this->currentPage(), // 原 current_page
             'data' => $this->items->toArray(),
             'first_page_url' => $this->url(1),
