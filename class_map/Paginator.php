@@ -13,9 +13,14 @@ namespace Hyperf\Paginator;
 
 use ArrayAccess;
 use Countable;
+use Ece2\Common\Library\TraceId;
+use Hyperf\ServiceGovernance\IPReaderInterface;
+use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Collection;
 use Hyperf\Utils\Contracts\Arrayable;
 use Hyperf\Utils\Contracts\Jsonable;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use IteratorAggregate;
 use JsonSerializable;
 
@@ -97,9 +102,22 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
      */
     public function toArray(): array
     {
+        try {
+            $host = (ApplicationContext::getContainer()->get(IPReaderInterface::class))->read();
+        } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
+            $host = '';
+        }
+
         // 适配前端规范
         // https://pro.ant.design/zh-CN/docs/request#%E7%BB%9F%E4%B8%80%E6%8E%A5%E5%8F%A3%E8%A7%84%E8%8C%83
         return [
+            // 接口返回字段规范需要
+            'success' => true,
+            'errorCode' => 0,
+            'errorMessage' => '',
+            'traceId' => TraceId::get(),
+            'host' => $host,
+
             'current' => $this->currentPage(), // 原 current_page
             'data' => $this->items->toArray(),
             'first_page_url' => $this->url(1),
