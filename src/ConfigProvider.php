@@ -32,6 +32,9 @@ class ConfigProvider
                         LengthAwarePaginator::class => __DIR__ . '/../class_map/LengthAwarePaginator.php',
                         Paginator::class => __DIR__ . '/../class_map/Paginator.php',
                     ],
+                    'ignore_annotations' => [
+                        'required',
+                    ],
                 ],
             ],
             'services' => [
@@ -147,16 +150,16 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/config/autoload/metric.php',
                 ],
                 [
-                    'id' => 'config:routes',
-                    'description' => 'replace routes config',
-                    'source' => __DIR__ . '/../publish/config/routes.php',
-                    'destination' => BASE_PATH . '/config/routes.php',
-                ],
-                [
                     'id' => 'config:config',
                     'description' => 'replace config config',
                     'source' => __DIR__ . '/../publish/config/config.php',
                     'destination' => BASE_PATH . '/config/config.php',
+                ],
+                [
+                    'id' => 'config:dependencies',
+                    'description' => 'replace config dependencies',
+                    'source' => __DIR__ . '/../publish/config/dependencies.php',
+                    'destination' => BASE_PATH . '/config/dependencies.php',
                 ],
                 [
                     'id' => 'start_hyperf_shell',

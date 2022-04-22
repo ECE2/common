@@ -25,6 +25,7 @@ class AppExceptionHandler extends ExceptionHandler
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
         Log::error(sprintf('%s[%s] in %s', $throwable->getMessage(), $throwable->getLine(), $throwable->getFile()));
+        config('app_env') === 'dev' && Log::error($throwable->getTraceAsString());
 
         $statusCode = $throwable->getCode() ?: Status::INTERNAL_SERVER_ERROR;
         if ($throwable instanceof HttpException) {
@@ -37,15 +38,12 @@ class AppExceptionHandler extends ExceptionHandler
             ->withStatus($statusCode)
             ->withAddedHeader('content-type', 'application/json; charset=utf-8')
             ->withBody(new SwooleStream(Json::encode([
-                // 配合前端统一规范
-                // https://pro.ant.design/zh-CN/docs/request#%E7%BB%9F%E4%B8%80%E8%A7%84%E8%8C%83
                 'success' => false,
                 'data' => [],
-                'errorCode' => $throwable->getCode(),
-                'errorMessage' => $throwable->getMessage(),
-                'showType' => 2, // error display type： 0 silent; 1 message.warn; 2 message.error; 4 notification; 9 page
+                'code' => $throwable->getCode(),
+                'message' => $throwable->getMessage(),
                 'traceId' => TraceId::get(),
-                'host' => ApplicationContext::getContainer()->get(IPReaderInterface::class)->read(),
+                'host' => host(),
             ])));
     }
 

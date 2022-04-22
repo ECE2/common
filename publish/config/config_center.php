@@ -1,9 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of Template.
- */
 use Hyperf\ConfigCenter\Mode;
 
 return [
@@ -15,8 +12,15 @@ return [
             'driver' => Hyperf\ConfigNacos\NacosDriver::class,
             'merge_mode' => Hyperf\ConfigNacos\Constants::CONFIG_MERGE_OVERWRITE,
             'interval' => 3,
-            'default_key' => 'nacos_config',
+            'default_key' => 'config_center.system',
             'listener_config' => [
+                // 使用举例: config('config_center.system.super_admin')
+//                'config_center.system' => [
+//                    'tenant' => 'public', // 命名空间
+//                    'data_id' => 'system',
+//                    'group' => 'DEFAULT_GROUP',
+//                    'type' => 'json',
+//                ],
             ],
         ],
     ],

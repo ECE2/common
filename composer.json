@@ -11,7 +11,8 @@
             "Ece2\\Common\\": "src/"
         },
         "files": [
-            "./src/Library/helper.php"
+            "./src/Library/helper.php",
+            "./src/Helper/functions.php"
         ]
     },
     "autoload-dev": {
@@ -27,8 +28,10 @@
         "hyperf/config-center": "^2.2",
         "hyperf/config-nacos": "^2.2",
         "hyperf/constants": "^2.2",
+        "hyperf/crontab": "^2.2",
         "hyperf/database": "^2.2",
         "hyperf/db-connection": "~2.2.0",
+        "hyperf/filesystem": "^2.2",
         "hyperf/http-server": "~2.2.0",
         "hyperf/json-rpc": "^2.2",
         "hyperf/metric": "^2.2",
@@ -43,8 +46,11 @@
         "hyperf/service-governance": "^2.2",
         "hyperf/service-governance-nacos": "^2.2",
         "hyperf/tracer": "^2.2",
+        "hyperf/validation": "^2.2",
         "hyperf/watcher": "^2.2",
-        "symfony/var-dumper": "^6.0"
+        "symfony/var-dumper": "^6.0",
+        "symfony/property-access": "^6.0",
+        "tangwei/apidocs": "^1.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",

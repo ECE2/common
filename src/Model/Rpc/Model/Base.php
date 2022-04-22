@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Model\Rpc\Model;
 
+use Ece2\Common\Model\Traits\HasRelationshipsForRpc;
 use Hyperf\DbConnection\Model\Model as BaseModel;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 abstract class Base extends BaseModel
 {
+    use HasRelationshipsForRpc;
+    
     protected $guarded = [];
 
     protected static $service;

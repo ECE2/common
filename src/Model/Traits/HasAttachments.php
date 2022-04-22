@@ -14,7 +14,7 @@ trait HasAttachments
     public function attachments(): MorphToMany
     {
         return $this
-            ->rpcMorphToMany(Attachment::class, 'subject', 'model_has_attachments')
+            ->rpcMorphToMany(Attachment::class, 'subject', 'model_has_attachments') // model_has_attachments 在每个项目内自己保存关系
             ->withPivot('type');
     }
 }

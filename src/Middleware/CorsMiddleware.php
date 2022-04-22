@@ -14,7 +14,7 @@ class CorsMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (env('APP_ENV') === 'dev') {
+        if (config('app_env') === 'dev') {
             $response = Context::get(ResponseInterface::class)
                 ?->withHeader('Access-Control-Allow-Origin', '*')
                 ->withHeader('Access-Control-Allow-Credentials', 'true')
