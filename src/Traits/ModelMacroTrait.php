@@ -75,7 +75,7 @@ trait ModelMacroTrait
                         $roles = $user->roles()->get(['id', 'data_scope']);
                     } else {
                         /** @var SystemUserForRpc $user */
-                        $user = (new SystemUserForRpc(container()->get(SystemUserServiceInterface::class)->getInfo($this->userid)['data']));
+                        $user = $user = (new SystemUserForRpc(container()->get(SystemUserServiceInterface::class)->getInfo($this->userid)['data']));
                         $roles = $user->getRoles();
                     }
 

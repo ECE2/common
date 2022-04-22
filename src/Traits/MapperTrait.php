@@ -8,6 +8,7 @@ use Hyperf\Database\Model\Model as BaseModel;
 use Ece2\Common\Annotation\Transaction;
 use Ece2\Common\Collection;
 use Ece2\Common\Model\Model;
+use Hyperf\Paginator\Paginator;
 
 trait MapperTrait
 {
@@ -40,7 +41,7 @@ trait MapperTrait
             $this
                 ->listQuerySetting($params, $isScope)
                 ->paginate(
-                    perPage: $params['pageSize'] ?? ($this->model?->getPerPage() ?? Model::getModel()->getPerPage()),
+                    perPage: $params['pageSize'] ?? $this->model::getModel()->getPerPage(),
                     pageName: $pageName,
                     page: $params[$pageName] ?? Paginator::resolveCurrentPage($pageName)
                 )

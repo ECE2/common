@@ -8,9 +8,9 @@ interface SystemUserServiceInterface
 
     public function isAdminRole();
 
-    public function getInfo(int $uid);
+    public function getInfo($uid);
 
-    public function getRoles(int $uid);
+    public function getRoles($uid);
 
     public function getByDeptIds(array $deptIds);
 }

@@ -49,6 +49,6 @@ class SystemUser extends Base
      */
     public function getRoles()
     {
-        return self::$service->getRoles($this->getKey())['data'] ?? [];
+        return collect(self::$service->getRoles($this->getKey())['data'] ?? [])->map(fn ($item) => new SystemRole($item));
     }
 }
