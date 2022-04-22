@@ -75,7 +75,7 @@ trait ModelMacroTrait
                         $roles = $user->roles()->get(['id', 'data_scope']);
                     } else {
                         /** @var SystemUserForRpc $user */
-                        $user = $user = (new SystemUserForRpc(container()->get(SystemUserServiceInterface::class)->getInfo($this->userid)['data']));
+                        $user = (new SystemUserForRpc(container()->get(SystemUserServiceInterface::class)->getInfo($this->userid)['data']['user'] ?? []));
                         $roles = $user->getRoles();
                     }
 
@@ -130,7 +130,11 @@ trait ModelMacroTrait
                                     $deptIds[] = $user['dept_id'];
                                     $this->userIds = array_merge(
                                         $this->userIds,
-                                        array_column(container()->get(SystemUserServiceInterface::class)->getByDeptIds($deptIds)['data'] ?? [], 'id')
+                                        !empty($deptIds) ?
+                                            array_column(
+                                                container()->get(SystemUserServiceInterface::class)->getByDeptIds($deptIds)['data'] ?? [],
+                                                'id'
+                                            ) : []
                                     );
                                 }
                                 break;
