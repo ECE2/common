@@ -25,8 +25,8 @@ class TokenExceptionHandler extends ExceptionHandler
             ->withStatus(Status::UNAUTHORIZED)
             ->withBody(new SwooleStream(Json::encode([
                 'success' => false,
-                'message' => $throwable->getMessage(),
                 'code'    => Code::TOKEN_EXPIRED,
+                'message' => $throwable->getMessage(),
                 'data' => [],
                 'traceId' => TraceId::get(),
                 'host' => host(),

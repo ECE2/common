@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Exception;
+namespace Ece2\Common\Exception;
 
 use App\Constants\ErrorCode;
 use Ece2\Common\Exception\HttpException as BaseHttpException;

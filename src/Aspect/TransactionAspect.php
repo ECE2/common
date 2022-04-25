@@ -28,11 +28,9 @@ class TransactionAspect extends AbstractAspect
             $transaction = $proceedingJoinPoint->getAnnotationMetadata()->method[Transaction::class];
         }
 
-        Db::transaction(
-            fn () => $result = $proceedingJoinPoint->process(),
-            intval($transaction->retry)
+        return Db::transaction(
+            static fn () => $proceedingJoinPoint->process(),
+            $transaction->retry
         );
-
-        return $result;
     }
 }

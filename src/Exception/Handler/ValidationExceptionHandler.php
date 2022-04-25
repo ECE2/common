@@ -25,8 +25,8 @@ class ValidationExceptionHandler extends ExceptionHandler
             ->withStatus(Status::OK)
             ->withBody(new SwooleStream(Json::encode([
                 'success' => false,
-                'message' => $throwable->validator->errors()->first() ?? '',
                 'code' => Code::VALIDATE_FAILED,
+                'message' => $throwable->validator->errors()->first() ?? '',
                 'data' => [],
                 'traceId' => TraceId::get(),
                 'host' => host(),

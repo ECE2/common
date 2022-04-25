@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common;
 
-use Ece2\Common\Model\Model;
+use Ece2\Common\Abstracts\AbstractModel;
 use Hyperf\Database\Model\Collection as BaseCollection;
 use Ece2\Common\Office\Excel\PhpOffice;
 use Ece2\Common\Office\Excel\XlsWriter;
@@ -98,14 +98,14 @@ class Collection extends BaseCollection
     /**
      * 数据导入
      * @param string $dto
-     * @param Model $model
+     * @param AbstractModel $model
      * @param \Closure|null $closure
      * @return bool
      * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function import(string $dto, Model $model, ?\Closure $closure = null): bool
+    public function import(string $dto, AbstractModel $model, ?\Closure $closure = null): bool
     {
         $excelDrive = config('excel_drive');
         if ($excelDrive === 'auto') {

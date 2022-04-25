@@ -66,18 +66,6 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/app/Controller/AbstractController.php',
                 ],
                 [
-                    'id' => 'AppExceptionHandler',
-                    'description' => 'replace AppExceptionHandler',
-                    'source' => __DIR__ . '/../publish/AppExceptionHandler.php',
-                    'destination' => BASE_PATH . '/app/Exception/Handler/AppExceptionHandler.php',
-                ],
-                [
-                    'id' => 'BusinessException',
-                    'description' => 'replace BusinessException',
-                    'source' => __DIR__ . '/../publish/BusinessException.php',
-                    'destination' => BASE_PATH . '/app/Exception/BusinessException.php',
-                ],
-                [
                     'id' => 'ErrorCode',
                     'description' => 'initialization ErrorCode',
                     'source' => __DIR__ . '/../publish/ErrorCode.php',

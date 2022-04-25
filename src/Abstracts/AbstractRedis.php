@@ -50,5 +50,4 @@ abstract class AbstractRedis
     {
         return empty($key) ? null : ($this->prefix . trim($this->typeName, ':') . ':' . $key);
     }
-
 }

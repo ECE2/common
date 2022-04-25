@@ -14,7 +14,6 @@ class AppVerify
      */
     protected JWT $jwt;
 
-
     /**
      * AppVerify constructor.
      * @param string $scene 场景，默认为default

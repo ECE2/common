@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Office\Excel;
 
+use Ece2\Common\Abstracts\AbstractModel;
 use Ece2\Common\Exception\HttpException;
-use Ece2\Common\Model\Model;
 use Ece2\Common\Office\Excel;
 use Ece2\Common\Office\ExcelPropertyInterface;
 use Ece2\Common\Request;
@@ -24,7 +24,7 @@ class XlsWriter extends Excel implements ExcelPropertyInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Exception
      */
-    public function import(Model $model, ?\Closure $closure = null): bool
+    public function import(AbstractModel $model, ?\Closure $closure = null): bool
     {
         $request = container()->get(Request::class);
         if ($request->hasFile('file')) {
