@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Ece2\Common;
 
-use App\Service\SettingConfigService; // TODO microservice
+use App\Service\SettingConfigService;
 use Ece2\Common\Event\UploadAfter;
+use Ece2\Common\Exception\NormalStatusException;
 use Ece2\Common\JsonRpc\Contract\SettingConfigServiceInterface;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Filesystem\FilesystemFactory;
-use League\Flysystem\Filesystem;
-use Ece2\Common\Exception\NormalStatusException;
-use Ece2\Common\Helper\Id;
 use Hyperf\HttpMessage\Upload\UploadedFile;
 use Hyperf\Utils\Str;
-use Psr\EventDispatcher\EventDispatcherInterface;
+use League\Flysystem\Filesystem;
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
+
+// TODO microservice
 
 class Upload
 {

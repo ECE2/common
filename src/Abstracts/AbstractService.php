@@ -32,7 +32,7 @@ abstract class AbstractService
 
     /**
      * 魔术方法，从类属性里获取数据
-     * @param $name
+     * @param string $name
      * @return mixed|string
      */
     public function __get(string $name)
@@ -238,14 +238,26 @@ abstract class AbstractService
      */
     public function changeStatus(int $id, string $value): bool
     {
-        if ($value === '0') {
-            $this->mapper->enable([$id]);
-            return true;
+        return $value === AbstractModel::ENABLE ? $this->mapper->enable([$id], $filed) : $this->mapper->disable([$id], $filed);
+    }
+
+    /**
+     * 数字运算操作
+     * @param int $id
+     * @param string $field
+     * @param string $type
+     * @param int $value
+     * @return bool
+     */
+    public function numberOperation(int $id, string $field, string $type = 'inc', int $value = 1): bool
+    {
+        if ($type === 'inc') {
+            return $this->mapper->inc($id, $field, $value);
         }
-        if ($value === '1') {
-            $this->mapper->disable([$id]);
-            return true;
+        if ($type === 'dec') {
+            return $this->mapper->dec($id, $field, $value);
         }
+
         return false;
     }
 
@@ -269,17 +281,15 @@ abstract class AbstractService
     }
 
     /**
-     * 数据导入.
-     * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
-     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     * @return array|ResponseInterface
+     * 数据导入
+     * @param string $dto
+     * @param \Closure|null $closure
+     * @return bool
+     * @Transaction
      */
-    #[Transaction]
-    public function import(string $dto, ?\Closure $closure = null, bool $isExportErrorData = false): bool
+    public function import(string $dto, ?\Closure $closure = null): bool
     {
-        return $this->mapper->import($dto, $closure, $isExportErrorData);
+        return $this->mapper->import($dto, $closure);
     }
 
     /**

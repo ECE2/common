@@ -38,12 +38,7 @@ abstract class AbstractModel extends BaseModel
      * 状态: 不可用
      */
     public const DISABLE = '1';
-
-    /**
-     * 默认每页记录数
-     */
-    public const PAGE_SIZE = 15;
-
+    
     /**
      * @param array $attributes
      */

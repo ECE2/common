@@ -35,8 +35,9 @@ class PhpOffice extends Excel implements ExcelPropertyInterface
             $reader = IOFactory::createReader(IOFactory::identify($tempFilePath));
             $reader->setReadDataOnly(true);
             $sheet = $reader->load($tempFilePath);
+            $endCell = isset($this->property[0]) ? chr(count($this->property[0]) + 65) : null;
             try {
-                foreach ($sheet->getActiveSheet()->getRowIterator(2) as $row) {
+                foreach ($row->getCellIterator('A', $endCell) as $index => $item) {
                     $temp = [];
                     foreach ($row->getCellIterator() as $index => $item) {
                         $propertyIndex = ord($index) - 65;

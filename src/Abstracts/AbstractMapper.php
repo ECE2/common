@@ -148,7 +148,7 @@ abstract class AbstractMapper
     /**
      * 排序处理器
      * @param Builder $query
-     * @param array $params
+     * @param array|null $params
      * @return Builder
      */
     public function handleOrder(Builder $query, ?array &$params = null): Builder
@@ -243,7 +243,7 @@ abstract class AbstractMapper
     /**
      * 读取一条数据
      * @param int $id
-     * @return AbstractModel
+     * @return AbstractModel|null
      */
     public function read(int $id): ?AbstractModel
     {
@@ -276,7 +276,7 @@ abstract class AbstractMapper
      * 获取单列值
      * @param array $condition
      * @param string $columns
-     * @return array|null
+     * @return array
      */
     public function pluck(array $condition, string $columns = 'id'): array
     {
@@ -286,7 +286,7 @@ abstract class AbstractMapper
     /**
      * 从回收站读取一条数据
      * @param int $id
-     * @return AbstractModel
+     * @return AbstractModel|null
      * @noinspection PhpUnused
      */
     public function readByRecycle(int $id): ?AbstractModel
@@ -314,11 +314,8 @@ abstract class AbstractMapper
     public function update(int $id, array $data): bool
     {
         $this->filterExecuteAttributes($data, true);
-        $model = $this->model::find($id);
-        foreach ($data as $name => $val) {
-            $model[$name] = $val;
-        }
-        return $model->save();
+
+        return $this->model::find($id)->update($data) > 0;
     }
 
     /**
@@ -395,8 +392,6 @@ abstract class AbstractMapper
      * @param string $dto
      * @param \Closure|null $closure
      * @return bool
-     * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
-     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
@@ -473,5 +468,29 @@ abstract class AbstractMapper
     public function min(?\Closure $closure = null, string $column = '*')
     {
         return $this->settingClosure($closure)->min($column);
+    }
+
+    /**
+     * 自增
+     * @param int $id
+     * @param string $field
+     * @param int $value
+     * @return bool
+     */
+    public function inc(int $id, string $field, int $value): bool
+    {
+        return $this->model::find($id, [ $field ])->increment($field, $value) > 0;
+    }
+
+    /**
+     * 自减
+     * @param int $id
+     * @param string $field
+     * @param int $value
+     * @return bool
+     */
+    public function dec(int $id, string $field, int $value): bool
+    {
+        return $this->model::find($id, [ $field ])->decrement($field, $value) > 0;
     }
 }
