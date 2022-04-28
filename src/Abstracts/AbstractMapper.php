@@ -4,43 +4,33 @@ declare (strict_types = 1);
 
 namespace Ece2\Common\Abstracts;
 
+use App\Model\SystemUploadfile;
 use Ece2\Common\Annotation\Transaction;
 use Ece2\Common\Collection;
 use Hyperf\Context\Context;
 use Hyperf\Contract\LengthAwarePaginatorInterface;
 use Hyperf\Database\Model\Builder;
+use Hyperf\Paginator\Paginator;
 
+/**
+ * @property AbstractModel $model
+ */
 abstract class AbstractMapper
 {
-    /**
-     * @var AbstractModel
-     */
     public $model;
 
-    abstract public function assignModel();
-
-    public function __construct()
+    public function __get(string $name)
     {
-        $this->assignModel();
+        return Context::get(static::class . ':attributes', [])[$name] ?? '';
     }
 
     /**
      * 把数据设置为类属性
      * @param array $data
      */
-    public static function setAttributes(array $data)
+    public function setAttributes(array $data)
     {
-        Context::set('attributes', $data);
-    }
-
-    /**
-     * 魔术方法，从类属性里获取数据
-     * @param string $name
-     * @return mixed|string
-     */
-    public function __get(string $name)
-    {
-        return $this->getAttributes()[$name] ?? '';
+        Context::set(static::class . ':attributes', $data);
     }
 
     /**
@@ -49,7 +39,24 @@ abstract class AbstractMapper
      */
     public function getAttributes(): array
     {
-        return Context::get('attributes', []);
+        return Context::get(static::class . ':attributes', []);
+    }
+
+    /**
+     * 返回模型查询构造器
+     * @param array|null $params
+     * @param bool $isScope
+     * @return Builder
+     */
+    public function listQuerySetting(?array $params, bool $isScope): Builder
+    {
+        $query = $this->model::query()
+            ->when($params['recycle'] ?? false, fn ($query) => $query->onlyTrashed())
+            ->when($params['select'] ?? false, fn ($query) => $query->select($this->filterQueryAttributes($params['select'])))
+            ->when($isScope, fn ($query) => $query->userDataScope());
+
+        $this->handleOrder($query, $params);
+        return $this->handleSearch($query, $params);
     }
 
     /**
@@ -60,7 +67,9 @@ abstract class AbstractMapper
      */
     public function getList(?array $params, bool $isScope = true): array
     {
-        return $this->listQuerySetting($params, $isScope)->get()->toArray();
+        return $this->listQuerySetting($params, $isScope)
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -78,7 +87,7 @@ abstract class AbstractMapper
                 ->paginate(
                     perPage: (int) ($params['pageSize'] ?? $this->model::getModel()->getPerPage()),
                     pageName: $pageName,
-                    page: (int) $params[$pageName] ?? Paginator::resolveCurrentPage($pageName)
+                    page: (int) ($params[$pageName] ?? Paginator::resolveCurrentPage($pageName))
                 )
         );
     }
@@ -125,50 +134,25 @@ abstract class AbstractMapper
     }
 
     /**
-     * 返回模型查询构造器
-     * @param array|null $params
-     * @param bool $isScope
-     * @return Builder
-     */
-    public function listQuerySetting(?array $params, bool $isScope): Builder
-    {
-        $query = (($params['recycle'] ?? false) === true) ? $this->model::onlyTrashed() : $this->model::query();
-
-        if ($params['select'] ?? false) {
-            $query->select($this->filterQueryAttributes($params['select']));
-        }
-
-        $query = $this->handleOrder($query, $params);
-
-        $isScope && $query->userDataScope();
-
-        return $this->handleSearch($query, $params);
-    }
-
-    /**
      * 排序处理器
      * @param Builder $query
      * @param array|null $params
      * @return Builder
      */
-    public function handleOrder(Builder $query, ?array &$params = null): Builder
+    public function handleOrder(Builder $query, ?array $params = null): Builder
     {
-        // 对树型数据强行加个排序
-        if (isset($params['_mainAdmin_tree'])) {
-            $query->orderBy($params['_mainAdmin_tree_pid']);
-        }
-
-        if ($params['orderBy'] ?? false) {
-            if (is_array($params['orderBy'])) {
-                foreach ($params['orderBy'] as $key => $order) {
-                    $query->orderBy($order, $params['orderType'][$key] ?? 'asc');
+        return $query
+            // 对树型数据强行加个排序
+            ->when(isset($params['_mainAdmin_tree']), fn($query) => $query->orderBy($params['_mainAdmin_tree_pid']))
+            ->when($params['orderBy'] ?? false, function ($query) use ($params) {
+                if (is_array($params['orderBy'])) {
+                    foreach ($params['orderBy'] as $key => $order) {
+                        $query->orderBy($order, $params['orderType'][$key] ?? 'asc');
+                    }
+                } else {
+                    $query->orderBy($params['orderBy'], $params['orderType'] ?? 'asc');
                 }
-            } else {
-                $query->orderBy($params['orderBy'], $params['orderType'] ?? 'asc');
-            }
-        }
-
-        return $query;
+            });
     }
 
     /**
@@ -190,8 +174,7 @@ abstract class AbstractMapper
      */
     protected function filterQueryAttributes(array $fields, bool $removePk = false): array
     {
-        $model = new $this->model;
-        $attrs = $model->getFillable();
+        $attrs = $this->model->getFillable();
         foreach ($fields as $key => $field) {
             if (!in_array(trim($field), $attrs)) {
                 unset($fields[$key]);
@@ -200,10 +183,9 @@ abstract class AbstractMapper
             }
         }
 
-        if ($removePk && in_array($model->getKeyName(), $fields)) {
-            unset($fields[array_search($model->getKeyName(), $fields)]);
+        if ($removePk && in_array($this->model->getKeyName(), $fields)) {
+            unset($fields[array_search($this->model->getKeyName(), $fields)]);
         }
-        $model = null;
 
         return (count($fields) < 1) ? ['*'] : array_values($fields);
     }
@@ -215,17 +197,15 @@ abstract class AbstractMapper
      */
     protected function filterExecuteAttributes(array &$data, bool $removePk = false): void
     {
-        $model = new $this->model;
-        $attrs = $model->getFillable();
+        $attrs = $this->model->getFillable();
         foreach ($data as $name => $val) {
             if (!in_array($name, $attrs)) {
                 unset($data[$name]);
             }
         }
-        if ($removePk && isset($data[$model->getKeyName()])) {
-            unset($data[$model->getKeyName()]);
+        if ($removePk && isset($data[$this->model->getKeyName()])) {
+            unset($data[$this->model->getKeyName()]);
         }
-        $model = null;
     }
 
     /**
@@ -235,7 +215,7 @@ abstract class AbstractMapper
      */
     public function save(array $data): int
     {
-        $this->filterExecuteAttributes($data, $this->getModel()->incrementing);
+        $this->filterExecuteAttributes($data, $this->model->incrementing);
         $model = $this->model::create($data);
         return $model->{$model->getKeyName()};
     }
@@ -243,11 +223,12 @@ abstract class AbstractMapper
     /**
      * 读取一条数据
      * @param int $id
-     * @return AbstractModel|null
+     * @param array $columns
+     * @return Builder|Builder[]|\Hyperf\Database\Model\Collection|\Hyperf\Database\Model\Model|null
      */
-    public function read(int $id): ?AbstractModel
+    public function read(int $id, array $columns = ['*'])
     {
-        return ($model = $this->model::find($id)) ? $model : null;
+        return $this->model::query()->find($id, $columns);
     }
 
     /**
@@ -258,7 +239,7 @@ abstract class AbstractMapper
      */
     public function first(array $condition, array $column = ['*']): ?AbstractModel
     {
-        return ($model = $this->model::where($condition)->first($column)) ? $model : null;
+        return $this->model::query()->where($condition)->first($column);
     }
 
     /**
@@ -269,7 +250,7 @@ abstract class AbstractMapper
      */
     public function value(array $condition, string $columns = 'id')
     {
-        return ($model = $this->model::where($condition)->value($columns)) ? $model : null;
+        return $this->model::query()->where($condition)->value($columns);
     }
 
     /**
@@ -280,7 +261,7 @@ abstract class AbstractMapper
      */
     public function pluck(array $condition, string $columns = 'id'): array
     {
-        return $this->model::where($condition)->pluck($columns)->toArray();
+        return $this->model::query()->where($condition)->pluck($columns)->toArray();
     }
 
     /**
@@ -291,7 +272,7 @@ abstract class AbstractMapper
      */
     public function readByRecycle(int $id): ?AbstractModel
     {
-        return ($model = $this->model::withTrashed()->find($id)) ? $model : null;
+        return $this->model::query()->withTrashed()->find($id);
     }
 
     /**
@@ -302,6 +283,7 @@ abstract class AbstractMapper
     public function delete(array $ids): bool
     {
         $this->model::destroy($ids);
+
         return true;
     }
 
@@ -315,7 +297,7 @@ abstract class AbstractMapper
     {
         $this->filterExecuteAttributes($data, true);
 
-        return $this->model::find($id)->update($data) > 0;
+        return $this->model::query()->find($id)?->update($data) > 0;
     }
 
     /**
@@ -338,7 +320,7 @@ abstract class AbstractMapper
     public function realDelete(array $ids): bool
     {
         foreach ($ids as $id) {
-            $model = $this->model::withTrashed()->find($id);
+            $model = $this->model::query()->withTrashed()->find($id);
             $model && $model->forceDelete();
         }
         return true;
@@ -351,7 +333,7 @@ abstract class AbstractMapper
      */
     public function recovery(array $ids): bool
     {
-        $this->model::withTrashed()->whereIn((new $this->model)->getKeyName(), $ids)->restore();
+        $this->model::query()->withTrashed()->whereIn($this->model->getKeyName(), $ids)->restore();
         return true;
     }
 
@@ -363,7 +345,7 @@ abstract class AbstractMapper
      */
     public function disable(array $ids, string $field = 'status'): bool
     {
-        $this->model::query()->whereIn((new $this->model)->getKeyName(), $ids)->update([$field => $this->model::DISABLE]);
+        $this->model::query()->whereIn($this->model->getKeyName(), $ids)->update([$field => $this->model::DISABLE]);
         return true;
     }
 
@@ -375,16 +357,11 @@ abstract class AbstractMapper
      */
     public function enable(array $ids, string $field = 'status'): bool
     {
-        $this->model::query()->whereIn((new $this->model)->getKeyName(), $ids)->update([$field => $this->model::ENABLE]);
-        return true;
-    }
+        $this->model::query()
+            ->whereIn($this->model->getKeyName(), $ids)
+            ->update([$field => $this->model::ENABLE]);
 
-    /**
-     * @return AbstractModel
-     */
-    public function getModel(): AbstractModel
-    {
-        return new $this->model;
+        return true;
     }
 
     /**
@@ -398,7 +375,7 @@ abstract class AbstractMapper
     #[Transaction]
     public function import(string $dto, ?\Closure $closure = null): bool
     {
-        return (new Collection())->import($dto, $this->getModel(), $closure);
+        return (new Collection())->import($dto, $this->model, $closure);
     }
 
     /**
@@ -408,7 +385,7 @@ abstract class AbstractMapper
      */
     public function settingClosure(?\Closure $closure = null): Builder
     {
-        return $this->model::where(function ($query) use ($closure) {
+        return $this->model::query()->where(function ($query) use ($closure) {
             if ($closure instanceof \Closure) {
                 $closure($query);
             }
@@ -479,7 +456,7 @@ abstract class AbstractMapper
      */
     public function inc(int $id, string $field, int $value): bool
     {
-        return $this->model::find($id, [ $field ])->increment($field, $value) > 0;
+        return $this->model::query()->find($id, [ $field ])->increment($field, $value) > 0;
     }
 
     /**
@@ -491,6 +468,6 @@ abstract class AbstractMapper
      */
     public function dec(int $id, string $field, int $value): bool
     {
-        return $this->model::find($id, [ $field ])->decrement($field, $value) > 0;
+        return $this->model::query()->find($id, [ $field ])->decrement($field, $value) > 0;
     }
 }

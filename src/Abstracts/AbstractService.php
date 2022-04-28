@@ -159,9 +159,10 @@ abstract class AbstractService
     }
 
     /**
-     * Description:获取单列值
-     * User:mike.
-     * @return null|array
+     * 获取单列值
+     * @param array $condition
+     * @param string $columns
+     * @return array
      */
     public function pluck(array $condition, string $columns = 'id'): array
     {
@@ -274,7 +275,7 @@ abstract class AbstractService
         }
 
         if (empty($filename)) {
-            $filename = $this->mapper->getModel()->getTable();
+            $filename = $this->mapper->model->getTable();
         }
 
         return (new Collection())->export($dto, $filename, $this->mapper->getList($params));

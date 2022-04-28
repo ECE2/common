@@ -46,7 +46,7 @@ class RedisLock extends AbstractRedis implements RedisInterface
         try {
             call_user_func($closure);
         } catch (\Throwable $e) {
-            logger('Redis Lock')->error(t('redis_lock_error'));
+            Log::error(t('redis_lock_error'));
             throw new NormalStatusException(t('redis_lock_error'), 500);
         } finally {
             $this->freed($key);

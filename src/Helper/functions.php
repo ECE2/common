@@ -108,18 +108,6 @@ if (! function_exists('console')) {
     }
 }
 
-if (! function_exists('logger')) {
-    /**
-     * 获取日志实例.
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    function logger(string $name = 'Log'): LoggerInterface
-    {
-        return container()->get(LoggerFactory::class)->get($name);
-    }
-}
-
 if (! function_exists('format_size')) {
     /**
      * 格式化大小.
@@ -172,16 +160,6 @@ if (! function_exists('context_get')) {
     }
 }
 
-if (! function_exists('app_verify')) {
-    /**
-     * 获取APP应用请求实例.
-     */
-    function app_verify(string $scene = 'api'): AppVerify
-    {
-        return new AppVerify($scene);
-    }
-}
-
 if (! function_exists('snowflake_id')) {
     /**
      * 生成雪花ID.
@@ -205,35 +183,3 @@ if (! function_exists('event')) {
         return container()->get(EventDispatcherInterface::class)->dispatch($dispatch);
     }
 }
-
-//if (! function_exists('push_queue_message')) {
-//    /**
-//     * 推送消息到队列.
-//     * @throws Throwable
-//     * @throws \Psr\Container\ContainerExceptionInterface
-//     * @throws \Psr\Container\NotFoundExceptionInterface
-//     * @return int 消息ID，若失败返回 -1
-//     */
-//    function push_queue_message(QueueMessageVo $message, array $receiveUsers = []): int
-//    {
-//        return container()
-//            ->get(App\Service\SystemQueueLogService::class)
-//            ->pushMessage($message, $receiveUsers);
-//    }
-//}
-
-//if (! function_exists('add_queue')) {
-//    /**
-//     * 添加任务到队列.
-//     * @param \App\Vo\AmqpQueueVo $amqpQueueVo
-//     * @throws Throwable
-//     * @throws \Psr\Container\ContainerExceptionInterface
-//     * @throws \Psr\Container\NotFoundExceptionInterface
-//     */
-//    function add_queue(App\Vo\AmqpQueueVo $amqpQueueVo): bool
-//    {
-//        return container()
-//            ->get(\App\Service\SystemQueueLogService::class)
-//            ->addQueue($amqpQueueVo);
-//    }
-//}

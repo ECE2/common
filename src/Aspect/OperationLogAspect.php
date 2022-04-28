@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ece2\Common\Aspect;
 
 use App\Service\SystemMenuService;
+use Carbon\Carbon;
 use Ece2\Common\JsonRpc\Contract\SystemMenuServiceInterface;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
@@ -37,19 +38,18 @@ class OperationLogAspect extends AbstractAspect
         $annotation = $proceedingJoinPoint->getAnnotationMetadata()->method[OperationLog::class];
         /* @var $result ResponseInterface */
         $result = $proceedingJoinPoint->process();
-        $isDownload = false;
+
         if (!empty($annotation->menuName) || ($annotation = $proceedingJoinPoint->getAnnotationMetadata()->method[Permission::class])) {
-            if (!empty($result->getHeader('content-description')) && !empty($result->getHeader('content-transfer-encoding'))) {
-                $isDownload = true;
-            }
-            $evDispatcher = container()->get(EventDispatcherInterface::class);
-            $evDispatcher->dispatch(new Operation($this->getRequestInfo([
+            $isDownload = !empty($result->getHeader('content-description')) && !empty($result->getHeader('content-transfer-encoding'));
+
+            event(new Operation($this->getRequestInfo([
                 'code' => !empty($annotation->code) ? explode(',', $annotation->code)[0] : '',
                 'name' => $annotation->menuName ?? '',
                 'response_code' => $result->getStatusCode(),
                 'response_data' => $isDownload ? '文件下载' : $result->getBody()->getContents()
             ])));
         }
+
         return $result;
     }
 
@@ -62,14 +62,15 @@ class OperationLogAspect extends AbstractAspect
     protected function getRequestInfo(array $data): array
     {
         $request = container()->get(Request::class);
+        $serverParams = $request->getServerParams();
 
         $operationLog = [
-            'time' => date('Y-m-d H:i:s', $request->getServerParams()['request_time']),
-            'method' => $request->getServerParams()['request_method'],
-            'router' => $request->getServerParams()['path_info'],
-            'protocol' => $request->getServerParams()['server_protocol'],
-            'ip' => $request->ip(),
-            'ip_location' => Str::ipToRegion($request->ip()),
+            'time' => Carbon::parse($serverParams['request_time'])->format('Y-m-d H:i:s'),
+            'method' => $serverParams['request_method'],
+            'router' => $serverParams['path_info'],
+            'protocol' => $serverParams['server_protocol'],
+            'ip' => $ip = $request->ip(),
+            'ip_location' => Str::ipToRegion($ip),
             'service_name' => $data['name'] ?: $this->getOperationMenuName($data['code']),
             'request_data' => $request->all(),
             'response_code' => $data['response_code'],
