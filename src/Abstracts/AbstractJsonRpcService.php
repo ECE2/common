@@ -11,7 +11,7 @@ abstract class AbstractJsonRpcService
      * @throws \Psr\Container\NotFoundExceptionInterface
      * @return array
      */
-    public function success(array|object $data = [], ?string $message = null, int $code = 200)
+    public function success(mixed $data = [], ?string $message = null, int $code = 200)
     {
         return [
             'success' => true,

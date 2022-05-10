@@ -31,30 +31,30 @@ class SaveAspect extends AbstractAspect
     {
         $instance = $proceedingJoinPoint->getInstance();
 
-        try {
+        if (!empty($operatorId = identity()?->getKey())) {
             // 设置创建人
             if ($instance instanceof AbstractModel &&
-                in_array('created_by', $instance->getFillable()) &&
-                is_null($instance->created_by)
+                method_exists($instance, 'getCreatedByColumn') &&
+                empty($instance->{$instance->getCreatedByColumn()})
             ) {
-                $instance->created_by = identity()?->getKey();
+                $instance->{$instance->getCreatedByColumn()} = $operatorId;
             }
 
             // 设置更新人
-            if ($instance instanceof AbstractModel && in_array('updated_by', $instance->getFillable())) {
-                $instance->updated_by = identity()?->getKey();
+            if ($instance instanceof AbstractModel && method_exists($instance, 'getUpdatedByColumn')) {
+                $instance->{$instance->getUpdatedByColumn()} = $operatorId;
             }
-        } catch (\Throwable $e) {
         }
 
-        // 生成ID
-        if ($instance instanceof AbstractModel &&
-            !$instance->incrementing &&
-            $instance->getPrimaryKeyType() === 'int' &&
-            empty($instance->{$instance->getKeyName()})
-        ) {
-            $instance->setPrimaryKeyValue(snowflake_id());
-        }
+//        // 生成ID
+//        if ($instance instanceof AbstractModel &&
+//            !$instance->getIncrementing() &&
+//            $instance->getPrimaryKeyType() === 'int' &&
+//            empty($instance->{$instance->getKeyName()})
+//        ) {
+//            $instance->setPrimaryKeyValue(snowflake_id());
+//        }
+
         return $proceedingJoinPoint->process();
     }
 }

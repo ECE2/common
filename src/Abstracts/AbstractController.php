@@ -27,7 +27,7 @@ abstract class AbstractController
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function success(string|array|object $msgOrData = '', array|object $data = [], int $code = 200): ResponseInterface
+    public function success(mixed $msgOrData = '', array|object $data = [], int $code = 200): ResponseInterface
     {
         if (is_string($msgOrData) || is_null($msgOrData)) {
             return $this->response->success($msgOrData, $data, $code);

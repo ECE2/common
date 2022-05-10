@@ -4,5 +4,5 @@ namespace Ece2\Common\JsonRpc\Contract;
 
 interface SystemQueueMessageServiceInterface
 {
-    public function save(array $data);
+    public function create(array $data);
 }

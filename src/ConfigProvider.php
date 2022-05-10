@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common;
 
+use Hyperf\Database\Schema\Blueprint;
 use Hyperf\Paginator\LengthAwarePaginator;
 use Hyperf\Paginator\Paginator;
 use Hyperf\ServiceGovernance\IPReader;
@@ -28,9 +29,8 @@ class ConfigProvider
                     'class_map' => [
                         // 替换原有的 ip 获取, 允许使用配置了的服务发现地址
                         IPReader::class => __DIR__ . '/../class_map/IPReader.php',
-                        // 替换原有分页器, 更换 toArray 字段
-                        LengthAwarePaginator::class => __DIR__ . '/../class_map/LengthAwarePaginator.php',
-                        Paginator::class => __DIR__ . '/../class_map/Paginator.php',
+                        // migation 增加操作人更新人方法
+                        Blueprint::class => __DIR__ . '/../class_map/Blueprint.php',
                     ],
                     'ignore_annotations' => [
                         'required',

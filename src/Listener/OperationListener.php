@@ -6,7 +6,7 @@ namespace Ece2\Common\Listener;
 
 use App\Service\SystemOperLogService;
 use Ece2\Common\Event\Operation;
-use Ece2\Common\JsonRpc\Contract\SystemQueueLogServiceInterface;
+use Ece2\Common\JsonRpc\Contract\SystemOperLogServiceInterface;
 use Hyperf\Event\Annotation\Listener;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\Utils\Codec\Json;
@@ -27,7 +27,10 @@ class OperationListener implements ListenerInterface
         $requestInfo = $event->getRequestInfo();
         $requestInfo['request_data'] = Json::encode($requestInfo['request_data']);
 
-        $service = container()->get(is_base_system() ? SystemOperLogService::class : SystemQueueLogServiceInterface::class);
-        $service->save($requestInfo);
+        if (is_base_system()) {
+            container()->get(SystemOperLogService::class)->create($requestInfo);
+        } else {
+            container()->get(SystemOperLogServiceInterface::class)->create($requestInfo);
+        }
     }
 }

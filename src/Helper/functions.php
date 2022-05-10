@@ -7,6 +7,7 @@ use Ece2\Common\Helper\Id;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Logger\LoggerFactory;
 use Hyperf\ServiceGovernance\IPReaderInterface;
+use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -28,9 +29,9 @@ if (! function_exists('identity')) {
     /**
      * 获取上下文内的当前身份信息.
      */
-    function identity(string $type = 'admin'): App\Model\SystemUser|null|Ece2\Common\Model\Rpc\Model\SystemUser
+    function identity(): App\Model\SystemUser|null|Ece2\Common\Model\Rpc\Model\SystemUser
     {
-        if ($userResolver = context_get($type)) {
+        if ($userResolver = context_get('identity')) {
             if (is_callable($userResolver)) {
                 return $userResolver();
             }
@@ -48,9 +49,9 @@ if (! function_exists('identity_set')) {
      * @param $value
      * @return mixed
      */
-    function identity_set($value, string $type = 'admin')
+    function identity_set($value)
     {
-        return context_set($type, $value);
+        return context_set('identity', $value);
     }
 }
 
@@ -166,9 +167,9 @@ if (! function_exists('snowflake_id')) {
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    function snowflake_id(): string
+    function snowflake_id($meta = null)
     {
-        return (string) container()->get(Id::class)->getId();
+        return container()->get(IdGeneratorInterface::class)->generate($meta);
     }
 }
 

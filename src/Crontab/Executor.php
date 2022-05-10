@@ -232,9 +232,9 @@ class Executor
             'created_at' => date('Y-m-d H:i:s')
         ];
         if (is_base_system()) {
-            $this->container->get(SettingCrontabLogService::class)->save($data);
+            $this->container->get(SettingCrontabLogService::class)->create($data);
         } else {
-            $this->container->get(SettingCrontabServiceInterface::class)->save($data);
+            $this->container->get(SettingCrontabServiceInterface::class)->create($data);
         }
     }
 }

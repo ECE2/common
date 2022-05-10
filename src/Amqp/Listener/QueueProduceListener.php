@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Amqp\Listener;
 
-use App\Mapper\SystemQueueMessageMapper;
 use App\Service\SystemQueueLogService;
+use App\Service\SystemQueueMessageService;
 use Ece2\Common\JsonRpc\Contract\SystemQueueLogServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemQueueMessageServiceInterface;
 use Hyperf\Context\Context;
@@ -74,7 +74,7 @@ class QueueProduceListener implements ListenerInterface
             ]);
         }
 
-        $this->service->save([
+        $this->service->create([
             'id' => $id,
             'exchange_name' => $event->producer->getExchange(),
             'routing_key_name' => $event->producer->getRoutingKey(),
@@ -103,9 +103,9 @@ class QueueProduceListener implements ListenerInterface
         if (isset($event->producer)) {
             $data = json_decode($event->producer->payload(), true)['data'];
             if (is_base_system()) {
-                container()->get(SystemQueueMessageMapper::class)->save($data);
+                container()->get(SystemQueueMessageService::class)->create($data);
             } else {
-                container()->get(SystemQueueMessageServiceInterface::class)->save($data);
+                container()->get(SystemQueueMessageServiceInterface::class)->create($data);
             }
         }
     }

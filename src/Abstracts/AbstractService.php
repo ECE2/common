@@ -9,205 +9,229 @@ use Ece2\Common\Collection;
 use Ece2\Common\Response;
 use Ece2\Common\Traits\ServiceTrait;
 use Hyperf\Context\Context;
+use Hyperf\Contract\LengthAwarePaginatorInterface;
+use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Collection as ModelCollection;
 use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\Paginator\Paginator;
 use Hyperf\Utils\ApplicationContext;
+use Hyperf\Utils\Arr;
 use Psr\Http\Message\ResponseInterface;
+use function Swoole\Coroutine\Http\request;
 
 abstract class AbstractService
 {
     /**
-     * @var AbstractMapper
+     * @var AbstractModel
      */
-    public $mapper;
+    public $model;
 
     /**
-     * 把数据设置为类属性
-     * @param array $data
+     * 获取列表数据.
+     * @param array|null $params
+     * @param bool $dataPermission
+     * @param callable|null $extend
+     * @return Builder[]|ModelCollection
      */
-    public function setAttributes(array $data)
+    public function getList(?array $params = null, bool $dataPermission = true, callable $extend = null)
     {
-        Context::set('attributes', $data);
-    }
-
-    /**
-     * 魔术方法，从类属性里获取数据
-     * @param string $name
-     * @return mixed|string
-     */
-    public function __get(string $name)
-    {
-        return $this->getAttributes()[$name] ?? '';
-    }
-
-    /**
-     * 获取数据
-     * @return array
-     */
-    public function getAttributes(): array
-    {
-        return Context::get('attributes', []);
+        return $this
+            ->listQueryPreProcessing($params, $dataPermission, $extend)
+            ->get();
     }
 
     /**
      * 获取列表数据.
      */
-    public function getList(?array $params = null, bool $isScope = true): array
+    public function getPageList(?array $params = null, bool $dataPermission = true, string $pageName = 'page', callable $extend = null)
     {
-        if ($params['select'] ?? null) {
-            $params['select'] = explode(',', $params['select']);
-        }
-        $params['recycle'] = false;
-        return $this->mapper->getList($params, $isScope);
+        return $this
+            ->listQueryPreProcessing($params, $dataPermission, $extend)
+            ->paginate(
+                perPage: (int) ($params['pageSize'] ?? $this->model::getModel()->getPerPage()),
+                pageName: $pageName,
+                page: (int) ($params[$pageName] ?? Paginator::resolveCurrentPage($pageName))
+            );
     }
 
     /**
-     * 从回收站过去列表数据.
+     * 返回模型查询构造器
+     * @param array|null $params
+     * + select
+     * + recycle
+     * + _mainAdmin_tree
+     * + _mainAdmin_tree_pid
+     * + orderBy
+     * + orderType
+     * @param bool $dataPermission
+     * @return Builder
      */
-    public function getListByRecycle(?array $params = null, bool $isScope = true): array
+    public function listQueryPreProcessing(?array $params, bool $dataPermission = true, callable $extend = null)
     {
-        if ($params['select'] ?? null) {
-            $params['select'] = explode(',', $params['select']);
-        }
-        $params['recycle'] = true;
-        return $this->mapper->getList($params, $isScope);
+        $params['select'] = array_values(array_filter(is_string($params['select'] ?? '') ? explode(',', $params['select'] ?? '') : []));
+
+        return tap(
+            $this->model::query()
+                ->when($params['recycle'] ?? false, fn (Builder $builder) => $builder->onlyTrashed())
+                ->when($params['select'], fn (Builder $builder, $select) => $builder->select($this->filterQueryAttributes($select)))
+                ->when($dataPermission, fn (Builder $builder) => $builder->dataPermission())
+                // 排序部分
+                ->when(isset($params['_mainAdmin_tree']), fn($query) => $query->orderBy($params['_mainAdmin_tree_pid'])) // 对树型数据强行加个排序
+                ->when($params['orderBy'] ?? false, function ($query) use ($params) {
+                    if (is_array($params['orderBy'])) {
+                        foreach ($params['orderBy'] as $key => $order) {
+                            $query->orderBy($order, $params['orderType'][$key] ?? 'asc');
+                        }
+                    } else {
+                        $query->orderBy($params['orderBy'], $params['orderType'] ?? 'asc');
+                    }
+                }),
+            $extend ?? fn (Builder $builder) => $builder
+        );
     }
 
     /**
-     * 获取列表数据（带分页）.
+     * 过滤查询字段不存在的属性
+     * @param array $fields
+     * @param bool $removePk
+     * @return array
      */
-    public function getPageList(?array $params = null, bool $isScope = true): array
+    protected function filterQueryAttributes(array $fields, bool $removePk = false): array
     {
-        if ($params['select'] ?? null) {
-            $params['select'] = explode(',', $params['select']);
+        $attrs = $this->model->getFillable();
+        foreach ($fields as $key => $field) {
+            if (!in_array(trim($field), $attrs)) {
+                unset($fields[$key]);
+            } else {
+                $fields[$key] = trim($field);
+            }
         }
-        return $this->mapper->getPageList($params, $isScope);
-    }
 
-    /**
-     * 从回收站获取列表数据（带分页）.
-     */
-    public function getPageListByRecycle(?array $params = null, bool $isScope = true): array
-    {
-        if ($params['select'] ?? null) {
-            $params['select'] = explode(',', $params['select']);
+        if ($removePk && in_array($this->model->getKeyName(), $fields)) {
+            unset($fields[array_search($this->model->getKeyName(), $fields)]);
         }
-        $params['recycle'] = true;
-        return $this->mapper->getPageList($params, $isScope);
+
+        return (count($fields) < 1) ? ['*'] : array_values($fields);
     }
 
     /**
      * 获取树列表.
      */
-    public function getTreeList(?array $params = null, bool $isScope = true): array
+    public function getTreeList(
+        ?array $params = null,
+        bool $dataPermission = true,
+        callable $extend = null,
+        string $id = 'id',
+        string $parentField = 'parent_id',
+        string $children = 'children'
+    ): array
     {
-        if ($params['select'] ?? null) {
-            $params['select'] = explode(',', $params['select']);
-        }
-        $params['recycle'] = false;
-        return $this->mapper->getTreeList($params, $isScope);
-    }
+        $params['_mainAdmin_tree'] = true;
+        $params['_mainAdmin_tree_pid'] = $parentField;
+        $data = $this->listQueryPreProcessing($params, $dataPermission, $extend)->get();
 
-    /**
-     * 从回收站获取树列表.
-     */
-    public function getTreeListByRecycle(?array $params = null, bool $isScope = true): array
-    {
-        if ($params['select'] ?? null) {
-            $params['select'] = explode(',', $params['select']);
-        }
-        $params['recycle'] = true;
-        return $this->mapper->getTreeList($params, $isScope);
+        return $data->toTree(parentId: $data[0]?->{$parentField} ?? 0, id: $id, parentField: $parentField, children: $children);
     }
 
     /**
      * 新增数据.
      */
-    public function save(array $data): int
+    public function create(array $data): int|string
     {
-        return $this->mapper->save($data);
+        $this->filterExecuteAttributes($data);
+        $model = $this->model::create($data);
+
+        return $model->{$model->getKeyName()};
     }
 
     /**
      * 批量新增.
      */
-    #[Transaction]
     public function batchSave(array $collects): bool
     {
         foreach ($collects as $collect) {
-            $this->mapper->save($collect);
+            $this->create($collect);
         }
+
         return true;
     }
 
     /**
      * 读取一条数据.
+     * @deprecated 可以统一处理
      */
-    public function read(int $id): ?AbstractModel
+    public function find(int $id, array $column = ['*']): ?AbstractModel
     {
-        return $this->mapper->read($id);
+        return $this->model::find($id, $column);
     }
 
     /**
-     * Description:获取单个值
-     * User:mike.
-     * @return null|\Hyperf\Utils\HigherOrderTapProxy|mixed|void
+     * 获取单个值.
      */
     public function value(array $condition, string $columns = 'id')
     {
-        return $this->mapper->value($condition, $columns);
+        return $this->model::query()->where($condition)->value($columns);
     }
 
     /**
-     * 获取单列值
-     * @param array $condition
-     * @param string $columns
-     * @return array
+     * 获取单列值.
      */
     public function pluck(array $condition, string $columns = 'id'): array
     {
-        return $this->mapper->pluck($condition, $columns);
+        return $this->model::query()->where($condition)->pluck($columns)->toArray();
     }
 
     /**
      * 从回收站读取一条数据.
-     * @noinspection PhpUnused
      */
     public function readByRecycle(int $id): AbstractModel
     {
-        return $this->mapper->readByRecycle($id);
+        return $this->model::query()->withTrashed()->find($id);
     }
 
     /**
      * 单个或批量软删除数据.
+     * @deprecated
      */
-    public function delete(string $ids): bool
+    public function destroy(string $ids): int
     {
-        return ! empty($ids) && $this->mapper->delete(explode(',', $ids));
+        return $this->model::destroy(explode(',', $ids));
     }
 
     /**
      * 更新一条数据.
+     * @deprecated
      */
-    public function update(int $id, array $data): bool
+    public function update($id, $data): int
     {
-        return $this->mapper->update($id, $data);
+        $this->filterExecuteAttributes($data, true);
+
+        return $this->model::query()->where($this->model->getKeyName(), $id)->update($data);
     }
 
     /**
      * 按条件更新数据.
      */
-    public function updateByCondition(array $condition, array $data): bool
+    public function updateByCondition(array $condition, array $data): int
     {
-        return $this->mapper->updateByCondition($condition, $data);
+        $this->filterExecuteAttributes($data, true);
+
+        return $this->model::query()->where($condition)->update($data);
     }
 
     /**
      * 单个或批量真实删除数据.
      */
-    public function realDelete(string $ids): bool
+    public function realDelete(string $ids)
     {
-        return ! empty($ids) && $this->mapper->realDelete(explode(',', $ids));
+        $deleted = 0;
+        foreach (array_filter(explode(',', $ids)) as $id) {
+            // TODO 这里效果没验证, 盲改的
+            $deleted += (int) $this->model::query()->where($this->model->getKeyName(), $id)->withTrashed()?->forceDelete();
+        }
+
+        return $deleted;
+
     }
 
     /**
@@ -215,31 +239,36 @@ abstract class AbstractService
      */
     public function recovery(string $ids): bool
     {
-        return ! empty($ids) && $this->mapper->recovery(explode(',', $ids));
+        return ! empty($ids) && $this->model::query()->withTrashed()->whereIn($this->model->getKeyName(), explode(',', $ids))->restore();
     }
 
     /**
      * 单个或批量禁用数据.
      */
-    public function disable(string $ids, string $field = 'status'): bool
+    public function disable($ids, string $field = 'status'): bool
     {
-        return ! empty($ids) && $this->mapper->disable(explode(',', $ids), $field);
+        return !empty($ids) && $this->model::query()
+                ->whereIn($this->model->getKeyName(), explode(',', (string) $ids))
+                ->update([$field => $this->model::DISABLE]);
     }
 
     /**
      * 单个或批量启用数据.
      */
-    public function enable(string $ids, string $field = 'status'): bool
+    public function enable($ids, string $field = 'status'): bool
     {
-        return ! empty($ids) && $this->mapper->enable(explode(',', $ids), $field);
+        return !empty($ids) && $this->model::query()
+            ->whereIn($this->model->getKeyName(), explode(',', (string) $ids))
+            ->update([$field => $this->model::ENABLE]);
+
     }
 
     /**
      * 修改数据状态
      */
-    public function changeStatus(int $id, string $value): bool
+    public function changeStatus($id, $value, $field = 'status') : bool
     {
-        return $value === AbstractModel::ENABLE ? $this->mapper->enable([$id], $filed) : $this->mapper->disable([$id], $filed);
+        return (string) $value === AbstractModel::ENABLE ? $this->enable($id, $field) : $this->disable($id, $field);
     }
 
     /**
@@ -250,16 +279,16 @@ abstract class AbstractService
      * @param int $value
      * @return bool
      */
-    public function numberOperation(int $id, string $field, string $type = 'inc', int $value = 1): bool
+    public function numberOperation(int $id, string $field, string $type = 'inc', int $value = 1): int
     {
         if ($type === 'inc') {
-            return $this->mapper->inc($id, $field, $value);
+            return $this->model::query()->find($id, [ $field ])->increment($field, $value);
         }
         if ($type === 'dec') {
-            return $this->mapper->dec($id, $field, $value);
+            return $this->model::query()->find($id, [ $field ])->decrement($field, $value);
         }
 
-        return false;
+        return 0;
     }
 
     /**
@@ -268,17 +297,17 @@ abstract class AbstractService
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function export(array $params, ?string $dto, string $filename = null): ResponseInterface
+    public function export(array $params, ?string $dto, string $filename = null, callable $extend = null): ResponseInterface
     {
         if (empty($dto)) {
             return ApplicationContext::getContainer()->get(Response::class)->error('导出未指定DTO');
         }
 
         if (empty($filename)) {
-            $filename = $this->mapper->model->getTable();
+            $filename = $this->model->getTable();
         }
 
-        return (new Collection())->export($dto, $filename, $this->mapper->getList($params));
+        return (new Collection())->export($dto, $filename, $this->getList($params, extend: $extend)->toArray());
     }
 
     /**
@@ -290,7 +319,7 @@ abstract class AbstractService
      */
     public function import(string $dto, ?\Closure $closure = null): bool
     {
-        return $this->mapper->import($dto, $closure);
+        return (new Collection())->import($dto, $this->model, $closure);
     }
 
     /**
@@ -300,21 +329,13 @@ abstract class AbstractService
     {
         $collect = $this->handleArraySearch(collect($this->getArrayData($params)), $params);
 
-        $pageSize = $this->mapper?->model?->getPerPage() ?? container()->get(RequestInterface::class)->input('pageSize', 15);
-        $page = 1;
-
-        if ($params[$pageName] ?? false) {
-            $page = (int) $params[$pageName];
-        }
-
-        if ($params['pageSize'] ?? false) {
-            $pageSize = (int) $params['pageSize'];
-        }
-
+        $page = (int) ($params[$pageName] ?? container()->get(RequestInterface::class)->input($pageName, 1));
+        $pageSize = (int) ($params['pageSize'] ?? container()->get(RequestInterface::class)->input('pageSize', $this->model?->getPerPage() ?? 15)); // 传参 > 提交 > model 默认 > 15
         $data = $collect->forPage($page, $pageSize)->toArray();
+        sort($data);
 
         return [
-            'items' => $this->getCurrentArrayPageBefore($data, $params),
+            'items' => $data,
             'pageInfo' => [
                 'total' => $collect->count(),
                 'currentPage' => $page,
@@ -333,19 +354,29 @@ abstract class AbstractService
     }
 
     /**
-     * 数组当前页数据返回之前处理器，默认对key重置.
-     */
-    protected function getCurrentArrayPageBefore(array &$data, array $params = []): array
-    {
-        sort($data);
-        return $data;
-    }
-
-    /**
      * 设置需要分页的数组数据.
      */
     protected function getArrayData(array $params = []): array
     {
         return [];
+    }
+
+    /**
+     * 过滤新增或写入不存在的字段
+     * @param array $data
+     * @param bool $removePk
+     */
+    public function filterExecuteAttributes(array &$data, bool $removePk = false): void
+    {
+        $attrs = $this->model->getFillable();
+        foreach ($data as $name => $val) {
+            if (!in_array($name, $attrs)) {
+                unset($data[$name]);
+            }
+        }
+
+        if ($removePk && isset($data[$this->model->getKeyName()])) {
+            unset($data[$this->model->getKeyName()]);
+        }
     }
 }

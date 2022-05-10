@@ -48,9 +48,11 @@
         "hyperf/tracer": "^2.2",
         "hyperf/validation": "^2.2",
         "hyperf/watcher": "^2.2",
+        "hyperf/snowflake": "^2.2",
         "symfony/var-dumper": "^6.0",
         "symfony/property-access": "^6.0",
-        "tangwei/apidocs": "^1.0"
+        "tangwei/apidocs": "^1.0",
+        "phpoffice/phpspreadsheet": "^1.23"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",

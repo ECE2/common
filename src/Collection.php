@@ -51,15 +51,15 @@ class Collection extends BaseCollection
      * @param string $children
      * @return array
      */
-    public function toTree(?array $data = null, int $parentId = 0, string $id = 'id', string $parentField = 'parent_id', string $children = 'children'): array
+    public function toTree(?array $data = null, int|string $parentId = 0, string $id = 'id', string $parentField = 'parent_id', string $children = 'children'): array
     {
-        if ($data === null && empty($data = $data ?: $this->toArray())) {
+        if ($data === null && empty($data = $this->toArray())) {
             return [];
         }
 
         $tree = [];
         foreach ($data as $value) {
-            if ((int) $value[$parentField] !== $parentId) {
+            if ((int) $value[$parentField] !== (int) $parentId) {
                 continue;
             }
 

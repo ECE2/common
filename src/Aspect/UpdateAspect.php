@@ -28,9 +28,10 @@ class UpdateAspect extends AbstractAspect
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
         $instance = $proceedingJoinPoint->getInstance();
-        // 更新更改人
-        if ($instance instanceof AbstractModel && in_array('updated_by', $instance->getFillable())) {
-            $instance->updated_by = identity()?->getKey();
+        if ($instance instanceof AbstractModel &&
+            method_exists($instance, 'getUpdatedByColumn') &&
+            !empty($operatorId = identity()?->getKey())) {
+            $instance->{$instance->getUpdatedByColumn()} = $operatorId;
         }
 
         return $proceedingJoinPoint->process();

@@ -4,7 +4,7 @@ namespace Ece2\Common\JsonRpc\Contract;
 
 interface SystemQueueLogServiceInterface
 {
-    public function save(array $data);
+    public function create(array $data);
 
     /**
      * 更新消费状态
