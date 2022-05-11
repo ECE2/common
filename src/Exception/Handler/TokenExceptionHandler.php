@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Exception\Handler;
 
-use Ece2\Common\Helper\Code;
+use Ece2\Common\Constants\ErrorCode;
+use Ece2\Common\Exception\TokenException;
 use Ece2\Common\Library\TraceId;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\Codec\Json;
-use Ece2\Common\Exception\TokenException;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Status;
 use Throwable;
@@ -25,7 +25,7 @@ class TokenExceptionHandler extends ExceptionHandler
             ->withStatus(Status::UNAUTHORIZED)
             ->withBody(new SwooleStream(Json::encode([
                 'success' => false,
-                'code'    => Code::TOKEN_EXPIRED,
+                'code'    => ErrorCode::TOKEN_EXPIRED,
                 'message' => $throwable->getMessage(),
                 'data' => [],
                 'traceId' => TraceId::get(),

@@ -5,19 +5,13 @@ declare(strict_types=1);
 namespace Ece2\Common\Abstracts;
 
 use Ece2\Common\Annotation\Transaction;
-use Ece2\Common\Collection;
-use Ece2\Common\Response;
-use Ece2\Common\Traits\ServiceTrait;
-use Hyperf\Context\Context;
-use Hyperf\Contract\LengthAwarePaginatorInterface;
+use Hyperf\HttpServer\Response;
 use Hyperf\Database\Model\Builder;
-use Hyperf\Database\Model\Collection as ModelCollection;
+use Hyperf\Database\Model\Collection;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Paginator\Paginator;
 use Hyperf\Utils\ApplicationContext;
-use Hyperf\Utils\Arr;
 use Psr\Http\Message\ResponseInterface;
-use function Swoole\Coroutine\Http\request;
 
 abstract class AbstractService
 {
@@ -31,7 +25,7 @@ abstract class AbstractService
      * @param array|null $params
      * @param bool $dataPermission
      * @param callable|null $extend
-     * @return Builder[]|ModelCollection
+     * @return Builder[]|Collection
      */
     public function getList(?array $params = null, bool $dataPermission = true, callable $extend = null)
     {
@@ -307,7 +301,7 @@ abstract class AbstractService
             $filename = $this->model->getTable();
         }
 
-        return (new Collection())->export($dto, $filename, $this->getList($params, extend: $extend)->toArray());
+        return collect()->export($dto, $filename, $this->getList($params, extend: $extend)->toArray());
     }
 
     /**
@@ -319,7 +313,7 @@ abstract class AbstractService
      */
     public function import(string $dto, ?\Closure $closure = null): bool
     {
-        return (new Collection())->import($dto, $this->model, $closure);
+        return collect()->import($dto, $this->model, $closure);
     }
 
     /**
@@ -346,7 +340,6 @@ abstract class AbstractService
 
     /**
      * 数组数据搜索器.
-     * @return ModelCollection
      */
     protected function handleArraySearch(\Hyperf\Utils\Collection $collect, array $params): \Hyperf\Utils\Collection
     {

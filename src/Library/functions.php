@@ -2,17 +2,13 @@
 
 declare(strict_types=1);
 
-use Ece2\Common\Helper\AppVerify;
-use Ece2\Common\Helper\Id;
 use Hyperf\Contract\StdoutLoggerInterface;
-use Hyperf\Logger\LoggerFactory;
 use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Psr\Log\LoggerInterface;
 
 if (! function_exists('container')) {
     /**
@@ -74,9 +70,9 @@ if (! function_exists('redis')) {
      * @throws \Psr\Container\NotFoundExceptionInterface
      * @return \Hyperf\Redis\Redis
      */
-    function redis(): Hyperf\Redis\Redis
+    function redis($poolName = 'default'): Hyperf\Redis\Redis
     {
-        return container()->get(\Hyperf\Redis\Redis::class);
+        return container()->get(\Hyperf\Redis\RedisFactory::class)->get($poolName);
     }
 }
 
@@ -133,7 +129,7 @@ if (! function_exists('t')) {
      */
     function t(string $key, array $replace = []): string
     {
-        $acceptLanguage = container()->get(\Ece2\Common\Request::class)->getHeaderLine('accept-language');
+        $acceptLanguage = container()->get(\Hyperf\HttpServer\Request::class)->getHeaderLine('accept-language');
         $language = ! empty($acceptLanguage) ? explode(',', $acceptLanguage)[0] : 'zh_CN';
         return __($key, $replace, $language);
     }
@@ -164,6 +160,7 @@ if (! function_exists('context_get')) {
 if (! function_exists('snowflake_id')) {
     /**
      * 生成雪花ID.
+     * @param null|mixed $meta
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
@@ -182,5 +179,30 @@ if (! function_exists('event')) {
     function event(object $dispatch): object
     {
         return container()->get(EventDispatcherInterface::class)->dispatch($dispatch);
+    }
+}
+
+if (! function_exists('ip_to_region')) {
+    /**
+     * 获取 IP 的区域地址
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    function ip_to_region(string $ip): string
+    {
+        $ip2Region = make(\Ip2Region::class);
+        if (empty($ip2Region->btreeSearch($ip)['region'])) {
+            return t('jwt.unknown');
+        }
+
+        $region = $ip2Region->btreeSearch($ip)['region'];
+        [$country, $number, $province, $city, $network] = explode('|', $region);
+        if ($country === '中国') {
+            return $province . '-' . $city . ':' . $network;
+        }
+        if ($country === '0') {
+            return t('jwt.unknown');
+        }
+        return $country;
     }
 }

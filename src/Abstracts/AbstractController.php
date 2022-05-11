@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Abstracts;
 
-use Ece2\Common\Request;
-use Ece2\Common\Response;
-use Ece2\Common\Traits\ControllerTrait;
 use Hyperf\Di\Annotation\Inject;
+use Hyperf\HttpServer\Request;
+use Hyperf\HttpServer\Response;
 use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractController
 {
@@ -27,7 +25,7 @@ abstract class AbstractController
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function success(mixed $msgOrData = '', array|object $data = [], int $code = 200): ResponseInterface
+    public function success(mixed $msgOrData = '', array|object $data = [], int $code = 200)
     {
         if (is_string($msgOrData) || is_null($msgOrData)) {
             return $this->response->success($msgOrData, $data, $code);
@@ -42,7 +40,7 @@ abstract class AbstractController
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function error(string $message = '', int $code = 500, array $data = []): ResponseInterface
+    public function error(string $message = '', int $code = 500, array $data = [])
     {
         return $this->response->error($message, $code, $data);
     }
@@ -50,7 +48,7 @@ abstract class AbstractController
     /**
      * 跳转.
      */
-    public function redirect(string $toUrl, int $status = 302, string $schema = 'http'): ResponseInterface
+    public function redirect(string $toUrl, int $status = 302, string $schema = 'http')
     {
         return $this->response->redirect($toUrl, $status, $schema);
     }
@@ -58,7 +56,7 @@ abstract class AbstractController
     /**
      * 下载文件.
      */
-    public function _download(string $filePath, string $name = ''): ResponseInterface
+    public function _download(string $filePath, string $name = '')
     {
         return $this->response->download($filePath, $name);
     }

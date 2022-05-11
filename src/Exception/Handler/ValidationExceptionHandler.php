@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Exception\Handler;
 
-use Ece2\Common\Helper\Code;
+use Ece2\Common\Constants\ErrorCode;
 use Ece2\Common\Library\TraceId;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
@@ -25,7 +25,7 @@ class ValidationExceptionHandler extends ExceptionHandler
             ->withStatus(Status::OK)
             ->withBody(new SwooleStream(Json::encode([
                 'success' => false,
-                'code' => Code::VALIDATE_FAILED,
+                'code' => ErrorCode::VALIDATE_FAILED,
                 'message' => $throwable->validator->errors()->first() ?? '',
                 'data' => [],
                 'traceId' => TraceId::get(),

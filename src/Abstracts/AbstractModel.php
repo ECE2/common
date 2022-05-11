@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Abstracts;
 
-use Ece2\Common\Collection;
 use Ece2\Common\Model\Traits\DataPermission;
-use Ece2\Common\Model\Traits\DataPermissionIsolate;
 use Ece2\Common\Model\Traits\HasRelationshipsForRpc;
-use Ece2\Common\Model\Traits\UserDataIsolate;
 use Hyperf\DbConnection\Model\Model as BaseModel;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\ModelCache\Cacheable;
@@ -80,14 +77,5 @@ abstract class AbstractModel extends BaseModel
     public function update(array $attributes = [], array $options = []): bool
     {
         return parent::update($attributes, $options);
-    }
-
-    /**
-     * @param array $models
-     * @return Collection
-     */
-    public function newCollection(array $models = []): Collection
-    {
-        return new Collection($models);
     }
 }

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Aspect;
 
-use Ece2\Common\Library\RedisLock;
+use Ece2\Common\Annotation\Resubmit;
+use Ece2\Common\Exception\NormalStatusException;
+use Hyperf\HttpServer\Request;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\Di\Exception\Exception;
-use Ece2\Common\Annotation\Resubmit;
-use Ece2\Common\Exception\NormalStatusException;
-use Ece2\Common\Request;
+use Lysice\HyperfRedisLock\LockTimeoutException;
 
 #[Aspect]
 class ResubmitAspect extends AbstractAspect
@@ -34,19 +34,14 @@ class ResubmitAspect extends AbstractAspect
         }
 
         $request = container()->get(Request::class);
-
         $key = md5(sprintf('%s-%s-%s', $request->ip(), $request->getPathInfo(), $request->getMethod()));
 
-        $lockRedis = new RedisLock();
-        $lockRedis->setTypeName('resubmit');
-
-        if ($lockRedis->check($key)) {
-            $lockRedis = null;
+        $lock = new \Lysice\HyperfRedisLock\RedisLock(redis(), 'resubmit:' . $key, 60);
+        try {
+            $lock->block($resubmit->second, fn() => true);
+        } catch (LockTimeoutException $e) {
             throw new NormalStatusException($resubmit->message ?: t('resubmit'), 500);
         }
-
-        $lockRedis->lock($key, $resubmit->second);
-        $lockRedis = null;
 
         return $proceedingJoinPoint->process();
     }

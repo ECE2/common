@@ -8,10 +8,8 @@ use Ece2\Common\Abstracts\AbstractModel;
 use Ece2\Common\Exception\HttpException;
 use Ece2\Common\Office\Excel;
 use Ece2\Common\Office\ExcelPropertyInterface;
-use Ece2\Common\Request;
-use Ece2\Common\Response;
-use Hyperf\HttpMessage\Stream\SwooleStream;
-use MathPHP\Probability\Distribution\Continuous\F;
+use Hyperf\HttpServer\Request;
+use Hyperf\HttpServer\Response;
 use Vtiful\Kernel\Format;
 
 class XlsWriter extends Excel implements ExcelPropertyInterface

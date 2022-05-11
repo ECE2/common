@@ -12,7 +12,7 @@ use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\Di\Exception\Exception;
 use Ece2\Common\Annotation\Permission;
 use Ece2\Common\Exception\NoPermissionException;
-use Ece2\Common\Request;
+use Hyperf\HttpServer\Request;
 
 #[Aspect]
 class PermissionAspect extends AbstractAspect

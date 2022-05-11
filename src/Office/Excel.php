@@ -6,7 +6,7 @@ namespace Ece2\Common\Office;
 
 use Ece2\Common\Exception\HttpException;
 use Ece2\Common\Interfaces\ModelExcelInterface;
-use Ece2\Common\Response;
+use Hyperf\HttpServer\Response;
 use Hyperf\Di\Annotation\AnnotationCollector;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 

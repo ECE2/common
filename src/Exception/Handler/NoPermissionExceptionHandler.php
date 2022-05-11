@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Exception\Handler;
 
+use Ece2\Common\Constants\ErrorCode;
 use Ece2\Common\Library\TraceId;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
@@ -25,7 +26,7 @@ class NoPermissionExceptionHandler extends ExceptionHandler
             ->withStatus(Status::FORBIDDEN)
             ->withBody(new SwooleStream(Json::encode([
                 'success' => false,
-                'code'    => Code::NO_PERMISSION,
+                'code'    => ErrorCode::NO_PERMISSION,
                 'message' => $throwable->getMessage(),
                 'data' => [],
                 'traceId' => TraceId::get(),

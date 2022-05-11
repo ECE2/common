@@ -6,17 +6,14 @@ namespace Ece2\Common\Aspect;
 
 use App\Service\SystemMenuService;
 use Carbon\Carbon;
+use Ece2\Common\Annotation\OperationLog;
+use Ece2\Common\Annotation\Permission;
+use Ece2\Common\Event\Operation;
 use Ece2\Common\JsonRpc\Contract\SystemMenuServiceInterface;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
-use Ece2\Common\Annotation\OperationLog;
-use Ece2\Common\Annotation\Permission;
-use Ece2\Common\Event\Operation;
-use Ece2\Common\Helper\Str;
-use Ece2\Common\Request;
-use Psr\Container\ContainerInterface;
-use Psr\EventDispatcher\EventDispatcherInterface;
+use Hyperf\HttpServer\Request;
 use Psr\Http\Message\ResponseInterface;
 
 #[Aspect]
@@ -70,7 +67,7 @@ class OperationLogAspect extends AbstractAspect
             'router' => $serverParams['path_info'],
             'protocol' => $serverParams['server_protocol'],
             'ip' => $ip = $request->ip(),
-            'ip_location' => Str::ipToRegion($ip),
+            'ip_location' => ip_to_region($ip),
             'service_name' => $data['name'] ?: $this->getOperationMenuName($data['code']),
             'request_data' => $request->all(),
             'response_code' => $data['response_code'],

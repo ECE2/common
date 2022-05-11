@@ -11,8 +11,7 @@
             "Ece2\\Common\\": "src/"
         },
         "files": [
-            "./src/Library/helper.php",
-            "./src/Helper/functions.php"
+            "src/Library/functions.php"
         ]
     },
     "autoload-dev": {
@@ -52,7 +51,8 @@
         "symfony/var-dumper": "^6.0",
         "symfony/property-access": "^6.0",
         "tangwei/apidocs": "^1.0",
-        "phpoffice/phpspreadsheet": "^1.23"
+        "phpoffice/phpspreadsheet": "^1.23",
+        "lysice/hyperf-redis-lock": "^2.1"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",

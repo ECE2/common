@@ -31,6 +31,12 @@ class ConfigProvider
                         IPReader::class => __DIR__ . '/../class_map/IPReader.php',
                         // migation 增加操作人更新人方法
                         Blueprint::class => __DIR__ . '/../class_map/Blueprint.php',
+                        // 替换 Request 增加自定义函数
+                        \Hyperf\HttpServer\Request::class => __DIR__ . '/../class_map/Request.php',
+                        // 替换 Response 增加自定义函数
+                        \Hyperf\HttpServer\Response::class => __DIR__ . '/../class_map/Response.php',
+                        // 替换 Collection 增加自定义函数
+                        \Hyperf\Database\Model\Collection::class => __DIR__ . '/../class_map/Collection.php',
                     ],
                     'ignore_annotations' => [
                         'required',

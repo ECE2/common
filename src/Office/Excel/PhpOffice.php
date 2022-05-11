@@ -7,7 +7,7 @@ use Ece2\Common\Abstracts\AbstractModel;
 use Ece2\Common\Exception\HttpException;
 use Ece2\Common\Office\Excel;
 use Ece2\Common\Office\ExcelPropertyInterface;
-use Ece2\Common\Request;
+use Hyperf\HttpServer\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;

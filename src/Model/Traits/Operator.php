@@ -8,14 +8,16 @@ trait Operator
 {
     public function touch(): bool
     {
-        $this->updateOperator();
+        $this->updateOperators();
 
         return $this->save();
     }
 
-    public function updateOperator()
+    public function updateOperators(): void
     {
-        $operator = identity()['id'];
+        if (empty($operator = identity()?->getKey())) {
+            return;
+        }
 
         if (! $this->isDirty($this->getUpdatedByColumn())) {
             $this->setUpdatedBy($operator);
