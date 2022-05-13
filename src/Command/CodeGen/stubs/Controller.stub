@@ -1,0 +1,14 @@
+<?php
+
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+%USES%
+use Hyperf\Di\Annotation\Inject;
+
+class %CLASS% extends AbstractController
+{
+    #[Inject]
+    public %SERVICE_CLASS% $service;
+}

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Aspect;
 
-use Hyperf\Database\Model\Builder;
-use Hyperf\Database\Model\Model;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
@@ -15,7 +13,7 @@ use Hyperf\Di\Exception\Exception;
  * 自动设置 创建人 更新人 (TODO: company_id) 和 id
  */
 #[Aspect]
-class SaveAspect extends AbstractAspect
+class OperatorAspect extends AbstractAspect
 {
     public $classes = [
         'Hyperf\Database\Model\Model::save',
@@ -45,8 +43,8 @@ class SaveAspect extends AbstractAspect
                 'Hyperf\Database\Model\Builder::update',
             ], true)) {
 
-            $id = identity()?->getKey();
-            if (empty($id)) {
+            $uid = identity()?->getKey();
+            if (empty($uid)) {
                 return $proceedingJoinPoint->process();
             }
 
@@ -55,7 +53,7 @@ class SaveAspect extends AbstractAspect
             if (method_exists($model, 'updateOperators')) {
                 $arguments['keys'][$paramName] = array_merge(
                     [
-                        $model->getUpdatedByColumn() => $id,
+                        $model->getUpdatedByColumn() => $uid,
                     ],
                     $arguments['keys'][$paramName]
                 );
