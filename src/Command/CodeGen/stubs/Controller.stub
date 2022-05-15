@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace %NAMESPACE%;
 
 %USES%
+use Ece2\Common\Annotation\Auth;
 use Hyperf\Di\Annotation\Inject;
+use Hyperf\HttpServer\Annotation\Controller;
 
+#[Controller(prefix: '%ROUTE_PREFIX%'), Auth]
 class %CLASS% extends AbstractController
 {
     #[Inject]

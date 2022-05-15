@@ -18,9 +18,10 @@ class SubAppAuthentication implements AuthenticationInterface
 {
     public function check(string $token = '', string $scene = 'default')
     {
-        $tokenFromHeader = container()->get(RequestInterface::class)->getHeader('Authorization');
+        $tokenFromHeader = container()->get(RequestInterface::class)->getHeaderLine('Authorization');
         // 截取获得 token
-        if (empty($token = Str::substr($tokenFromHeader[0] ?? '', Str::length('Bearer ')))) {
+        // 7 => Str::length('Bearer ')
+        if (empty($token = Str::substr($tokenFromHeader, 7))) {
             throw new TokenException(t('jwt.no_token'));
         }
 

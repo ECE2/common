@@ -118,14 +118,13 @@ class Collection extends BaseCollection implements CompressInterface
     /**
      * 数据导入
      * @param string $dto
-     * @param AbstractModel $model
+     * @param $model
      * @param \Closure|null $closure
      * @return bool
-     * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function import(string $dto, AbstractModel $model, ?\Closure $closure = null): bool
+    public function import(string $dto, $model, ?\Closure $closure = null): bool
     {
         $excelDrive = config('excel_drive');
         if ($excelDrive === 'auto') {
@@ -133,6 +132,7 @@ class Collection extends BaseCollection implements CompressInterface
         } else {
             $excel = $excelDrive === 'xlsWriter' ? new XlsWriter($dto) : new PhpOffice($dto);
         }
+
         return $excel->import($model, $closure);
     }
 

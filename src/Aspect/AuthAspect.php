@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Aspect;
 
+use Ece2\Common\Annotation\Auth;
+use Ece2\Common\Exception\TokenException;
 use Ece2\Common\Interfaces\AuthenticationInterface;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\Di\Exception\Exception;
-use Ece2\Common\Annotation\Auth;
-use Ece2\Common\Exception\TokenException;
 
 #[Aspect]
 class AuthAspect extends AbstractAspect
 {
     public $annotations = [
-        Auth::class
+        Auth::class,
     ];
 
     /**
@@ -29,11 +29,10 @@ class AuthAspect extends AbstractAspect
     }
 
     /**
-     * @param ProceedingJoinPoint $proceedingJoinPoint
-     * @return mixed
      * @throws Exception
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
+     * @return mixed
      */
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
