@@ -17,20 +17,22 @@ abstract class AbstractModel extends BaseModel
     use DataPermission;
 
     /**
-     * 隐藏的字段列表
-     * @var string[]
-     */
-    protected $hidden = ['deleted_at'];
-
-    /**
-     * 状态: 可用
+     * 状态: 可用.
      */
     public const ENABLE = '0';
 
     /**
-     * 状态: 不可用
+     * 状态: 不可用.
      */
     public const DISABLE = '1';
+
+    public $guarded = [];
+
+    /**
+     * 隐藏的字段列表.
+     * @var string[]
+     */
+    protected $hidden = ['deleted_at'];
 
     /**
      * 允许前端传长度.

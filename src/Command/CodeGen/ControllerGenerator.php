@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Command\CodeGen;
 
+use App\Model\Model;
 use Hyperf\Utils\CodeGen\Project;
 use Hyperf\Utils\Str;
 
@@ -14,7 +15,7 @@ class ControllerGenerator extends BaseGenerator
         $project = new Project();
         $class = $project->namespace($this->input->getOption('path') . '/Controller') . class_basename($modelClass) . 'Controller';
         $path = BASE_PATH . '/' . $project->path($class);
-        $routePrefix = sprintf('api/%s/%s', config('app_name'), Str::lower(class_basename($modelClass)));
+        $routePrefix = sprintf('api/%s/%s', config('app_name'), Str::lower(Str::snake(class_basename($modelClass), '-')));
 
         if (! file_exists($path)) {
             $this->mkdir($path);

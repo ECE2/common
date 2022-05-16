@@ -8,10 +8,79 @@ namespace %NAMESPACE%;
 use Ece2\Common\Annotation\Auth;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\DeleteMapping;
+use Hyperf\HttpServer\Annotation\GetMapping;
+use Hyperf\HttpServer\Annotation\PostMapping;
+use Hyperf\HttpServer\Annotation\PutMapping;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ResponseInterface;
 
 #[Controller(prefix: '%ROUTE_PREFIX%'), Auth]
 class %CLASS% extends AbstractController
 {
     #[Inject]
     public %SERVICE_CLASS% $service;
+
+    /**
+     * 新增.
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @return ResponseInterface
+     */
+    #[PostMapping('create')]
+    public function create()
+    {
+        return $this->success($this->service->create($this->request->all()));
+    }
+
+    /**
+     * 删除.
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @return ResponseInterface
+     */
+    #[DeleteMapping('delete')]
+    public function delete()
+    {
+        return $this->success($this->service->destroy((array) $this->request->input('id')));
+    }
+
+    /**
+     * 编辑.
+     * @param $id
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @return ResponseInterface
+     */
+    #[PutMapping('update/{id}')]
+    public function update($id)
+    {
+        return $this->success($this->service->update($id, $this->request->all()));
+    }
+
+    /**
+     * 列表.
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @return ResponseInterface
+     */
+    #[GetMapping('index')]
+    public function index()
+    {
+        return $this->success($this->service->getPageList());
+    }
+
+    /**
+     * 详情.
+     * @param $id
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @return ResponseInterface
+     */
+    #[GetMapping('detail/{id}')]
+    public function detail($id)
+    {
+        return $this->success($this->service->detail($id));
+    }
 }

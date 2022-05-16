@@ -66,9 +66,10 @@ class ModelGenerator extends BaseGenerator
         if ($table) {
             [$tableClass, $value] = $this->createModel($table, $option);
             return [$tableClass => $value];
-        } else {
-            return $this->createModels($option);
         }
+
+        // TODO
+//        return $this->createModels($option);
     }
 
     protected function getColumns($className, $columns, $forceCasts): array
@@ -125,7 +126,7 @@ class ModelGenerator extends BaseGenerator
 
         if (! file_exists($path)) {
             $this->mkdir($path);
-            file_put_contents($path, $this->buildClass($table, $class, $option));
+            file_put_contents($path, $this->buildClass($table, $class, $option, $columns));
         }
 
         $columns = $this->getColumns($class, $columns, $option->isForceCasts());
@@ -155,19 +156,34 @@ class ModelGenerator extends BaseGenerator
         return [
             $class,
             [
-                'columns'     => $columns,
-            ]
+                'columns' => $columns,
+            ],
         ];
     }
 
-    protected function buildClass(string $table, string $name, ModelOption $option): string
+    protected function buildClass(string $table, string $name, ModelOption $option, array $columns): string
     {
         $stub = file_get_contents(__DIR__ . '/stubs/Model.stub');
+
+        // 根据字段 自动加上 use Operator 和 use SoftDeletes
+        $usesCustom = [];
+        $usesInClass = [];
+        $columnNameList = array_column($columns, 'column_name');
+        if (in_array('created_by', $columnNameList, true)) {
+            $usesInClass[] = 'use Operator;';
+            $usesCustom[] = 'use Ece2\Common\Model\Traits\Operator;';
+        }
+        if (in_array('deleted_at', $columnNameList, true)) {
+            $usesInClass[] = 'use SoftDeletes;';
+            $usesCustom[] = 'use Hyperf\Database\Model\SoftDeletes;';
+        }
 
         return $this->replaceNamespace($stub, $name)
             ->replaceInheritance($stub, $option->getInheritance())
             ->replaceConnection($stub, $option->getPool())
             ->replaceUses($stub, $option->getUses())
+            ->replace($stub, '%USES_CUSTOM%', ! empty($usesCustom) ? implode("\n", $usesCustom) : '')
+            ->replace($stub, '%USES_IN_CLASS%', ! empty($usesInClass) ? implode("\n", $usesInClass) : '')
             ->replaceClass($stub, $name)
             ->replaceTable($stub, $table);
     }

@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace %NAMESPACE%;
 
 %USES%
+%USES_CUSTOM%
 
 class %CLASS% extends %INHERITANCE%
 {
+    %USES_IN_CLASS%
+
     protected $table = '%TABLE%';
 
     protected $connection = '%CONNECTION%';
-
-    protected $fillable = [];
 
     protected $casts = [];
 }

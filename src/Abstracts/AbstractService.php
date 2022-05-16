@@ -8,7 +8,6 @@ use Ece2\Common\Annotation\Transaction;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Collection;
 use Hyperf\Database\Model\Model;
-use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Response;
 use Hyperf\Paginator\Paginator;
 use Hyperf\Utils\ApplicationContext;
@@ -106,9 +105,6 @@ abstract class AbstractService
 
     /**
      * 单个或批量启用数据.
-     * @param array $ids
-     * @param string $field
-     * @return int
      */
     public function enable(array $ids, string $field = 'status'): int
     {
@@ -124,7 +120,7 @@ abstract class AbstractService
     }
 
     /**
-     * 详情
+     * 详情.
      * @param $id
      * @param $columns
      * @return mixed
@@ -261,12 +257,12 @@ abstract class AbstractService
      */
     public function filterExecuteAttributes(array &$data, bool $removePk = false): void
     {
-        $attrs = $this->model->getFillable();
-        foreach ($data as $name => $val) {
-            if (! in_array($name, $attrs)) {
-                unset($data[$name]);
-            }
-        }
+//        $attrs = $this->model->getFillable();
+//        foreach ($data as $name => $val) {
+//            if (! in_array($name, $attrs)) {
+//                unset($data[$name]);
+//            }
+//        }
 
         if ($removePk && isset($data[$this->model->getKeyName()])) {
             unset($data[$this->model->getKeyName()]);
@@ -278,14 +274,14 @@ abstract class AbstractService
      */
     protected function filterQueryAttributes(array $fields, bool $removePk = false): array
     {
-        $attrs = $this->model->getFillable();
-        foreach ($fields as $key => $field) {
-            if (! in_array(trim($field), $attrs)) {
-                unset($fields[$key]);
-            } else {
-                $fields[$key] = trim($field);
-            }
-        }
+//        $attrs = $this->model->getFillable();
+//        foreach ($fields as $key => $field) {
+//            if (! in_array(trim($field), $attrs)) {
+//                unset($fields[$key]);
+//            } else {
+//                $fields[$key] = trim($field);
+//            }
+//        }
 
         if ($removePk && in_array($this->model->getKeyName(), $fields)) {
             unset($fields[array_search($this->model->getKeyName(), $fields)]);

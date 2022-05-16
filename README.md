@@ -22,3 +22,9 @@ php bin/hyperf.php vendor:publish ece2/common -f
     }
 }
 ```
+
+> 按照数据表生成对应 model service controller 文件
+
+```shell
+php bin/hyperf.php gen:code --with-comments {表名}
+```

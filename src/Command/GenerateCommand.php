@@ -25,6 +25,9 @@ class GenerateCommand extends HyperfCommand
             $serviceClass = make(ServiceGenerator::class, [$this->input, $this->output])->generate($modelClass);
             make(ControllerGenerator::class, [$this->input, $this->output])->generate($modelClass, $serviceClass);
         }
+
+        $this->output->writeln('<info>执行完成, 建议执行以下命令进行代码格式化</info>');
+        $this->output->writeln('composer run-script cs-fix');
     }
 
     public function configure()
