@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Ece2\Common;
 
 use Hyperf\Database\Schema\Blueprint;
-use Hyperf\Paginator\LengthAwarePaginator;
-use Hyperf\Paginator\Paginator;
 use Hyperf\ServiceGovernance\IPReader;
 
 class ConfigProvider
@@ -37,6 +35,8 @@ class ConfigProvider
                         \Hyperf\HttpServer\Response::class => __DIR__ . '/../class_map/Response.php',
                         // 替换 Collection 增加自定义函数
                         \Hyperf\Database\Model\Collection::class => __DIR__ . '/../class_map/Collection.php',
+                        // 使用 RedisSecondMetaGenerator 替换 MetaGeneratorFactory 内返回, 主要使用 秒级 来达到减小雪花 ID 长度
+                        \Hyperf\Snowflake\MetaGeneratorFactory::class => __DIR__ . '/../class_map/MetaGeneratorFactory.php',
                     ],
                     'ignore_annotations' => [
                         'required',
@@ -160,6 +160,18 @@ class ConfigProvider
                     'description' => 'replace config routes',
                     'source' => __DIR__ . '/../publish/config/routes.php',
                     'destination' => BASE_PATH . '/config/routes.php',
+                ],
+                [
+                    'id' => 'config:redis',
+                    'description' => 'replace config redis',
+                    'source' => __DIR__ . '/../publish/config/redis.php',
+                    'destination' => BASE_PATH . '/config/redis.php',
+                ],
+                [
+                    'id' => 'config:snowflake',
+                    'description' => 'replace config snowflake',
+                    'source' => __DIR__ . '/../publish/config/snowflake.php',
+                    'destination' => BASE_PATH . '/config/snowflake.php',
                 ],
                 [
                     'id' => 'start_hyperf_shell',

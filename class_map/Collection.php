@@ -14,9 +14,11 @@ namespace Hyperf\Database\Model;
 use Ece2\Common\Abstracts\AbstractModel;
 use Ece2\Common\Office\Excel\PhpOffice;
 use Ece2\Common\Office\Excel\XlsWriter;
+use Hyperf\Consul\Utils;
 use Hyperf\Contract\CompressInterface;
 use Hyperf\Contract\UnCompressInterface;
 use Hyperf\Utils\Arr;
+use Hyperf\Utils\Codec\Json;
 use Hyperf\Utils\Collection as BaseCollection;
 use Hyperf\Utils\Contracts\Arrayable;
 use Hyperf\Utils\Str;
@@ -60,38 +62,39 @@ class Collection extends BaseCollection implements CompressInterface
             ];
         });
 
-        return $this->toTree($routers);
+        $this->items = $routers;
+        return $this->toTree();
     }
 
     /**
-     * @param array $data
-     * @param int $parentId
-     * @param string $id
+     * to 树状
+     * @param int|string $parentId
+     * @param string $idField
      * @param string $parentField
-     * @param string $children
+     * @param string $childrenField
      * @return array
      */
-    public function toTree(?array $data = null, int|string $parentId = 0, string $id = 'id', string $parentField = 'parent_id', string $children = 'children'): array
+    public function toTree(string $idField = 'id', string $parentField = 'parent_id', string $childrenField = 'children', int|string $parentId = 0): array
     {
-        if ($data === null && empty($data = $this->toArray())) {
+        if (empty($data = $this->toArray())) {
             return [];
         }
+        // id 作为主键
+        $data = array_column($data, null, $idField);
 
-        $tree = [];
-        foreach ($data as $value) {
-            if ((int) $value[$parentField] !== (int) $parentId) {
+        foreach ($data as &$item) {
+            $itemParentId = (int) $item[$parentField];
+            if ($itemParentId === $parentId) { // 顶级目录不操作
                 continue;
             }
 
-            $child = $this->toTree($data, $value[$id], $id, $parentField, $children);
-            if (!empty($child)) {
-                $value[$children] = $child;
-            }
-
-            $tree[] = $value;
+            // 指定到父级下
+            $data[$itemParentId][$childrenField][] = &$item;
         }
+        unset($item);
 
-        return $tree;
+        // 过滤不是顶级目录
+        return array_values(array_filter($data, static fn ($split) => (int) $split[$parentField] === $parentId));
     }
 
     /**

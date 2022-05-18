@@ -177,6 +177,14 @@ class ModelGenerator extends BaseGenerator
             $usesInClass[] = 'use SoftDeletes;';
             $usesCustom[] = 'use Hyperf\Database\Model\SoftDeletes;';
         }
+        // 判断是否使用 雪花 trait (找到主键 && 主键不自增)
+        if (($primary = collect($columns)
+            ->filter(fn ($column) => $column['column_key'] === 'PRI')
+            ->first())
+            && Str::contains($primary['extra'], 'auto_increment')) {
+            $usesInClass[] = 'use Snowflake;';
+            $usesCustom[] = 'use Hyperf\Snowflake\Concern\Snowflake;';
+        }
 
         return $this->replaceNamespace($stub, $name)
             ->replaceInheritance($stub, $option->getInheritance())

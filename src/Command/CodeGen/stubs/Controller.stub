@@ -28,8 +28,8 @@ class %CLASS% extends AbstractController
      * @throws NotFoundExceptionInterface
      * @return ResponseInterface
      */
-    #[PostMapping('create')]
-    public function create()
+    #[PostMapping('save')]
+    public function save()
     {
         return $this->success($this->service->create($this->request->all()));
     }

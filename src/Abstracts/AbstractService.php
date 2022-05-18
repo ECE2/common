@@ -75,11 +75,11 @@ abstract class AbstractService
      * @param $id
      * @param $data
      */
-    public function update($id, $data): int
+    public function update($id, $data): bool
     {
         $this->filterExecuteAttributes($data, true);
 
-        return $this->model::query()->where($this->model->getKeyName(), $id)->update($data);
+        return $this->model::query()->findOrFail($id)?->update($data);
     }
 
     /**
@@ -176,8 +176,6 @@ abstract class AbstractService
      * @param null|array $params
      *                           + select
      *                           + recycle
-     *                           + _mainAdmin_tree
-     *                           + _mainAdmin_tree_pid
      *                           + orderBy
      *                           + orderType
      * @return Builder
@@ -192,7 +190,6 @@ abstract class AbstractService
                 ->when($params['select'], fn (Builder $builder, $select) => $builder->select($this->filterQueryAttributes($select)))
                 ->when($dataPermission, fn (Builder $builder) => $builder->dataPermission())
                 // 排序部分
-                ->when(isset($params['_mainAdmin_tree']), fn ($query) => $query->orderBy($params['_mainAdmin_tree_pid'])) // 对树型数据强行加个排序
                 ->when($params['orderBy'] ?? false, function ($query) use ($params) {
                     if (is_array($params['orderBy'])) {
                         foreach ($params['orderBy'] as $key => $order) {
@@ -213,15 +210,15 @@ abstract class AbstractService
         ?array $params = null,
         bool $dataPermission = true,
         callable $extend = null,
-        string $id = 'id',
+        string $idField = 'id',
         string $parentField = 'parent_id',
-        string $children = 'children'
-    ): array {
-        $params['_mainAdmin_tree'] = true;
-        $params['_mainAdmin_tree_pid'] = $parentField;
-        $data = $this->listQueryPreProcessing($params, $dataPermission, $extend)->get();
-
-        return $data->toTree(parentId: $data[0]?->{$parentField} ?? 0, id: $id, parentField: $parentField, children: $children);
+        string $childrenField = 'children'
+    ) : array
+    {
+        return $this
+            ->listQueryPreProcessing($params, $dataPermission, $extend)
+            ->get()
+            ->toTree($idField, $parentField, $childrenField);
     }
 
     /**

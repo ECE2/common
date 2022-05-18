@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Command\CodeGen;
 
-use App\Model\Model;
 use Hyperf\Utils\CodeGen\Project;
 use Hyperf\Utils\Str;
 
