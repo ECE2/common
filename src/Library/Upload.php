@@ -5,49 +5,38 @@ declare(strict_types=1);
 namespace Ece2\Common\Library;
 
 use App\Event\UploadAfter;
+use App\Service\SettingConfigService;
 use Ece2\Common\Exception\NormalStatusException;
 use Ece2\Common\JsonRpc\Contract\SettingConfigServiceInterface;
-use Hyperf\Di\Annotation\Inject;
+use Hyperf\Config\Annotation\Value;
 use Hyperf\Filesystem\FilesystemFactory;
 use Hyperf\HttpMessage\Upload\UploadedFile;
 use Hyperf\Utils\Str;
 use League\Flysystem\Filesystem;
-use Psr\Container\ContainerInterface;
-use Psr\EventDispatcher\EventDispatcherInterface;
-
-// TODO microservice
 
 class Upload
 {
-    #[Inject]
-    protected FilesystemFactory $factory;
+    public const CHANNEL_LOCAL = 1;
+
+    public const CHANNEL_OSS = 2;
+
+    public const CHANNEL_QI_NIU = 3;
+
+    public const CHANNEL_COS = 4;
+
+    #[Value('file.storage')]
+    protected array $config;
 
     protected Filesystem $filesystem;
 
-    #[Inject]
-    protected EventDispatcherInterface $evDispatcher;
+    protected string $storageMode;
 
-    protected ContainerInterface $container;
-
-    /**
-     * 存储配置信息.
-     */
-    protected array $config;
-
-    /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    public function __construct(ContainerInterface $container)
+    public function __construct(FilesystemFactory $factory)
     {
-        $this->container = $container;
-        $this->config = config('file.storage');
-        $this->filesystem = $this->factory->get($this->getStorageMode());
+        $this->storageMode = $this->getStorageMode();
+        $this->filesystem = $factory->get($this->storageMode);
     }
 
-    /**
-     * 获取文件操作处理系统
-     */
     public function getFileSystem(): Filesystem
     {
         return $this->filesystem;
@@ -55,13 +44,33 @@ class Upload
 
     /**
      * 上传文件.
-     * @throws \League\Flysystem\FileExistsException
+     * @param UploadedFile $uploadedFile
+     * @param array $config
+     * @return array
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function upload(UploadedFile $uploadedFile, array $config = []): array
     {
-        return $this->handleUpload($uploadedFile, $config);
+        $path = $this->getPath($config['path'] ?? null, $this->getMappingMode() !== self::CHANNEL_LOCAL);
+        $filename = $this->getNewName() . '.' . Str::lower($uploadedFile->getExtension());
+
+        $this->filesystem->writeStream($path . '/' . $filename, $uploadedFile->getStream()->detach());
+
+        $fileInfo = [
+            'storage_mode' => $this->getMappingMode(),
+            'origin_name' => $uploadedFile->getClientFilename(),
+            'object_name' => $filename,
+            'mime_type' => $uploadedFile->getClientMediaType(),
+            'storage_path' => $path,
+            'suffix' => Str::lower($uploadedFile->getExtension()),
+            'size_byte' => $uploadedFile->getSize(),
+            'size_info' => format_size($uploadedFile->getSize() * 1024),
+            'url' => $this->assembleUrl($config['path'] ?? null, $filename),
+        ];
+
+        event(new UploadAfter($fileInfo));
+        return $fileInfo;
     }
 
     /**
@@ -72,7 +81,7 @@ class Upload
      */
     public function handleSaveNetworkImage(array $data): array
     {
-        $path = $this->getPath($data['path'] ?? null, $this->getMappingMode() !== 1);
+        $path = $this->getPath($data['path'] ?? null, $this->getMappingMode() !== self::CHANNEL_LOCAL);
         $filename = $this->getNewName() . '.jpg';
 
         try {
@@ -86,16 +95,14 @@ class Upload
             $size = 0;
 
             foreach ($dataInfo as $va) {
-                if (preg_match('/length/iU', $va)) {
+                if (false !== stripos($va, 'length')) {
                     $ts = explode(':', $va);
-                    $size = intval(trim(array_pop($ts)));
+                    $size = (int) trim(array_pop($ts));
                     break;
                 }
             }
 
-            if (! $this->filesystem->write($path . '/' . $filename, $content)) {
-                throw new \Exception(t('network_image_save_fail'));
-            }
+            $this->filesystem->write($path . '/' . $filename, $content);
         } catch (\Throwable $e) {
             throw new NormalStatusException($e->getMessage(), 500);
         }
@@ -112,40 +119,8 @@ class Upload
             'url' => $this->assembleUrl($data['path'] ?? null, $filename),
         ];
 
-        $this->evDispatcher->dispatch(new UploadAfter($fileInfo));
-
+        event(new UploadAfter($fileInfo));
         return $fileInfo;
-    }
-
-    /**
-     * 创建目录.
-     */
-    public function createUploadDir(string $name): bool
-    {
-        return $this->filesystem->createDir($name);
-    }
-
-    /**
-     * 获取目录内容.
-     */
-    public function listContents(string $path = ''): array
-    {
-        return $this->filesystem->listContents($path);
-    }
-
-    /**
-     * 获取目录.
-     */
-    public function getDirectory(string $path, bool $isChildren): array
-    {
-        $contents = $this->filesystem->listContents($path, $isChildren);
-        $dirs = [];
-        foreach ($contents as $content) {
-            if ($content['type'] == 'dir') {
-                $dirs[] = $content;
-            }
-        }
-        return $dirs;
     }
 
     /**
@@ -154,21 +129,24 @@ class Upload
      */
     public function assembleUrl(?string $path, string $filename): string
     {
-        return $this->getPath($path, true) . '/' . $filename;
+        $path = $this->getPath($path, true) . '/' . $filename;
+
+        return match ($this->getMappingMode()) {
+            self::CHANNEL_OSS => $this->filesystem->getUrl($path),
+            default => $path
+        };
     }
 
     /**
      * 获取存储方式.
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function getStorageMode(): string
     {
         if (is_base_system()) {
-            return $this->container->get(SettingConfigService::class)->getConfigByKey('site_storage_mode')['value'] ?? 'local';
+            return container()->get(SettingConfigService::class)->getConfigByKey('site_storage_mode')['value'] ?? 'local';
         }
 
-        return $this->container->get(SettingConfigServiceInterface::class)->getConfigByKey('site_storage_mode')['value'] ?? 'local';
+        return container()->get(SettingConfigServiceInterface::class)->getConfigByKey('site_storage_mode')['value'] ?? 'local';
     }
 
     /**
@@ -176,76 +154,25 @@ class Upload
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function getNewName(): string
+    public function getNewName()
     {
         return snowflake_id();
     }
 
-    /**
-     * 处理上传.
-     * @throws \League\Flysystem\FileExistsException
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     * @throws \Exception
-     */
-    protected function handleUpload(UploadedFile $uploadedFile, array $config): array
-    {
-        $path = $this->getPath($config['path'] ?? null, $this->getMappingMode() !== 1);
-        $filename = $this->getNewName() . '.' . Str::lower($uploadedFile->getExtension());
-        $this->filesystem->writeStream($path . '/' . $filename, $uploadedFile->getStream()->detach());
-        // TODO
-//        if (!$this->filesystem->writeStream($path . '/' . $filename, $uploadedFile->getStream()->detach())) {
-//            throw new NormalStatusException((string) $uploadedFile->getError(), 500);
-//        }
-
-        $fileInfo = [
-            'storage_mode' => $this->getMappingMode(),
-            'origin_name' => $uploadedFile->getClientFilename(),
-            'object_name' => $filename,
-            'mime_type' => $uploadedFile->getClientMediaType(),
-            'storage_path' => $path,
-            'suffix' => Str::lower($uploadedFile->getExtension()),
-            'size_byte' => $uploadedFile->getSize(),
-            'size_info' => format_size($uploadedFile->getSize() * 1024),
-            'url' => $this->assembleUrl($config['path'] ?? null, $filename),
-        ];
-
-        $this->evDispatcher->dispatch(new UploadAfter($fileInfo));
-
-        return $fileInfo;
-    }
-
-    /**
-     * @param string $config
-     * @param false $isContainRoot
-     */
-    protected function getPath(?string $path = null, bool $isContainRoot = false): string
-    {
-        $uploadfile = $isContainRoot ? '/' . env('UPLOAD_PATH', 'uploadfile') . '/' : '';
-        return empty($path) ? $uploadfile . date('Ymd') : $uploadfile . $path;
-    }
-
-    /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
     protected function getMappingMode(): int
     {
-        return match ($this->getStorageMode()) {
-            'local' => 1,
-            'oss' => 2,
-            'qiniu' => 3,
-            'cos' => 4,
-            default => 1,
+        return match ($this->storageMode) {
+            'oss' => self::CHANNEL_OSS,
+            'qiniu' => self::CHANNEL_QI_NIU,
+            'cos' => self::CHANNEL_COS,
+            default => self::CHANNEL_LOCAL, // local
         };
     }
 
-    /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    protected function getProtocol(): string
+    protected function getPath(?string $path = null, bool $isContainRoot = false): string
     {
-        return $this->container->get(\Hyperf\HttpServer\Request::class)->getScheme();
+        $uploadPath = $isContainRoot ? env('UPLOAD_PATH', '') : '';
+
+        return $uploadPath . (empty($path) ? date('Ymd') : $path);
     }
 }

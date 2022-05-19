@@ -37,6 +37,10 @@ class ConfigProvider
                         \Hyperf\Database\Model\Collection::class => __DIR__ . '/../class_map/Collection.php',
                         // 使用 RedisSecondMetaGenerator 替换 MetaGeneratorFactory 内返回, 主要使用 秒级 来达到减小雪花 ID 长度
                         \Hyperf\Snowflake\MetaGeneratorFactory::class => __DIR__ . '/../class_map/MetaGeneratorFactory.php',
+                        // 替换 Filesystem 增加自定义函数, 主要 getUrl
+                        \League\Flysystem\Filesystem::class => __DIR__ . '/../class_map/Filesystem.php',
+                        // 替换 (ali oss) Adapter 增加自定义函数, 主要 getUrl
+                        \Hyperf\Flysystem\OSS\Adapter::class => __DIR__ . '/../class_map/Adapter.php',
                     ],
                     'ignore_annotations' => [
                         'required',

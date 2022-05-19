@@ -31,6 +31,7 @@
         "hyperf/database": "^2.2",
         "hyperf/db-connection": "~2.2.0",
         "hyperf/filesystem": "^2.2",
+        "hyperf/flysystem-oss": "^1.0",
         "hyperf/http-server": "~2.2.0",
         "hyperf/json-rpc": "^2.2",
         "hyperf/metric": "^2.2",

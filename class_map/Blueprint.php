@@ -24,6 +24,21 @@ class Blueprint
 {
     use Macroable;
 
+    // 自定义函数开始
+
+    /**
+     * 操作人 更新人 字段
+     * @return void
+     */
+    public function operators()
+    {
+        $this->unsignedBigInteger('created_by')->default(0)->comment('创建者');
+
+        $this->unsignedBigInteger('updated_by')->default(0)->comment('更新者');
+    }
+
+    // 自定义函数结束
+
     /**
      * The storage engine that should be used for the table.
      *
@@ -1283,17 +1298,6 @@ class Blueprint
             'type' => 'uuid',
             'name' => $column,
         ]));
-    }
-
-    /**
-     * 操作人 更新人 字段
-     * @return void
-     */
-    public function operators()
-    {
-        $this->unsignedBigInteger('created_by')->default(0)->comment('创建者');
-
-        $this->unsignedBigInteger('updated_by')->default(0)->comment('更新者');
     }
 
     /**
