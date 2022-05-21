@@ -1,6 +1,6 @@
 ## 公共的一些内容
 
-安装
+### 安装
 
 ```shell
 composer require ece2/common -W --ignore-platform-reqs
@@ -23,8 +23,10 @@ php bin/hyperf.php vendor:publish ece2/common -f
 }
 ```
 
+### 增加的 command
+
 > 按照数据表生成对应 model service controller 文件
 
 ```shell
-php bin/hyperf.php gen:code --with-comments {表名}
+php bin/hyperf.php gen:code --with-comments --refresh-fillable {表名}
 ```

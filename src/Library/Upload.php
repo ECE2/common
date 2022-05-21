@@ -16,6 +16,9 @@ use League\Flysystem\Filesystem;
 
 class Upload
 {
+    /**
+     * @deprecated
+     */
     public const CHANNEL_LOCAL = 1;
 
     public const CHANNEL_OSS = 2;

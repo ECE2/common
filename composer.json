@@ -49,6 +49,7 @@
         "hyperf/validation": "^2.2",
         "hyperf/watcher": "^2.2",
         "hyperf/snowflake": "^2.2",
+        "hyperf/websocket-server": "^2.2",
         "symfony/var-dumper": "^6.0",
         "symfony/property-access": "^6.0",
         "tangwei/apidocs": "^1.0",

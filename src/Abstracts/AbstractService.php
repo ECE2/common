@@ -199,7 +199,7 @@ abstract class AbstractService
                         $query->orderBy($params['orderBy'], $params['orderType'] ?? 'asc');
                     }
                 }),
-            $extend ?? fn (Builder $builder) => $builder
+            $extend ?? static fn (Builder $builder) => $builder
         );
     }
 
@@ -254,12 +254,12 @@ abstract class AbstractService
      */
     public function filterExecuteAttributes(array &$data, bool $removePk = false): void
     {
-//        $attrs = $this->model->getFillable();
-//        foreach ($data as $name => $val) {
-//            if (! in_array($name, $attrs)) {
-//                unset($data[$name]);
-//            }
-//        }
+        $attrs = $this->model->getFillable();
+        foreach ($data as $name => $val) {
+            if (! in_array($name, $attrs)) {
+                unset($data[$name]);
+            }
+        }
 
         if ($removePk && isset($data[$this->model->getKeyName()])) {
             unset($data[$this->model->getKeyName()]);
@@ -271,14 +271,14 @@ abstract class AbstractService
      */
     protected function filterQueryAttributes(array $fields, bool $removePk = false): array
     {
-//        $attrs = $this->model->getFillable();
-//        foreach ($fields as $key => $field) {
-//            if (! in_array(trim($field), $attrs)) {
-//                unset($fields[$key]);
-//            } else {
-//                $fields[$key] = trim($field);
-//            }
-//        }
+        $attrs = $this->model->getFillable();
+        foreach ($fields as $key => $field) {
+            if (! in_array(trim($field), $attrs)) {
+                unset($fields[$key]);
+            } else {
+                $fields[$key] = trim($field);
+            }
+        }
 
         if ($removePk && in_array($this->model->getKeyName(), $fields)) {
             unset($fields[array_search($this->model->getKeyName(), $fields)]);

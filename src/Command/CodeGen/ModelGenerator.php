@@ -166,8 +166,8 @@ class ModelGenerator extends BaseGenerator
         $stub = file_get_contents(__DIR__ . '/stubs/Model.stub');
 
         // 根据字段 自动加上 use Operator 和 use SoftDeletes
-        $usesCustom = [];
         $usesInClass = [];
+        $usesCustom = [];
         $columnNameList = array_column($columns, 'column_name');
         if (in_array('created_by', $columnNameList, true)) {
             $usesInClass[] = 'use Operator;';
@@ -181,9 +181,16 @@ class ModelGenerator extends BaseGenerator
         if (($primary = collect($columns)
             ->filter(fn ($column) => $column['column_key'] === 'PRI')
             ->first())
-            && Str::contains($primary['extra'], 'auto_increment')) {
+            && ! Str::contains($primary['extra'], 'auto_increment')) {
             $usesInClass[] = 'use Snowflake;';
             $usesCustom[] = 'use Hyperf\Snowflake\Concern\Snowflake;';
+        }
+        $memberVariables = [];
+        // 判断是否使用 $timestamps
+        if (collect($columns)
+            ->filter(fn ($column) => in_array($column['column_key'], ['created_at', 'updated_at']))
+            ->isEmpty()) {
+            $memberVariables[] = 'public $timestamps = false;';
         }
 
         return $this->replaceNamespace($stub, $name)
@@ -192,6 +199,7 @@ class ModelGenerator extends BaseGenerator
             ->replaceUses($stub, $option->getUses())
             ->replace($stub, '%USES_CUSTOM%', ! empty($usesCustom) ? implode("\n", $usesCustom) : '')
             ->replace($stub, '%USES_IN_CLASS%', ! empty($usesInClass) ? implode("\n", $usesInClass) : '')
+            ->replace($stub, '%MEMBER_VARIABLES%', ! empty($memberVariables) ? implode("\n", $memberVariables) : '')
             ->replaceClass($stub, $name)
             ->replaceTable($stub, $table);
     }

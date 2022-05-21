@@ -9,6 +9,8 @@ use Ece2\Common\Model\Traits\HasRelationshipsForRpc;
 use Hyperf\DbConnection\Model\Model as BaseModel;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\ModelCache\Cacheable;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 abstract class AbstractModel extends BaseModel
 {
@@ -39,9 +41,13 @@ abstract class AbstractModel extends BaseModel
      */
     public function getPerPage(): int
     {
-        /** @var RequestInterface $request */
-        $request = container()->get(RequestInterface::class);
+        try {
+            /** @var RequestInterface $request */
+            $request = container()->get(RequestInterface::class);
 
-        return (int) $request->input('pageSize', parent::getPerPage());
+            return (int) $request->input('pageSize', parent::getPerPage());
+        } catch (\Throwable $e) {
+            return parent::getPerPage();
+        }
     }
 }

@@ -11,9 +11,13 @@ class %CLASS% extends %INHERITANCE%
 {
     %USES_IN_CLASS%
 
+    %MEMBER_VARIABLES%
+
     protected $table = '%TABLE%';
 
     protected $connection = '%CONNECTION%';
+
+    protected $fillable = [];
 
     protected $casts = [];
 }
