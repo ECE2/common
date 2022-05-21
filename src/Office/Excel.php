@@ -6,9 +6,9 @@ namespace Ece2\Common\Office;
 
 use Ece2\Common\Exception\HttpException;
 use Ece2\Common\Interfaces\ModelExcelInterface;
-use Hyperf\HttpServer\Response;
 use Hyperf\Di\Annotation\AnnotationCollector;
 use Hyperf\HttpMessage\Stream\SwooleStream;
+use Hyperf\HttpServer\Contract\ResponseInterface;
 
 abstract class Excel
 {
@@ -85,7 +85,7 @@ abstract class Excel
      */
     protected function downloadExcel(string $filename, string $content): \Psr\Http\Message\ResponseInterface
     {
-        return container()->get(Response::class)->getResponse()
+        return container()->get(ResponseInterface::class)
             ->withHeader('content-description', 'File Transfer')
             ->withHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             ->withHeader('content-disposition', "attachment; filename=".rawurlencode($filename))

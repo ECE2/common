@@ -237,7 +237,7 @@ abstract class AbstractService
             $filename = $this->model->getTable();
         }
 
-        return collect()->export($dto, $filename, $this->getList($params, extend: $extend)->toArray());
+        return make(Collection::class)->export($dto, $filename, $this->getList($params, extend: $extend)->toArray());
     }
 
     /**
@@ -246,7 +246,7 @@ abstract class AbstractService
      */
     public function import(string $dto, ?\Closure $closure = null): bool
     {
-        return collect()->import($dto, $this->model, $closure);
+        return make(Collection::class)->import($dto, $this->model, $closure);
     }
 
     /**
