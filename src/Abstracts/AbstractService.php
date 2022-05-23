@@ -147,6 +147,50 @@ abstract class AbstractService
     }
 
     /**
+     * 搜索处理器
+     * @param Builder $builder
+     * @param $params
+     * @return Builder
+     */
+    public function handleQueryPreProcessing(Builder $builder, $params): Builder
+    {
+        return $builder;
+    }
+
+    /**
+     * 返回模型查询构造器.
+     * @param null|array $params
+     *                           + select
+     *                           + recycle
+     *                           + orderBy
+     *                           + orderType
+     * @return Builder
+     */
+    public function listQueryPreProcessing(?array $params, bool $dataPermission = true, callable $extend = null)
+    {
+        $params['select'] = array_values(array_filter(is_string($params['select'] ?? '') ? explode(',', $params['select'] ?? '') : (array) $params['select']));
+        $query = $this->handleQueryPreProcessing($this->model::query(), $params);
+
+        return tap(
+            $query
+                ->when($params['recycle'] ?? false, fn (Builder $builder) => $builder->onlyTrashed())
+                ->when($params['select'], fn (Builder $builder, $select) => $builder->select($this->filterQueryAttributes($select)))
+                ->when($dataPermission, fn (Builder $builder) => $builder->dataPermission())
+                // 排序部分
+                ->when($params['orderBy'] ?? false, function ($query) use ($params) {
+                    if (is_array($params['orderBy'])) {
+                        foreach ($params['orderBy'] as $key => $order) {
+                            $query->orderBy($order, $params['orderType'][$key] ?? 'asc');
+                        }
+                    } else {
+                        $query->orderBy($params['orderBy'], $params['orderType'] ?? 'asc');
+                    }
+                }),
+            $extend ?? static fn (Builder $builder) => $builder
+        );
+    }
+
+    /**
      * 获取列表数据.
      * @return Builder[]|Collection
      */
@@ -172,38 +216,6 @@ abstract class AbstractService
     }
 
     /**
-     * 返回模型查询构造器.
-     * @param null|array $params
-     *                           + select
-     *                           + recycle
-     *                           + orderBy
-     *                           + orderType
-     * @return Builder
-     */
-    public function listQueryPreProcessing(?array $params, bool $dataPermission = true, callable $extend = null)
-    {
-        $params['select'] = array_values(array_filter(is_string($params['select'] ?? '') ? explode(',', $params['select'] ?? '') : (array) $params['select']));
-
-        return tap(
-            $this->model::query()
-                ->when($params['recycle'] ?? false, fn (Builder $builder) => $builder->onlyTrashed())
-                ->when($params['select'], fn (Builder $builder, $select) => $builder->select($this->filterQueryAttributes($select)))
-                ->when($dataPermission, fn (Builder $builder) => $builder->dataPermission())
-                // 排序部分
-                ->when($params['orderBy'] ?? false, function ($query) use ($params) {
-                    if (is_array($params['orderBy'])) {
-                        foreach ($params['orderBy'] as $key => $order) {
-                            $query->orderBy($order, $params['orderType'][$key] ?? 'asc');
-                        }
-                    } else {
-                        $query->orderBy($params['orderBy'], $params['orderType'] ?? 'asc');
-                    }
-                }),
-            $extend ?? static fn (Builder $builder) => $builder
-        );
-    }
-
-    /**
      * 获取树列表.
      */
     public function getTreeList(
@@ -219,34 +231,6 @@ abstract class AbstractService
             ->listQueryPreProcessing($params, $dataPermission, $extend)
             ->get()
             ->toTree($idField, $parentField, $childrenField);
-    }
-
-    /**
-     * 导出数据.
-     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    public function export(array $params, ?string $dto, string $filename = null, callable $extend = null): ResponseInterface
-    {
-        if (empty($dto)) {
-            return ApplicationContext::getContainer()->get(Response::class)->error('导出未指定DTO');
-        }
-
-        if (empty($filename)) {
-            $filename = $this->model->getTable();
-        }
-
-        return make(Collection::class)->export($dto, $filename, $this->getList($params, extend: $extend)->toArray());
-    }
-
-    /**
-     * 数据导入.
-     * @Transaction
-     */
-    public function import(string $dto, ?\Closure $closure = null): bool
-    {
-        return make(Collection::class)->import($dto, $this->model, $closure);
     }
 
     /**
@@ -285,5 +269,33 @@ abstract class AbstractService
         }
 
         return (count($fields) < 1) ? ['*'] : array_values($fields);
+    }
+
+    /**
+     * 导出数据.
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function export(array $params, ?string $dto, string $filename = null, callable $extend = null): ResponseInterface
+    {
+        if (empty($dto)) {
+            return ApplicationContext::getContainer()->get(Response::class)->error('导出未指定DTO');
+        }
+
+        if (empty($filename)) {
+            $filename = $this->model->getTable();
+        }
+
+        return make(Collection::class)->export($dto, $filename, $this->getList($params, extend: $extend)->toArray());
+    }
+
+    /**
+     * 数据导入.
+     * @Transaction
+     */
+    public function import(string $dto, ?\Closure $closure = null): bool
+    {
+        return make(Collection::class)->import($dto, $this->model, $closure);
     }
 }
