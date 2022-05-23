@@ -28,8 +28,6 @@ abstract class AbstractModel extends BaseModel
      */
     public const DISABLE = '1';
 
-    public $guarded = [];
-
     /**
      * 隐藏的字段列表.
      * @var string[]

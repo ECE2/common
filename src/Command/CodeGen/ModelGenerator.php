@@ -188,7 +188,7 @@ class ModelGenerator extends BaseGenerator
         $memberVariables = [];
         // 判断是否使用 $timestamps
         if (collect($columns)
-            ->filter(fn ($column) => in_array($column['column_key'], ['created_at', 'updated_at']))
+            ->filter(fn ($column) => in_array($column['column_name'], ['created_at', 'updated_at']))
             ->isEmpty()) {
             $memberVariables[] = 'public $timestamps = false;';
         }

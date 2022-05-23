@@ -40,7 +40,8 @@ php bin/hyperf.php gen:code --with-comments {表名}
 php bin/hyperf.php migrate --seed
 ```
 3. 开发环境下 trace 收集是 100%, 看 db query 啥的在 zipkin 里, 拿着 api 返回的 traceId 值搜索
-4. 注意: 使用 Inject 注解进来的实例是单例, 在开发时, 比如有一个成员变量 $a = 0, 单次 request $a ++ 后, 后面的 request 里 $a 不再是 0 (除非重启服务)
+4. 注意: 使用 Inject 注解进来的实例是单例, (总的来说, 在常驻环境下, 都得注意污染, 比如 Controller 也是个单例), 在开发时, 比如有一个成员变量 $a = 0, 单次 request $a ++ 后, 后面的 request 里 $a 不再是 0 (除非重启服务)
+5. Model 的 fillable 变量需要保持和数据库统一, 不然会写入缺掉内容等
 
 ... 未完待续
 
