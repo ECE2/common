@@ -204,15 +204,11 @@ abstract class AbstractService
     /**
      * 获取列表数据.
      */
-    public function getPageList(?array $params = null, bool $dataPermission = true, string $pageName = 'page', callable $extend = null)
+    public function getPageList(?array $params = null, bool $dataPermission = true, callable $extend = null)
     {
         return $this
             ->listQueryPreProcessing($params, $dataPermission, $extend)
-            ->paginate(
-                perPage: (int) ($params['pageSize'] ?? $this->model::getModel()->getPerPage()),
-                pageName: $pageName,
-                page: (int) ($params[$pageName] ?? Paginator::resolveCurrentPage($pageName))
-            );
+            ->paginate();
     }
 
     /**

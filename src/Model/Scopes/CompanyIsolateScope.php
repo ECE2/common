@@ -11,6 +11,7 @@ use Hyperf\Utils\Context;
 
 /**
  * 公司隔离
+ * TODO 待使用验证
  */
 class CompanyIsolateScope implements Scope
 {
@@ -44,21 +45,20 @@ class CompanyIsolateScope implements Scope
 
     public static function getCompanyId()
     {
+        // 优先使用 设置的全局公司 ID
+        if (! empty($companyId = Context::get('GlobalCompanyId', 0))) {
+            return $companyId;
+        }
+
         // 上下文里获取, admin 项目用的 jwt 会写入上下文, 其他项目可以手动写入匿名函数返回管理员数据
         try {
             if (($userResolver = Context::get('currentAdmin')) && is_callable($userResolver)) {
                 $admin = $userResolver();
-                if (isset($admin['company_id'])) {
-                    return $admin['company_id'];
-                }
+
+                return $admin['company_id'] ?? 0;
             }
         } catch (\Exception $e) {
+            return 0;
         }
-        // 如果上下文没有, 允许设置全局公司 ID
-        if (empty($companyId)) {
-            return Context::get('GlobalCompanyId', 0);
-        }
-
-        return 0;
     }
 }

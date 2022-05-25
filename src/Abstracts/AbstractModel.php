@@ -29,6 +29,11 @@ abstract class AbstractModel extends BaseModel
     public const DISABLE = '1';
 
     /**
+     * 允许前端提交的最大单页数据数量
+     */
+    public const MAX_PAGE_SIZE = 500;
+
+    /**
      * 隐藏的字段列表.
      * @var string[]
      */
@@ -43,7 +48,7 @@ abstract class AbstractModel extends BaseModel
             /** @var RequestInterface $request */
             $request = container()->get(RequestInterface::class);
 
-            return (int) $request->input('pageSize', parent::getPerPage());
+            return min((int) $request->input('pageSize', parent::getPerPage()), static::MAX_PAGE_SIZE);
         } catch (\Throwable $e) {
             return parent::getPerPage();
         }

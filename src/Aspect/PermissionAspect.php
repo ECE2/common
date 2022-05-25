@@ -76,7 +76,7 @@ class PermissionAspect extends AbstractAspect
 
         if ($where === 'OR') {
             foreach (explode(',', $codeString) as $code) {
-                if (in_array(trim($code), $codes)) {
+                if (in_array(trim($code), $codes, true)) {
                     return true;
                 }
             }
@@ -88,7 +88,7 @@ class PermissionAspect extends AbstractAspect
         if ($where === 'AND') {
             foreach (explode(',', $codeString) as $code) {
                 $code = trim($code);
-                if (!in_array($code, $codes)) {
+                if (!in_array($code, $codes, true)) {
                     $service = container()->get(\App\Service\SystemMenuService::class);
                     throw new NoPermissionException(
                         t('system.no_permission') . ' -> [ ' . $service->findNameByCode($code) . ' ]'

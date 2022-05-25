@@ -58,3 +58,9 @@ php bin/hyperf.php migrate --seed
 ```shell
 kill -9 $(ps aux | grep "php bin/hyperf" | awk '{print $2}')
 ```
+
+也有可能是, 取决于启动的方式, 正在后台执行中的进程名
+
+```shell
+kill -9 $(ps aux | grep "watch" | awk '{print $2}')
+```
