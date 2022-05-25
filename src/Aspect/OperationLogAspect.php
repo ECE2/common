@@ -13,8 +13,10 @@ use Ece2\Common\JsonRpc\Contract\SystemMenuServiceInterface;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
+use Hyperf\Di\Exception\Exception;
 use Hyperf\HttpServer\Request;
 use Psr\Http\Message\ResponseInterface;
+use Swoole\Http\Status;
 
 #[Aspect]
 class OperationLogAspect extends AbstractAspect
@@ -33,17 +35,22 @@ class OperationLogAspect extends AbstractAspect
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
         $annotation = $proceedingJoinPoint->getAnnotationMetadata()->method[OperationLog::class];
-        /* @var $result ResponseInterface */
-        $result = $proceedingJoinPoint->process();
+        try {
+            /* @var $result ResponseInterface */
+            $result = $proceedingJoinPoint->process();
+        } catch (Exception $e) {
+        }
 
-        if (!empty($annotation->menuName) || ($annotation = $proceedingJoinPoint->getAnnotationMetadata()->method[Permission::class])) {
+        if (!empty($annotation->menuName) ||
+            ($annotation = $proceedingJoinPoint->getAnnotationMetadata()->method[Permission::class])
+        ) {
             $isDownload = !empty($result->getHeader('content-description')) && !empty($result->getHeader('content-transfer-encoding'));
 
             event(new Operation($this->getRequestInfo([
                 'code' => !empty($annotation->code) ? explode(',', $annotation->code)[0] : '',
                 'name' => $annotation->menuName ?? '',
-                'response_code' => $result->getStatusCode(),
-                'response_data' => $isDownload ? '文件下载' : $result->getBody()->getContents()
+                'response_code' => $result?->getStatusCode() ?? Status::INTERNAL_SERVER_ERROR,
+                'response_data' => $isDownload ? '文件下载' : ($result?->getBody()?->getContents() ?? '')
             ])));
         }
 
