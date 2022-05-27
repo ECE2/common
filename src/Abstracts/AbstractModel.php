@@ -9,8 +9,6 @@ use Ece2\Common\Model\Traits\HasRelationshipsForRpc;
 use Hyperf\DbConnection\Model\Model as BaseModel;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\ModelCache\Cacheable;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 abstract class AbstractModel extends BaseModel
 {
@@ -29,7 +27,7 @@ abstract class AbstractModel extends BaseModel
     public const DISABLE = '1';
 
     /**
-     * 允许前端提交的最大单页数据数量
+     * 允许前端提交的最大单页数据数量.
      */
     public const MAX_PAGE_SIZE = 500;
 
@@ -41,8 +39,9 @@ abstract class AbstractModel extends BaseModel
 
     /**
      * 允许前端传长度.
+     * @return int
      */
-    public function getPerPage(): int
+    public function getPerPage()
     {
         try {
             /** @var RequestInterface $request */

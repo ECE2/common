@@ -10,13 +10,11 @@ use Ece2\Common\Annotation\OperationLog;
 use Ece2\Common\Annotation\Permission;
 use Ece2\Common\Event\Operation;
 use Ece2\Common\JsonRpc\Contract\SystemMenuServiceInterface;
+use Hyperf\Cache\Annotation\Cacheable;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
-use Hyperf\Di\Exception\Exception;
 use Hyperf\HttpServer\Request;
-use Psr\Http\Message\ResponseInterface;
-use Swoole\Http\Status;
 
 #[Aspect]
 class OperationLogAspect extends AbstractAspect
@@ -35,26 +33,15 @@ class OperationLogAspect extends AbstractAspect
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
         $annotation = $proceedingJoinPoint->getAnnotationMetadata()->method[OperationLog::class];
-        try {
-            /* @var $result ResponseInterface */
-            $result = $proceedingJoinPoint->process();
-        } catch (Exception $e) {
-        }
 
-        if (!empty($annotation->menuName) ||
-            ($annotation = $proceedingJoinPoint->getAnnotationMetadata()->method[Permission::class])
-        ) {
-            $isDownload = !empty($result->getHeader('content-description')) && !empty($result->getHeader('content-transfer-encoding'));
-
+        if (!empty($annotation->menuName) || ($annotation = $proceedingJoinPoint->getAnnotationMetadata()->method[Permission::class])) {
             event(new Operation($this->getRequestInfo([
                 'code' => !empty($annotation->code) ? explode(',', $annotation->code)[0] : '',
                 'name' => $annotation->menuName ?? '',
-                'response_code' => $result?->getStatusCode() ?? Status::INTERNAL_SERVER_ERROR,
-                'response_data' => $isDownload ? '文件下载' : ($result?->getBody()?->getContents() ?? '')
             ])));
         }
 
-        return $result;
+        return $proceedingJoinPoint->process();
     }
 
     /**
@@ -77,8 +64,6 @@ class OperationLogAspect extends AbstractAspect
             'ip_location' => ip_to_region($ip),
             'service_name' => $data['name'] ?: $this->getOperationMenuName($data['code']),
             'request_data' => $request->all(),
-            'response_code' => $data['response_code'],
-            'response_data' => $data['response_data'],
         ];
         try {
             $operationLog['username'] = identity()['username'] ?? '';
@@ -96,6 +81,8 @@ class OperationLogAspect extends AbstractAspect
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
+    // TODO 清除缓存
+    #[Cacheable(prefix: 'findMenuNameByCode', value: 'menuCode_#{code}', ttl: 0)]
     protected function getOperationMenuName(string $code): string
     {
         if (is_base_system()) {

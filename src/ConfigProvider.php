@@ -178,6 +178,12 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/config/snowflake.php',
                 ],
                 [
+                    'id' => 'config:amqp',
+                    'description' => 'replace config amqp',
+                    'source' => __DIR__ . '/../publish/config/amqp.php',
+                    'destination' => BASE_PATH . '/config/amqp.php',
+                ],
+                [
                     'id' => 'start_hyperf_shell',
                     'description' => 'start hyperf shell',
                     'source' => __DIR__ . '/../publish/start_hyperf.sh',
