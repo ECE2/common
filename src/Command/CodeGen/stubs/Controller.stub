@@ -68,7 +68,7 @@ class %CLASS% extends AbstractController
     #[GetMapping('index')]
     public function index()
     {
-        return $this->success($this->service->getPageList());
+        return $this->success($this->service->getPageList($this->request->all()));
     }
 
     /**
