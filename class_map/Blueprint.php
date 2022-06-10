@@ -35,6 +35,8 @@ class Blueprint
         $this->unsignedBigInteger('created_by')->default(0)->comment('创建者');
 
         $this->unsignedBigInteger('updated_by')->default(0)->comment('更新者');
+
+        $this->index('created_by');
     }
 
     // 自定义函数结束
