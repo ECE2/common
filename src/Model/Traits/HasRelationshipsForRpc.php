@@ -8,7 +8,6 @@ use Ece2\Common\Model\Rpc\Relations\HasOneForRpc;
 use Ece2\Common\Model\Rpc\Relations\MorphToManyForRpc;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Model;
-use Hyperf\Database\Model\Relations\BelongsToMany;
 use Hyperf\Utils\Str;
 
 /**

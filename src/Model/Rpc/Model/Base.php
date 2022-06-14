@@ -12,7 +12,7 @@ use Psr\Container\NotFoundExceptionInterface;
 abstract class Base extends BaseModel
 {
     use HasRelationshipsForRpc;
-    
+
     protected $guarded = [];
 
     protected static $service;

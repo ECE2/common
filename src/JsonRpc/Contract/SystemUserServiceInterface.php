@@ -4,6 +4,8 @@ namespace Ece2\Common\JsonRpc\Contract;
 
 interface SystemUserServiceInterface
 {
+    public function getByIds(array $ids);
+
     public function getInfoByJwtToken(string $jwtToken, string $scene = 'admin');
 
     public function isAdminRole();
