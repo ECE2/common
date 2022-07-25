@@ -15,4 +15,6 @@ interface SystemUserServiceInterface
     public function getRoles($uid);
 
     public function getByDeptIds(array $deptIds);
+
+    public function sendMessageToUser($uid, $message, $type);
 }

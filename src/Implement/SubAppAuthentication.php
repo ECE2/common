@@ -27,7 +27,7 @@ class SubAppAuthentication implements AuthenticationInterface
 
         // 获取身份信息然后写入上下文
         $user = container()->get(SystemUserServiceInterface::class)->getInfoByJwtToken($token, $scene);
-        if (! ($user['success'] ?? false) || empty($user['data'])) { // TODO 统一处理返回是否成功
+        if (! ($user['success'] ?? false) || empty($user['data'])) {
             throw new TokenException(t('jwt.no_token'));
         }
         $userInstance = new SystemUser($user['data']);

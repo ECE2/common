@@ -55,10 +55,10 @@ class ModelGenerator extends BaseGenerator
             ->setInheritance($this->getOption('inheritance', 'commands.gen:model.inheritance', $pool, 'Model'))
             ->setUses($this->getOption('uses', 'commands.gen:model.uses', $pool, ''))
             ->setForceCasts($this->getOption('force-casts', 'commands.gen:model.force_casts', $pool, false))
-            ->setRefreshFillable($this->getOption('refresh-fillable', 'commands.gen:model.refresh_fillable', $pool, false))
+            ->setRefreshFillable($this->getOption('refresh-fillable', 'commands.gen:model.refresh_fillable', $pool, true))
             ->setTableMapping($this->getOption('table-mapping', 'commands.gen:model.table_mapping', $pool, []))
             ->setIgnoreTables($this->getOption('ignore-tables', 'commands.gen:model.ignore_tables', $pool, []))
-            ->setWithComments($this->getOption('with-comments', 'commands.gen:model.with_comments', $pool, false))
+            ->setWithComments($this->getOption('with-comments', 'commands.gen:model.with_comments', $pool, true))
             ->setWithIde($this->getOption('with-ide', 'commands.gen:model.with_ide', $pool, false))
             ->setVisitors($this->getOption('visitors', 'commands.gen:model.visitors', $pool, []))
             ->setPropertyCase($this->getOption('property-case', 'commands.gen:model.property_case', $pool));

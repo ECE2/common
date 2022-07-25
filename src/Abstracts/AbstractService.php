@@ -192,7 +192,9 @@ abstract class AbstractService
                     } else {
                         $query->orderBy($params['orderBy'], $params['orderType'] ?? 'asc');
                     }
-                }),
+                })
+                // 时间倒序
+                ->when(($params['orderByDescCreated'] ?? true) && $this?->model?->timestamps, fn (Builder $builder) => $builder->orderByDesc($this->model->getCreatedAtColumn())),
             $extend ?? static fn (Builder $builder) => $builder
         );
     }
