@@ -6,6 +6,7 @@ use Ece2\Common\JsonRpc\Contract\AttachmentServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SettingConfigServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SettingCrontabLogServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SettingCrontabServiceInterface;
+use Ece2\Common\JsonRpc\Contract\SystemDeptServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemMenuServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemQueueLogServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemQueueMessageServiceInterface;
@@ -26,6 +27,7 @@ class JsonRpcServices
             'SystemRoleService' => SystemRoleServiceInterface::class,
             'SystemUserService' => SystemUserServiceInterface::class,
             'SystemMenuService' => SystemMenuServiceInterface::class,
+            'SystemDeptService' => SystemDeptServiceInterface::class,
         ];
     }
 }

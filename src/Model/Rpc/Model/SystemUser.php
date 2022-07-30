@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Model\Rpc\Model;
 
+use Ece2\Common\JsonRpc\Contract\SystemDeptServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
 use Hyperf\Di\Annotation\Inject;
+use Hyperf\Utils\Arr;
 
 /**
  * @property int $id
@@ -38,6 +40,9 @@ class SystemUser extends Base
      */
     protected static $service;
 
+    #[Inject]
+    protected SystemDeptServiceInterface $systemDeptService;
+
     /**
      * 是否为超级管理员（创始人），用户禁用对创始人没用.
      */
@@ -65,7 +70,7 @@ class SystemUser extends Base
 
     /**
      * 用户角色.
-     * @return array|mixed
+     * @return \Hyperf\Utils\Collection
      */
     public function getRoles()
     {
@@ -81,5 +86,14 @@ class SystemUser extends Base
     public function sendMessage($message, $type = 1)
     {
         return self::$service->sendMessageToUser($this->getKey(), $message, $type);
+    }
+
+    /**
+     * 所属部门.
+     * @return SystemDept
+     */
+    public function department()
+    {
+        return new SystemDept(Arr::first($this->systemDeptService->getByIds([$this->dept_id])['data'] ?? []));
     }
 }

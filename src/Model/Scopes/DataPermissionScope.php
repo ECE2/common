@@ -14,10 +14,9 @@ use Ece2\Common\Model\Rpc\Model\SystemUser as SystemUserForRpc;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Model;
 use Hyperf\Database\Model\Scope;
-use Hyperf\Utils\Context;
 
 /**
- * 数据权限
+ * 数据权限.
  */
 class DataPermissionScope implements Scope
 {
@@ -34,48 +33,58 @@ class DataPermissionScope implements Scope
                 throw new HttpException(message: 'Data Scope missing user_id');
             }
 
-            if ($userId == config('config_center.system.super_admin', env('SUPER_ADMIN'))
-                || !method_exists($builder->getModel(), 'getCreatedByColumn')) {
+            $isSuperAdmin = ((string) $userId) === ((string) config('config_center.system.super_admin', env('SUPER_ADMIN')));
+            $hasNotCreatedByColumn = ! method_exists($builder->getModel(), 'getCreatedByColumn');
+            if ($isSuperAdmin || $hasNotCreatedByColumn) {
                 return $builder;
             }
 
             $dataScope = new class($userId, $builder) {
-                // 数据范围用户ID列表
-                protected array $userIds = [];
-
-                public function __construct(protected int $userid, protected Builder $builder)
-                {
+                public function __construct(
+                    protected int $userId,
+                    protected Builder $builder,
+                    protected array $userIds = [] // 数据范围用户ID列表
+                ) {
                 }
 
                 public function execute(): Builder
                 {
                     $this->getUserDataScope();
-                    if (empty($this->userIds)) {
-                        return $this->builder;
-                    } else {
-                        $this->userIds[] = $this->userid;
-                        return $this->builder->whereIn('created_by', array_unique($this->userIds));
-                    }
+
+                    return $this->builder
+                        ->when(
+                            $this->userIds,
+                            fn ($builder, $userIds) => $builder->whereIn($this->builder->getModel()->getCreatedByColumn(), array_unique($userIds))
+                        );
                 }
 
                 protected function getUserDataScope(): void
                 {
+                    /** @var SystemUserForRpc|SystemUser $user */
                     if (is_base_system()) {
-                        $user = SystemUser::findOrFail($this->userid, ['id', 'dept_id']);
+                        $user = SystemUser::findOrFail($this->userId, ['id', 'dept_id']);
                         $roles = $user->roles()->get(['id', 'data_scope']);
                     } else {
-                        /** @var SystemUserForRpc $user */
-                        $user = (new SystemUserForRpc(container()->get(SystemUserServiceInterface::class)->getInfo($this->userid)['data']['user'] ?? []));
+                        $user = (new SystemUserForRpc(
+                            container()->get(SystemUserServiceInterface::class)
+                                ->getInfo($this->userId)['data']['user'] ?? []));
                         $roles = $user->getRoles();
+                    }
+
+                    // 没有角色的情况下, 默认只能看自己的
+                    if ($roles->isEmpty()) {
+                        $this->userIds[] = $this->userId;
+                        return;
                     }
 
                     foreach ($roles as $role) {
                         switch ((int) $role->data_scope) {
+                            // 如果是所有权限，跳出所有循环
                             case 0: // SystemRole::ALL_SCOPE
-                                // 如果是所有权限，跳出所有循环
+                                $this->userIds = [];
                                 break 2;
+                            // 自定义数据权限
                             case 1: // SystemRole::CUSTOM_SCOPE
-                                // 自定义数据权限
                                 if (is_base_system()) {
                                     $deptIds = $role->depts()->pluck('id')->toArray();
                                     $this->userIds = array_merge(
@@ -91,9 +100,10 @@ class DataPermissionScope implements Scope
                                     );
                                 }
 
+                                $this->userIds[] = $this->userId;
                                 break;
+                            // 本部门数据权限
                             case 2: // SystemRole::SELF_DEPT_SCOPE
-                                // 本部门数据权限
                                 if (is_base_system()) {
                                     $this->userIds = array_merge(
                                         $this->userIds,
@@ -105,9 +115,11 @@ class DataPermissionScope implements Scope
                                         array_column(container()->get(SystemUserServiceInterface::class)->getByDeptIds([$user['dept_id']])['data'] ?? [], 'id')
                                     );
                                 }
+
+                                $this->userIds[] = $this->userId;
                                 break;
+                            // 本部门及子部门数据权限
                             case 3: // SystemRole::DEPT_BELOW_SCOPE
-                                // 本部门及子部门数据权限
                                 if (is_base_system()) {
                                     $deptIds = SystemDept::query()->where('level', 'like', '%' . $user['dept_id'] . '%')->pluck('id')->toArray();
                                     $deptIds[] = $user['dept_id'];
@@ -120,15 +132,19 @@ class DataPermissionScope implements Scope
                                     $deptIds[] = $user['dept_id'];
                                     $this->userIds = array_merge(
                                         $this->userIds,
-                                        !empty($deptIds) ?
+                                        ! empty($deptIds) ?
                                             array_column(
                                                 container()->get(SystemUserServiceInterface::class)->getByDeptIds($deptIds)['data'] ?? [],
                                                 'id'
                                             ) : []
                                     );
                                 }
+
+                                $this->userIds[] = $this->userId;
                                 break;
+                            // 自己的数据
                             case 4: // SystemRole::SELF_SCOPE
+                                $this->userIds[] = $this->userId;
                             default:
                                 break;
                         }

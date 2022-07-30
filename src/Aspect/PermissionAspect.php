@@ -13,6 +13,7 @@ use Hyperf\Di\Exception\Exception;
 use Ece2\Common\Annotation\Permission;
 use Ece2\Common\Exception\NoPermissionException;
 use Hyperf\HttpServer\Request;
+use Hyperf\Utils\Arr;
 
 #[Aspect]
 class PermissionAspect extends AbstractAspect
@@ -73,6 +74,10 @@ class PermissionAspect extends AbstractAspect
         } else {
             $codes = container()->get(SystemUserServiceInterface::class)->getInfo(identity()?->getKey())['data']['codes'] ?? [];
         }
+        // 所有权限
+        if (array_search('*', $codes, true) !== false) {
+            return true;
+        }
 
         if ($where === 'OR') {
             foreach (explode(',', $codeString) as $code) {
@@ -80,6 +85,7 @@ class PermissionAspect extends AbstractAspect
                     return true;
                 }
             }
+
             throw new NoPermissionException(
                 t('system.no_permission') . ' -> [ ' . $this->request->getPathInfo() . ' ]'
             );
@@ -90,6 +96,7 @@ class PermissionAspect extends AbstractAspect
                 $code = trim($code);
                 if (!in_array($code, $codes, true)) {
                     $service = container()->get(\App\Service\SystemMenuService::class);
+
                     throw new NoPermissionException(
                         t('system.no_permission') . ' -> [ ' . $service->findNameByCode($code) . ' ]'
                     );
