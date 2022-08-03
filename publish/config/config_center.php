@@ -15,12 +15,12 @@ return [
             'default_key' => 'config_center.system',
             'listener_config' => [
                 // 使用举例: config('config_center.system.super_admin')
-//                'config_center.system' => [
-//                    'tenant' => 'public', // 命名空间
-//                    'data_id' => 'system',
-//                    'group' => 'DEFAULT_GROUP',
-//                    'type' => 'json',
-//                ],
+                'config_center.system' => [
+                    'tenant' => 'public', // 命名空间
+                    'data_id' => 'system',
+                    'group' => 'DEFAULT_GROUP',
+                    'type' => 'json',
+                ],
             ],
         ],
     ],
