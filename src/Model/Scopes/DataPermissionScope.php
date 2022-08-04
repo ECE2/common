@@ -130,12 +130,12 @@ class DataPermissionScope implements Scope
                             case 5: // SystemRole::COMPANY_SCOPE
                                 // 找到当前部门的顶级部门
                                 if (is_base_system()) {
-                                    $topLevelDept = $user->dept->topLevelDept();
+                                    $topLevelDept = $user->dept?->topLevelDept();
                                 } else {
-                                    $topLevelDept = (new \Ece2\Common\Model\Rpc\Model\SystemDept(['id' => $user['dept_id']]))->topLevelDept();
+                                    $topLevelDept = (new \Ece2\Common\Model\Rpc\Model\SystemDept(['id' => $user['dept_id']]))?->topLevelDept();
                                 }
 
-                                $this->userIds = array_merge($this->userIds, $this->getDeptUser($topLevelDept->getKey()));
+                                $this->userIds = array_merge($this->userIds, $topLevelDept !== null ? $this->getDeptUser($topLevelDept->getKey()) : []);
                                 $this->userIds[] = $this->userId;
                             default:
                                 break;

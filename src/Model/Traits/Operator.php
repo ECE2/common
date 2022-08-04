@@ -4,8 +4,35 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Model\Traits;
 
+use App\Model\SystemUser;
+use \Ece2\Common\Model\Rpc\Model\SystemUser as SystemUserForRpc;
+
+/**
+ * @property SystemUser|SystemUserForRpc $createdBy
+ * @property SystemUser|SystemUserForRpc $updatedBy
+ */
 trait Operator
 {
+    use HasRelationshipsForRpc;
+    
+    public function createdByInstance()
+    {
+        if (is_base_system()) {
+            return $this->hasOne(SystemUser::class, 'id', $this->getCreatedByColumn());
+        } else {
+            return $this->rpcHasOne(SystemUserForRpc::class, 'id', $this->getCreatedByColumn());
+        }
+    }
+
+    public function updatedByInstance()
+    {
+        if (is_base_system()) {
+            return $this->hasOne(SystemUser::class, 'id', $this->getCreatedByColumn());
+        } else {
+            return $this->rpcHasOne(SystemUserForRpc::class, 'id', $this->getCreatedByColumn());
+        }
+    }
+
     public function touch(): bool
     {
         $this->updateOperators();

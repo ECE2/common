@@ -48,6 +48,10 @@ class SystemDept extends Base
      */
     public function topLevelDept()
     {
-        return new SystemDept(self::$service->topLevelDept($this->getKey())['data'] ?? []);
+        if (empty($topLevelDept = (self::$service->topLevelDept($this->getKey())['data'] ?? []))) {
+            return null;
+        }
+
+        return new SystemDept($topLevelDept);
     }
 }

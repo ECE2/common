@@ -7,7 +7,6 @@ namespace Ece2\Common\Model\Rpc\Model;
 use Ece2\Common\JsonRpc\Contract\SystemDeptServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
 use Hyperf\Di\Annotation\Inject;
-use Hyperf\Utils\Arr;
 
 /**
  * @property int $id
@@ -74,6 +73,7 @@ class SystemUser extends Base
      */
     public function getRoles()
     {
+        // TODO 连表优化
         return collect(self::$service->getRoles($this->getKey())['data'] ?? [])->map(fn ($item) => new SystemRole($item));
     }
 
@@ -90,10 +90,10 @@ class SystemUser extends Base
 
     /**
      * 所属部门.
-     * @return SystemDept
+     * @return \Hyperf\Database\Model\Relations\HasOne
      */
     public function department()
     {
-        return new SystemDept(Arr::first($this->systemDeptService->getByIds([$this->dept_id])['data'] ?? []));
+        return $this->rpcHasOne(SystemDept::class, 'id', 'dept_id');
     }
 }
