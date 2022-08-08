@@ -111,15 +111,7 @@ class Adapter implements FilesystemAdapter
         $token = $config['token'] ?? null;
         $proxy = $config['proxy'] ?? null;
 
-        $this->client = make(OssClient::class, [
-            $accessId,
-            $accessSecret,
-            $endpoint,
-            $isCName,
-            $token,
-            $proxy,
-        ]);
-
+        $this->client = new OssClient($accessId, $accessSecret, $endpoint, $isCName, $token, $proxy);
         $this->client->setTimeout($timeout);
         $this->client->setConnectTimeout($connectTimeout);
     }
