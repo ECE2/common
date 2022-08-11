@@ -12,9 +12,6 @@ interface SystemUserServiceInterface
     /** 根据 token 获取用户信息 */
     public function getInfoByJwtToken(string $jwtToken, string $scene = 'admin');
 
-    /** 是否为管理员角色 */
-    public function isAdminRole();
-
     /** 获取用户信息 */
     public function getInfo($uid);
 

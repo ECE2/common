@@ -8,13 +8,13 @@ use App\Model\SystemUser;
 use \Ece2\Common\Model\Rpc\Model\SystemUser as SystemUserForRpc;
 
 /**
- * @property SystemUser|SystemUserForRpc $createdBy
- * @property SystemUser|SystemUserForRpc $updatedBy
+ * @property SystemUser|SystemUserForRpc $createdByInstance
+ * @property SystemUser|SystemUserForRpc $updatedByInstance
  */
 trait Operator
 {
     use HasRelationshipsForRpc;
-    
+
     public function createdByInstance()
     {
         if (is_base_system()) {

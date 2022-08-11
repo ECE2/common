@@ -30,6 +30,7 @@ use Hyperf\Di\Annotation\Inject;
  * @property string $created_at
  * @property string $updated_at
  * @property string $deleted_at
+ * @property SystemDept $department
  */
 class SystemUser extends Base
 {
@@ -43,11 +44,37 @@ class SystemUser extends Base
     protected SystemDeptServiceInterface $systemDeptService;
 
     /**
+     * !!! 用户类型 前端 Model 也有定义 注意同步修改 !!!
+     * 用户类型: 默认
+     */
+    public const TYPE_USER_SUPER_ADMIN = '1';
+
+    /**
+     * 用户类型: 运营.
+     */
+    public const TYPE_USER_OPERATION = '2';
+
+    /**
+     * 用户类型: 政府监管.
+     */
+    public const TYPE_USER_GOVERNMENT_REGULATION = '10';
+
+    /**
+     * 用户类型: 企业一般用户.
+     */
+    public const TYPE_USER_BUSINESS_GENERALLY = '100';
+
+    /**
+     * 用户类型: 企业管理用户.
+     */
+    public const TYPE_USER_BUSINESS_MANAGEMENT = '101';
+
+    /**
      * 是否为超级管理员（创始人），用户禁用对创始人没用.
      */
     public function isSuperAdmin(): bool
     {
-        return (int) config('config_center.system.super_admin', env('SUPER_ADMIN')) === (int) $this->getKey();
+        return $this->user_type === self::TYPE_USER_SUPER_ADMIN;
     }
 
     /**

@@ -30,7 +30,7 @@ class RoleAspect extends AbstractAspect
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
         // 是超管角色放行
-        if (identity()?->isAdminRole()) {
+        if (identity()?->isSuperAdmin()) {
             return $proceedingJoinPoint->process();
         }
 
