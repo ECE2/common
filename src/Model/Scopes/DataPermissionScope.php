@@ -62,7 +62,7 @@ class DataPermissionScope implements Scope
                 {
                     /** @var SystemUserForRpc|SystemUser $user */
                     if (is_base_system()) {
-                        $user = SystemUser::findOrFail($this->userId, ['id', 'dept_id']);
+                        $user = SystemUser::findOrFail($this->userId);
                         $roles = $user->roles()->get(['id', 'data_scope']);
                     } else {
                         $user = (new SystemUserForRpc(
