@@ -70,8 +70,8 @@ class DataPermissionScope implements Scope
                                 ->getInfo($this->userId)['data']['user'] ?? []));
                         $roles = $user->getRoles();
                     }
-                    // 超管 SystemUser::TYPE_USER_SUPER_ADMIN
-                    if ($user->user_type === '1') {
+                    // 超管
+                    if ($user->isSuperAdmin()) {
                         $this->userIds = [];
                         return;
                     }
