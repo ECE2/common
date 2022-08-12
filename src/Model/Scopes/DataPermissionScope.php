@@ -33,9 +33,9 @@ class DataPermissionScope implements Scope
                 throw new HttpException(message: 'Data Scope missing user_id');
             }
 
-            $isSuperAdmin = ((string) $userId) === ((string) config('config_center.system.super_admin', env('SUPER_ADMIN')));
+            // 没有创建人字段
             $hasNotCreatedByColumn = ! method_exists($builder->getModel(), 'getCreatedByColumn');
-            if ($isSuperAdmin || $hasNotCreatedByColumn) {
+            if ($hasNotCreatedByColumn) {
                 return $builder;
             }
 
@@ -70,7 +70,11 @@ class DataPermissionScope implements Scope
                                 ->getInfo($this->userId)['data']['user'] ?? []));
                         $roles = $user->getRoles();
                     }
-
+                    // 超管 SystemUser::TYPE_USER_SUPER_ADMIN
+                    if ($user->user_type === '1') {
+                        $this->userIds = [];
+                        return;
+                    }
                     // 没有角色的情况下, 默认只能看自己的
                     if ($roles->isEmpty()) {
                         $this->userIds[] = $this->userId;
