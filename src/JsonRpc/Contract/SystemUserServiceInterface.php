@@ -6,6 +6,9 @@ interface SystemUserServiceInterface
 {
     public function getByIds(array $ids);
 
+    /** 获取超管列表 */
+    public function getSuperAdmins();
+
     /** 根据用户 ID 获取用户所属部门 */
     public function getUserDept(int $uid);
 

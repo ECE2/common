@@ -7,7 +7,7 @@ namespace Ece2\Common\Model\Traits;
 use Ece2\Common\Model\Scopes\DataPermissionScope;
 
 /**
- * @method static static|\Hyperf\Database\Model\Builder|\Hyperf\Database\Query\Builder dataPermission(?int $userid = null)
+ * @method static static|\Hyperf\Database\Model\Builder|\Hyperf\Database\Query\Builder dataPermission(?int $userid = null, array $initialUserIds = [])
  */
 trait DataPermission
 {

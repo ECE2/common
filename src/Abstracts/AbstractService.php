@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Abstracts;
 
+use App\Model\SystemDept;
 use Ece2\Common\Annotation\Transaction;
+use Ece2\Common\Exception\BusinessException;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Collection;
 use Hyperf\Database\Model\Model;
@@ -12,6 +14,9 @@ use Hyperf\HttpServer\Response;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @mixin Builder
+ */
 abstract class AbstractService
 {
     /**
@@ -34,15 +39,6 @@ abstract class AbstractService
         $this->filterExecuteAttributes($data);
 
         return $this->model::create($data);
-    }
-
-    /**
-     * 单个或批量软删除数据.
-     * @return int
-     */
-    public function destroy(array $ids)
-    {
-        return $this->model::destroy($ids);
     }
 
     /**
@@ -173,7 +169,7 @@ abstract class AbstractService
      *                           + orderType
      * @return Builder
      */
-    public function listQueryPreProcessing(?array $params, bool $dataPermission = true, callable $extend = null)
+    public function listQueryPreProcessing(?array $params, bool|array $dataPermission = true, callable $extend = null)
     {
         $params['select'] = array_values(array_filter(is_string($params['select'] ?? '') ? explode(',', $params['select'] ?? '') : (array) $params['select']));
         $query = $this->handleQueryPreProcessing($this->model::query(), $params);
@@ -182,7 +178,7 @@ abstract class AbstractService
             $query
                 ->when($params['recycle'] ?? false, fn (Builder $builder) => $builder->onlyTrashed())
                 ->when($params['select'], fn (Builder $builder, $select) => $builder->select($this->filterQueryAttributes($select)))
-                ->when($dataPermission, fn (Builder $builder) => $builder->dataPermission())
+                ->when($dataPermission, fn (Builder $builder) => $builder->dataPermission(userId: $dataPermission['userId'] ?? null, initialUserIds: $dataPermission['initialUserIds'] ?? []))
                 // 排序部分
                 ->when($params['orderBy'] ?? false, function ($query) use ($params) {
                     if (is_array($params['orderBy'])) {
@@ -194,7 +190,7 @@ abstract class AbstractService
                     }
                 })
                 // 时间倒序
-                ->when(($params['orderByDescCreated'] ?? true) && $this?->model?->timestamps, fn (Builder $builder) => $builder->orderByDesc($this->model->getCreatedAtColumn())),
+                ->when(($params['orderByDescCreated'] ?? true) && $this->model?->timestamps, fn (Builder $builder) => $builder->orderByDesc($this->model->getCreatedAtColumn())),
             $extend ?? static fn (Builder $builder) => $builder
         );
     }
@@ -203,7 +199,7 @@ abstract class AbstractService
      * 获取列表数据.
      * @return Builder[]|Collection
      */
-    public function getList(?array $params = null, bool $dataPermission = true, callable $extend = null)
+    public function getList(?array $params = null, bool|array $dataPermission = true, callable $extend = null)
     {
         return $this
             ->listQueryPreProcessing($params, $dataPermission, $extend)
@@ -213,7 +209,7 @@ abstract class AbstractService
     /**
      * 获取列表数据.
      */
-    public function getPageList(?array $params = null, bool $dataPermission = true, callable $extend = null)
+    public function getPageList(?array $params = null, bool|array $dataPermission = true, callable $extend = null)
     {
         return $this
             ->listQueryPreProcessing($params, $dataPermission, $extend)
@@ -226,7 +222,7 @@ abstract class AbstractService
      */
     public function getTreeList(
         ?array $params = null,
-        bool $dataPermission = true,
+        bool|array $dataPermission = true,
         callable $extend = null,
         string $idField = 'id',
         string $parentField = 'parent_id',
@@ -276,8 +272,6 @@ abstract class AbstractService
 
     /**
      * 数据导入.
-     * @param string $dto
-     * @param null|\Closure $closure
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      * @return bool
@@ -286,6 +280,54 @@ abstract class AbstractService
     public function import(string $dto, ?\Closure $closure = null)
     {
         return make(Collection::class)->import($dto, $this->model, $closure);
+    }
+
+    /**
+     * 读取列表时，通过创建者获取对应的部门信息.
+     */
+    public static function handleDeptFromCreatedByForList(): \Closure
+    {
+        return fn (Builder $builder) => $builder->when(
+            identity()->isSuperAdmin(),
+            fn (Builder $builder) => $builder->with('createdByInstance.department')
+        );
+    }
+
+    /**
+     * 自动标记数据记录的创建者（created_by）信息.
+     * @param $data
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function handleCreatedByFromDeptForAE($data)
+    {
+        if (! method_exists($this->model, 'getCreatedByColumn')) {
+            return $data;
+        }
+
+        $createdByColumn = $this->model->getCreatedByColumn();
+        // 如果 数据为空 或 如果未选择部门 或 已经有创建人
+        if (empty($data) || empty($data['dept_id']) || ! empty($data[$createdByColumn])) {
+            return $data;
+        }
+
+        // 如果是超管角色, 则需要判断部门 ID 信息的合法性
+        if (identity()->isSuperAdmin()) {
+            // 判断部门是否存在
+            $dept = is_base_system() ?
+                SystemDept::find($data['dept_id'])?->topLevelDept()?->toArray() :
+                (new \Ece2\Common\Model\Rpc\Model\SystemDept(['id' => $data['dept_id']]))->topLevelDept()?->toArray();
+            if (empty($dept)) {
+                throw new BusinessException(message: '部门不存在');
+            }
+
+            // 如果部门有创始人, 则把当前记录的创建人改成部门的负责人
+            if (! empty($dept[$createdByColumn])) {
+                $data[$createdByColumn] = $dept[$createdByColumn];
+            }
+        }
+
+        return $data;
     }
 
     /**

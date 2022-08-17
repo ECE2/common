@@ -10,12 +10,16 @@ use Throwable;
 
 class BusinessException extends BaseHttpException
 {
-    public function __construct(int $code = 0, string $message = null, int $statusCode = 400, Throwable $previous = null)
+    public function __construct(int $code = 0, string|array $message = null, int $statusCode = 400, Throwable $previous = null)
     {
-        if (is_null($message)) {
-            $message = ErrorCode::getMessage($code);
-        }
-
-        parent::__construct($code, $message, $statusCode, $previous);
+        parent::__construct(
+            $code,
+            trans(ErrorCode::getMessage(
+                $code,
+                empty($message) || is_array($message) ? $message : ['error' => (string) $message]
+            )),
+            $statusCode,
+            $previous
+        );
     }
 }

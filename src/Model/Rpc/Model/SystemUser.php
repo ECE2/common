@@ -35,17 +35,8 @@ use Hyperf\Di\Annotation\Inject;
 class SystemUser extends Base
 {
     /**
-     * @Inject
-     * @var SystemUserServiceInterface
-     */
-    protected static $service;
-
-    #[Inject]
-    protected SystemDeptServiceInterface $systemDeptService;
-
-    /**
      * !!! 用户类型 前端 Model 也有定义 注意同步修改 !!!
-     * 用户类型: 默认
+     * 用户类型: 默认.
      */
     public const TYPE_USER_SUPER_ADMIN = '1';
 
@@ -70,19 +61,36 @@ class SystemUser extends Base
     public const TYPE_USER_BUSINESS_MANAGEMENT = '101';
 
     /**
+     * @Inject
+     * @var SystemUserServiceInterface
+     */
+    protected static $service;
+
+    #[Inject]
+    protected SystemDeptServiceInterface $systemDeptService;
+
+    /**
+     * 非公司人员.
+     */
+    public function nonCompanyUser(): bool
+    {
+        return in_array($this->user_type, [self::TYPE_USER_SUPER_ADMIN, self::TYPE_USER_OPERATION, self::TYPE_USER_GOVERNMENT_REGULATION]);
+    }
+
+    /**
+     * 公司人员.
+     */
+    public function companyUser(): bool
+    {
+        return in_array($this->user_type, [self::TYPE_USER_BUSINESS_GENERALLY, self::TYPE_USER_BUSINESS_MANAGEMENT]);
+    }
+
+    /**
      * 是否为超级管理员（创始人），用户禁用对创始人没用.
      */
     public function isSuperAdmin(): bool
     {
         return $this->user_type === self::TYPE_USER_SUPER_ADMIN;
-    }
-
-    /**
-     * 是否为管理员角色.
-     */
-    public function isAdminRole(): bool
-    {
-        return self::$service->isAdminRole();
     }
 
     /**

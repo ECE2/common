@@ -27,7 +27,12 @@ class DataPermissionScope implements Scope
 
     public function extend(Builder $builder)
     {
-        $builder->macro('dataPermission', function (Builder $builder, ?int $userId = null) {
+        /*
+         * 数据权限范围.
+         * @params int|null $userId 某用户的权限范围
+         * @params array $initialUserIds 初始用户有的权限范围
+         */
+        $builder->macro('dataPermission', function (Builder $builder, ?int $userId = null, array $initialUserIds = []) {
             $userId = $userId ?? (int) identity()?->getKey();
             if (empty($userId)) {
                 throw new HttpException(message: 'Data Scope missing user_id');
@@ -39,35 +44,45 @@ class DataPermissionScope implements Scope
                 return $builder;
             }
 
-            $dataScope = new class($userId, $builder) {
+            $dataScope = new class($builder, $userId, $initialUserIds) {
+                /**
+                 * 数据范围用户 ID 列表.
+                 */
+                protected array $userIds = [];
+
                 public function __construct(
-                    protected int $userId,
                     protected Builder $builder,
-                    protected array $userIds = [] // 数据范围用户ID列表
+                    protected int $userId,
+                    protected array $initialUserIds = []
                 ) {
                 }
 
                 public function execute(): Builder
                 {
+                    // 计算统计权限范围
                     $this->getUserDataScope();
+                    // 如果空 (侧面说明有所有权限) 则跳出 不处理
+                    if (empty($this->userIds)) {
+                        return $this->builder;
+                    }
 
-                    return $this->builder
-                        ->when(
-                            $this->userIds,
-                            fn ($builder, $userIds) => $builder->whereIn($this->builder->getModel()->getCreatedByColumn(), array_unique($userIds))
-                        );
+                    // 加上提交的 初始有权限的范围
+                    $this->userIds = array_merge($this->userIds, $this->initialUserIds);
+
+                    return $this->builder->whereIn($this->builder->getModel()->getCreatedByColumn(), array_unique($this->userIds));
                 }
 
                 protected function getUserDataScope(): void
                 {
-                    /** @var SystemUserForRpc|SystemUser $user */
+                    /* @var SystemUserForRpc|SystemUser $user */
                     if (is_base_system()) {
                         $user = SystemUser::findOrFail($this->userId);
                         $roles = $user->roles()->get(['id', 'data_scope']);
                     } else {
                         $user = (new SystemUserForRpc(
                             container()->get(SystemUserServiceInterface::class)
-                                ->getInfo($this->userId)['data']['user'] ?? []));
+                                ->getInfo($this->userId)['data']['user'] ?? []
+                        ));
                         $roles = $user->getRoles();
                     }
                     // 超管
@@ -131,6 +146,7 @@ class DataPermissionScope implements Scope
                             case 4: // SystemRole::SELF_SCOPE
                                 $this->userIds[] = $this->userId;
                             // 全公司 (顶级部门下 包含所有子部门)
+                            // no break
                             case 5: // SystemRole::COMPANY_SCOPE
                                 // 找到当前部门的顶级部门
                                 if (is_base_system()) {
@@ -141,6 +157,7 @@ class DataPermissionScope implements Scope
 
                                 $this->userIds = array_merge($this->userIds, $topLevelDept !== null ? $this->getDeptUser($topLevelDept->getKey()) : []);
                                 $this->userIds[] = $this->userId;
+                                // no break
                             default:
                                 break;
                         }
@@ -148,7 +165,7 @@ class DataPermissionScope implements Scope
                 }
 
                 /**
-                 * 获取部门用户
+                 * 获取部门用户.
                  * @param $deptId
                  * @return array|mixed[]
                  */
@@ -158,12 +175,11 @@ class DataPermissionScope implements Scope
                         $deptIds = SystemDept::query()->where('level', 'like', '%' . $deptId . '%')->pluck('id')->toArray();
                         $deptIds[] = $deptId;
                         return SystemUser::query()->whereIn('dept_id', $deptIds)->pluck('id')->toArray();
-                    } else {
-                        $deptIds = array_column(container()->get(SystemDeptServiceInterface::class)->getByLevelFuzzy($deptId)['data'] ?? [], 'id');
-                        $deptIds[] = $deptId;
-
-                        return ! empty($deptIds) ? array_column(container()->get(SystemUserServiceInterface::class)->getByDeptIds($deptIds)['data'] ?? [], 'id') : [];
                     }
+                    $deptIds = array_column(container()->get(SystemDeptServiceInterface::class)->getByLevelFuzzy($deptId)['data'] ?? [], 'id');
+                    $deptIds[] = $deptId;
+
+                    return ! empty($deptIds) ? array_column(container()->get(SystemUserServiceInterface::class)->getByDeptIds($deptIds)['data'] ?? [], 'id') : [];
                 }
             };
 
