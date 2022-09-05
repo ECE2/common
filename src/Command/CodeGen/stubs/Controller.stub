@@ -43,7 +43,7 @@ class %CLASS% extends AbstractController
     #[DeleteMapping('delete')]
     public function delete()
     {
-        return $this->success($this->service->destroy((array) $this->request->input('id')));
+        return $this->success($this->service->model::destroy((array) $this->request->input('id')));
     }
 
     /**
