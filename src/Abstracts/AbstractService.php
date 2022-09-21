@@ -228,10 +228,15 @@ abstract class AbstractService
         string $parentField = 'parent_id',
         string $childrenField = 'children'
     ) {
-        return $this
-            ->listQueryPreProcessing($params, $dataPermission, $extend)
-            ->get()
-            ->toTree($idField, $parentField, $childrenField);
+        return array_to_tree(
+            $this
+                ->listQueryPreProcessing($params, $dataPermission, $extend)
+                ->get()
+                ->toArray(),
+            $idField,
+            $parentField,
+            $childrenField
+        );
     }
 
     /**
@@ -279,7 +284,7 @@ abstract class AbstractService
     #[Transaction]
     public function import(string $dto, ?\Closure $closure = null)
     {
-        return make(Collection::class)->import($dto, $this->model, $closure);
+        return collection_import($dto, $this->model, $closure);
     }
 
     /**

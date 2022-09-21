@@ -33,8 +33,6 @@ class ConfigProvider
                         \Hyperf\HttpServer\Request::class => __DIR__ . '/../class_map/Request.php',
                         // 替换 Response 增加自定义函数
                         \Hyperf\HttpServer\Response::class => __DIR__ . '/../class_map/Response.php',
-                        // 替换 Collection 增加自定义函数
-                        \Hyperf\Database\Model\Collection::class => __DIR__ . '/../class_map/Collection.php',
                         // 使用 RedisSecondMetaGenerator 替换 MetaGeneratorFactory 内返回, 主要使用 秒级 来达到减小雪花 ID 长度
                         \Hyperf\Snowflake\MetaGeneratorFactory::class => __DIR__ . '/../class_map/MetaGeneratorFactory.php',
                         // 替换 Filesystem 增加自定义函数, 主要 getUrl

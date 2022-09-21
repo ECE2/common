@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Ece2\Common\Office\Excel\PhpOffice;
+use Ece2\Common\Office\Excel\XlsWriter;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Snowflake\IdGeneratorInterface;
@@ -204,5 +206,85 @@ if (! function_exists('ip_to_region')) {
             return t('jwt.unknown');
         }
         return $country;
+    }
+}
+
+if (! function_exists('collection_import')) {
+    /**
+     * 数据导入
+     * @param string $dto
+     * @param $model
+     * @param \Closure|null $closure
+     * @return bool
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    function collection_import(string $dto, $model, ?\Closure $closure = null): bool
+    {
+        $excelDrive = config('excel_drive');
+        if ($excelDrive === 'auto') {
+            $excel = extension_loaded('xlswriter') ? new XlsWriter($dto) : new PhpOffice($dto);
+        } else {
+            $excel = $excelDrive === 'xlsWriter' ? new XlsWriter($dto) : new PhpOffice($dto);
+        }
+
+        return $excel->import($model, $closure);
+    }
+}
+
+if (! function_exists('collection_export')) {
+    /**
+     * 导出数据
+     * @param string $dto
+     * @param string $filename
+     * @param array|\Closure|null $closure
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    function collection_export(array $arr, string $dto, string $filename, array|\Closure $closure = null): \Psr\Http\Message\ResponseInterface
+    {
+        $excelDrive = config('excel_drive');
+        if ($excelDrive === 'auto') {
+            $excel = extension_loaded('xlswriter') ? new XlsWriter($dto) : new PhpOffice($dto);
+        } else {
+            $excel = $excelDrive === 'xlsWriter' ? new XlsWriter($dto) : new PhpOffice($dto);
+        }
+
+        return $excel->collection_export($filename, is_null($closure) ? $arr : $closure);
+    }
+}
+
+if (! function_exists('array_to_tree')) {
+    /**
+     * to 树状
+     * @param int|string $parentId
+     * @param string $idField
+     * @param string $parentField
+     * @param string $childrenField
+     * @return array
+     */
+    function array_to_tree(array $data, string $idField = 'id', string $parentField = 'parent_id', string $childrenField = 'children', int|string $parentId = 0): array
+    {
+        if (empty($data)) {
+            return [];
+        }
+        // id 作为主键
+        $data = array_column($data, null, $idField);
+
+        foreach ($data as &$item) {
+            $itemParentId = (int) $item[$parentField];
+            if ($itemParentId === $parentId) { // 顶级目录不操作
+                continue;
+            }
+
+            // 指定到父级下
+            $data[$itemParentId][$childrenField][] = &$item;
+        }
+        unset($item);
+
+        // 过滤不是顶级目录
+        return array_values(array_filter($data, static fn ($split) => (int) $split[$parentField] === $parentId));
     }
 }
