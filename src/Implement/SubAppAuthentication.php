@@ -16,7 +16,7 @@ use Hyperf\Utils\Str;
  */
 class SubAppAuthentication implements AuthenticationInterface
 {
-    public function check(string $token = '', string $scene = 'default')
+    public function check(string $token = '', string $guard = 'api')
     {
         $tokenFromHeader = container()->get(RequestInterface::class)->getHeaderLine('Authorization');
         // 截取获得 token
@@ -26,7 +26,7 @@ class SubAppAuthentication implements AuthenticationInterface
         }
 
         // 获取身份信息然后写入上下文
-        $user = container()->get(SystemUserServiceInterface::class)->getInfoByJwtToken($token, $scene);
+        $user = container()->get(SystemUserServiceInterface::class)->getInfoByJwtToken($token, $guard);
         if (! ($user['success'] ?? false) || empty($user['data'])) {
             throw new TokenException(t('jwt.no_token'));
         }

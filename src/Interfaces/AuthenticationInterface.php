@@ -12,8 +12,8 @@ interface AuthenticationInterface
     /**
      * 验证
      * @param string $token
-     * @param string $scene
+     * @param string $guard
      * @return mixed
      */
-    public function check(string $token = '', string $scene = 'default');
+    public function check(string $token = '', string $guard = 'api');
 }
