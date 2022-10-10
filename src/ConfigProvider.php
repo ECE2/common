@@ -217,6 +217,18 @@ class ConfigProvider
                     'source' => __DIR__ . '/../publish/Dockerfile',
                     'destination' => BASE_PATH . '/Dockerfile',
                 ],
+                [
+                    'id' => 'seeders:initialization',
+                    'description' => 'seeders:initialization',
+                    'source' => __DIR__ . '/../publish/initialization.php',
+                    'destination' => BASE_PATH . '/seeders/initialization.php',
+                ],
+                [
+                    'id' => 'DbQueryExecutedListener',
+                    'description' => 'Annotation DbQueryExecutedListener',
+                    'source' => __DIR__ . '/../publish/DbQueryExecutedListener.php',
+                    'destination' => BASE_PATH . '/app/Listener/DbQueryExecutedListener.php',
+                ],
             ],
         ];
     }
