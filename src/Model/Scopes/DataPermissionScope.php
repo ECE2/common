@@ -172,7 +172,7 @@ class DataPermissionScope implements Scope
                 protected function getDeptUser($deptId)
                 {
                     if (is_base_system()) {
-                        $deptIds = SystemDept::query()->where('level', 'like', '%' . $deptId . '%')->pluck('id')->toArray();
+                        $deptIds = SystemDept::query()->whereRaw("FIND_IN_SET(?, level)", [$deptId])->pluck('id')->toArray();
                         $deptIds[] = $deptId;
                         return SystemUser::query()->whereIn('dept_id', $deptIds)->pluck('id')->toArray();
                     }
