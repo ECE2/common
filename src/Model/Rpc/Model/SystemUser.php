@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Model\Rpc\Model;
 
+use App\Sms\UniversalUserNotify;
 use Ece2\Common\JsonRpc\Contract\SystemDeptServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
 use Hyperf\Di\Annotation\Inject;
+use HyperfExt\Sms\Sms;
 
 /**
  * @property int $id
@@ -34,6 +36,16 @@ use Hyperf\Di\Annotation\Inject;
  */
 class SystemUser extends Base
 {
+    /**
+     * 通知方式: 短信.
+     */
+    public const NOTIFY_TYPE_SMS = 1;
+
+    /**
+     * 通知方式: 电话.
+     */
+    public const NOTIFY_TYPE_CALL_PHONE = 2;
+
     /**
      * !!! 用户类型 前端 Model 也有定义 注意同步修改 !!!
      * 用户类型: 默认.
@@ -113,12 +125,10 @@ class SystemUser extends Base
     }
 
     /**
-     * 发送消息.
-     * @param $message
-     * @param $type
-     * @return mixed
+     * 通知.
+     * @param int $type 1:短信 2:电话
      */
-    public function sendMessage($message, $type = 1)
+    public function notify($type, string $message)
     {
         return self::$service->sendMessageToUser($this->getKey(), $message, $type);
     }

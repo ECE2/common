@@ -45,7 +45,14 @@ class HasOneForRpc extends HasOne
 
         // 获取远端数据
         /** @var Base $result */
-        $result = Arr::first($related::get((array) Arr::get($this->getBaseQuery()->wheres, '0.values', [])), default: collect([]));
+        $result = Arr::first(
+            $related::get((array) Arr::get(
+                $this->getBaseQuery()->wheres,
+                '0.values',
+                Arr::get($this->getBaseQuery()->wheres, '0.value', [])
+            )),
+            default: collect([])
+        );
 
         return $related->setRawAttributes($result?->toArray(), true);
     }
