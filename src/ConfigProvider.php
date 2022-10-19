@@ -167,19 +167,19 @@ class ConfigProvider
                     'id' => 'config:redis',
                     'description' => 'replace config redis',
                     'source' => __DIR__ . '/../publish/config/redis.php',
-                    'destination' => BASE_PATH . '/config/redis.php',
+                    'destination' => BASE_PATH . '/config/autoload/redis.php',
                 ],
                 [
                     'id' => 'config:snowflake',
                     'description' => 'replace config snowflake',
                     'source' => __DIR__ . '/../publish/config/snowflake.php',
-                    'destination' => BASE_PATH . '/config/snowflake.php',
+                    'destination' => BASE_PATH . '/config/autoload/snowflake.php',
                 ],
                 [
                     'id' => 'config:amqp',
                     'description' => 'replace config amqp',
                     'source' => __DIR__ . '/../publish/config/amqp.php',
-                    'destination' => BASE_PATH . '/config/amqp.php',
+                    'destination' => BASE_PATH . '/config/autoload/amqp.php',
                 ],
                 [
                     'id' => 'start_hyperf_shell',
