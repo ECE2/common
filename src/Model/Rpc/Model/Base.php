@@ -13,7 +13,7 @@ abstract class Base extends BaseModel
 {
     use HasRelationshipsForRpc;
 
-    protected $guarded = [];
+    protected array $guarded = [];
 
     protected static $service;
 

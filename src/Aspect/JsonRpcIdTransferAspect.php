@@ -17,7 +17,7 @@ use Psr\Container\ContainerInterface;
 #[Aspect]
 class JsonRpcIdTransferAspect extends AbstractAspect
 {
-    public $classes = [
+    public array $classes = [
         'Hyperf\RpcClient\AbstractServiceClient::__generateRpcPath'
     ];
 

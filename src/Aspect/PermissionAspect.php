@@ -18,14 +18,14 @@ use Hyperf\Utils\Arr;
 #[Aspect]
 class PermissionAspect extends AbstractAspect
 {
-    public $annotations = [
+    public array $annotations = [
         Permission::class
     ];
 
     /**
      * @var int aop 优先级
      */
-    public $priority = 95;
+    public ?int $priority = 95;
 
     public function __construct(protected Request $request)
     {

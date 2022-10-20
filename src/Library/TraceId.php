@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Library;
 
-use Hyperf\Utils\Context;
+use Hyperf\Context\Context;
 use OpenTracing\Span;
 use Zipkin\Propagation\TraceContext;
 use ZipkinOpenTracing\SpanContext;

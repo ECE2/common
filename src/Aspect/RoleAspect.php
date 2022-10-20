@@ -16,7 +16,7 @@ use Ece2\Common\Exception\NoPermissionException;
 #[Aspect]
 class RoleAspect extends AbstractAspect
 {
-    public $annotations = [
+    public array $annotations = [
         Role::class
     ];
 

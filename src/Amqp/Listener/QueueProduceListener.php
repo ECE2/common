@@ -43,7 +43,7 @@ class QueueProduceListener implements ListenerInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Exception
      */
-    public function process(object $event)
+    public function process(object $event): void
     {
         $this->setId(snowflake_id());
         if (is_base_system()) {

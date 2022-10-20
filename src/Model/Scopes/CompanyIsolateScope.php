@@ -7,7 +7,7 @@ namespace Ece2\Common\Model\Scopes;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Model;
 use Hyperf\Database\Model\Scope;
-use Hyperf\Utils\Context;
+use Hyperf\Context\Context;
 
 /**
  * 公司隔离

@@ -15,7 +15,7 @@ use Hyperf\Utils\Str;
 #[Aspect]
 class DeleteCacheAspect extends AbstractAspect
 {
-    public $annotations = [
+    public array $annotations = [
         DeleteCache::class
     ];
 

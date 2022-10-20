@@ -12,6 +12,27 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
+if (! function_exists('ip')) {
+    /**
+     * 获取 ip
+     */
+    function ip($request): string
+    {
+        $ip = $request->server('remote_addr', '0.0.0.0');
+        $headers = $request->getHeaders();
+
+        if (isset($headers['x-real-ip'])) {
+            $ip = $headers['x-real-ip'][0];
+        } else if (isset($headers['x-forwarded-for'])) {
+            $ip = $headers['x-forwarded-for'][0];
+        } else if (isset($headers['http_x_forwarded_for'])) {
+            $ip = $headers['http_x_forwarded_for'][0];
+        }
+
+        return $ip;
+    }
+}
+
 if (! function_exists('container')) {
     /**
      * 获取容器实例.

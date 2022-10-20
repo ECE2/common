@@ -15,14 +15,14 @@ use Hyperf\Di\Exception\Exception;
 #[Aspect]
 class AuthAspect extends AbstractAspect
 {
-    public $annotations = [
+    public array $annotations = [
         Auth::class,
     ];
 
     /**
      * @var int aop 优先级
      */
-    public $priority = 100;
+    public ?int $priority = 100;
 
     public function __construct(protected AuthenticationInterface $authentication)
     {

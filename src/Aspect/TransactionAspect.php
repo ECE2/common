@@ -13,7 +13,7 @@ use Ece2\Common\Annotation\Transaction;
 #[Aspect]
 class TransactionAspect extends AbstractAspect
 {
-    public $annotations = [
+    public array $annotations = [
         Transaction::class
     ];
 

@@ -18,7 +18,7 @@ class CrontabProcess extends AbstractProcess
     /**
      * @var string
      */
-    public $name = 'Crontab';
+    public string $name = 'Crontab';
 
     /**
      * @var Server

@@ -15,7 +15,7 @@ use Hyperf\Di\Exception\Exception;
 #[Aspect]
 class OperatorAspect extends AbstractAspect
 {
-    public $classes = [
+    public array $classes = [
         'Hyperf\Database\Model\Model::save',
         'Hyperf\Database\Model\Builder::update',
         'Hyperf\Database\Model\Builder::increment',

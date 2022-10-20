@@ -19,7 +19,7 @@ use Hyperf\HttpServer\Request;
 #[Aspect]
 class OperationLogAspect extends AbstractAspect
 {
-    public $annotations = [
+    public array $annotations = [
         OperationLog::class
     ];
 
@@ -60,7 +60,7 @@ class OperationLogAspect extends AbstractAspect
             'method' => $serverParams['request_method'],
             'router' => $serverParams['path_info'],
             'protocol' => $serverParams['server_protocol'],
-            'ip' => $ip = $request->ip(),
+            'ip' => $ip = ip($request),
             'ip_location' => ip_to_region($ip),
             'service_name' => $data['name'] ?: $this->getOperationMenuName($data['code']),
             'request_data' => $request->all(),

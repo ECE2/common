@@ -16,7 +16,7 @@ use Lysice\HyperfRedisLock\LockTimeoutException;
 #[Aspect]
 class ResubmitAspect extends AbstractAspect
 {
-    public $annotations = [
+    public array $annotations = [
         Resubmit::class
     ];
 
@@ -34,7 +34,7 @@ class ResubmitAspect extends AbstractAspect
         }
 
         $request = container()->get(Request::class);
-        $key = md5(sprintf('%s-%s-%s', $request->ip(), $request->getPathInfo(), $request->getMethod()));
+        $key = md5(sprintf('%s-%s-%s', ip($request), $request->getPathInfo(), $request->getMethod()));
 
         $lock = new \Lysice\HyperfRedisLock\RedisLock(redis(), 'resubmit:' . $key, 60);
         try {

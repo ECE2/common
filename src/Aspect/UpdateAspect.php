@@ -16,7 +16,7 @@ use Hyperf\Di\Exception\Exception;
 #[Aspect]
 class UpdateAspect extends AbstractAspect
 {
-    public $classes = [
+    public array $classes = [
         'Ece2\Common\Abstracts\AbstractModel::update'
     ];
 

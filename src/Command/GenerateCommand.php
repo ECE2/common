@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 #[Command]
 class GenerateCommand extends HyperfCommand
 {
-    protected $name = 'gen:code';
+    protected ?string $name = 'gen:code';
 
     public function handle()
     {

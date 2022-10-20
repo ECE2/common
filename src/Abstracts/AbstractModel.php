@@ -35,13 +35,13 @@ abstract class AbstractModel extends BaseModel
      * 隐藏的字段列表.
      * @var string[]
      */
-    protected $hidden = ['deleted_at'];
+    protected array $hidden = ['deleted_at'];
 
     /**
      * 允许前端传长度.
      * @return int
      */
-    public function getPerPage()
+    public function getPerPage(): int
     {
         try {
             /** @var RequestInterface $request */

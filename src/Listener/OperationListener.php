@@ -21,7 +21,7 @@ class OperationListener implements ListenerInterface
         ];
     }
 
-    public function process(object $event)
+    public function process(object $event): void
     {
         /** @var Operation $event */
         $requestInfo = $event->getRequestInfo();
