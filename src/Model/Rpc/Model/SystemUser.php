@@ -73,10 +73,12 @@ class SystemUser extends Base
     public const TYPE_USER_BUSINESS_MANAGEMENT = '101';
 
     #[Inject]
-    protected SystemUserServiceInterface $service;
-
-    #[Inject]
     protected SystemDeptServiceInterface $systemDeptService;
+
+    protected static function getService()
+    {
+        return make(SystemUserServiceInterface::class);
+    }
 
     /**
      * 非公司人员.
@@ -108,7 +110,7 @@ class SystemUser extends Base
      */
     public function getInfo()
     {
-        return $this->service->getInfo($this->getKey())['data'] ?? [];
+        return self::getService()->getInfo($this->getKey())['data'] ?? [];
     }
 
     /**
@@ -118,7 +120,7 @@ class SystemUser extends Base
     public function getRoles()
     {
         // TODO 连表优化
-        return collect($this->service->getRoles($this->getKey())['data'] ?? [])->map(fn ($item) => new SystemRole($item));
+        return collect(self::getService()->getRoles($this->getKey())['data'] ?? [])->map(fn ($item) => new SystemRole($item));
     }
 
     /**
@@ -127,7 +129,7 @@ class SystemUser extends Base
      */
     public function notify($type, string $message)
     {
-        return $this->service->sendMessageToUser($this->getKey(), $message, $type);
+        return self::getService()->sendMessageToUser($this->getKey(), $message, $type);
     }
 
     /**

@@ -27,8 +27,10 @@ use Hyperf\Di\Annotation\Inject;
  */
 class SystemDept extends Base
 {
-    #[Inject]
-    protected SystemDeptServiceInterface $service;
+    protected static function getService()
+    {
+        return make(SystemDeptServiceInterface::class);
+    }
 
     /**
      * 部门下的所有人 ID (包含部门下的部门).
@@ -36,7 +38,7 @@ class SystemDept extends Base
      */
     public function everyoneIds()
     {
-        return $this->service->everyoneIds($this->getKey())['data'] ?? [];
+        return self::getService()->everyoneIds($this->getKey())['data'] ?? [];
     }
 
     /**
@@ -45,7 +47,7 @@ class SystemDept extends Base
      */
     public function topLevelDept()
     {
-        if (empty($topLevelDept = ($this->service->topLevelDept($this->getKey())['data'] ?? []))) {
+        if (empty($topLevelDept = (self::getService()->topLevelDept($this->getKey())['data'] ?? []))) {
             return null;
         }
 

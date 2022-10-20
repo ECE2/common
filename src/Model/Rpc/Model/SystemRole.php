@@ -10,14 +10,16 @@ use Hyperf\Di\Annotation\Inject;
 
 class SystemRole extends Base
 {
-    #[Inject]
-    protected SystemRoleServiceInterface $service;
+    protected static function getService()
+    {
+        return make(SystemRoleServiceInterface::class);
+    }
 
     /**
      * 通过中间表获取部门.
      */
     public function getDepts()
     {
-        return $this->service->getDepts($this->getKey())['data'] ?? [];
+        return self::getService()->getDepts($this->getKey())['data'] ?? [];
     }
 }

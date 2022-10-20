@@ -16,6 +16,12 @@ abstract class Base extends BaseModel
     protected array $guarded = [];
 
     /**
+     * model 对应的远程 service
+     * @return mixed
+     */
+    abstract protected static function getService();
+
+    /**
      * 用于 rpc 连表查询.
      * @param mixed $ids
      * @return array
@@ -28,10 +34,5 @@ abstract class Base extends BaseModel
             static fn($model) => new static($model),
             static::getService()?->getByIds($ids)['data'] ?? []
         );
-    }
-
-    protected function getService()
-    {
-        return $this->service;
     }
 }
