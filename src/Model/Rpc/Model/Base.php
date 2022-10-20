@@ -15,25 +15,23 @@ abstract class Base extends BaseModel
 
     protected array $guarded = [];
 
-    protected static $service;
-
     /**
      * 用于 rpc 连表查询.
      * @param mixed $ids
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      * @return array
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
      */
     public static function get($ids = [])
     {
         return array_map(
-            static fn ($model) => new static($model),
-            static::getService()->getByIds($ids)['data'] ?? []
+            static fn($model) => new static($model),
+            static::getService()?->getByIds($ids)['data'] ?? []
         );
     }
 
-    protected static function getService()
+    protected function getService()
     {
-        return static::$service;
+        return $this->service;
     }
 }
