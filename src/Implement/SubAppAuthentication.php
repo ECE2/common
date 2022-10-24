@@ -18,10 +18,11 @@ class SubAppAuthentication implements AuthenticationInterface
 {
     public function check(string $token = '', string $guard = 'api')
     {
-        $tokenFromHeader = container()->get(RequestInterface::class)->getHeaderLine('Authorization');
-        // 截取获得 token
-        // 7 => Str::length('Bearer ')
-        if (empty($token = Str::substr($tokenFromHeader, 7))) {
+        $request = container()->get(RequestInterface::class);
+
+        // header 截取获得获取, 7 => Str::length('Bearer ')
+        $token = Str::substr($request->getHeaderLine('Authorization'), 7) ?: $request->input('token');
+        if (empty($token)) {
             throw new TokenException(t('jwt.no_token'));
         }
 

@@ -29,8 +29,6 @@ class ConfigProvider
                         IPReader::class => __DIR__ . '/../class_map/IPReader.php',
                         // migation 增加操作人更新人方法
                         Blueprint::class => __DIR__ . '/../class_map/Blueprint.php',
-                        // 替换 Response 增加自定义函数
-                        \Hyperf\HttpServer\Response::class => __DIR__ . '/../class_map/Response.php',
                         // 使用 RedisSecondMetaGenerator 替换 MetaGeneratorFactory 内返回, 主要使用 秒级 来达到减小雪花 ID 长度
                         \Hyperf\Snowflake\MetaGeneratorFactory::class => __DIR__ . '/../class_map/MetaGeneratorFactory.php',
                         // 替换 Filesystem 增加自定义函数, 主要 getUrl

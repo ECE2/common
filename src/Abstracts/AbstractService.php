@@ -7,12 +7,14 @@ namespace Ece2\Common\Abstracts;
 use App\Model\SystemDept;
 use Ece2\Common\Annotation\Transaction;
 use Ece2\Common\Exception\BusinessException;
+use Ece2\Common\Exception\HttpException;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Collection;
 use Hyperf\Database\Model\Model;
 use Hyperf\HttpServer\Response;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
+use function PHPUnit\Framework\throwException;
 
 /**
  * @mixin Builder
@@ -265,7 +267,7 @@ abstract class AbstractService
     public function export(array $params, ?string $dto, string $filename = null, callable $extend = null): ResponseInterface
     {
         if (empty($dto)) {
-            return ApplicationContext::getContainer()->get(Response::class)->error('导出未指定DTO');
+            throw new \Exception('导出未指定DTO');
         }
 
         if (empty($filename)) {
