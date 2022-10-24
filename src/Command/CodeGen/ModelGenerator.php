@@ -139,7 +139,7 @@ class ModelGenerator extends BaseGenerator
             'option' => $option,
         ]));
         $traverser->addVisitor(make(ModelRewriteConnectionVisitor::class, [$class, $option->getPool()]));
-        $data = make(ModelData::class)->setClass($class)->setColumns($columns);
+        $data = make(ModelData::class, [$class, $columns]);
         foreach ($option->getVisitors() as $visitorClass) {
             $traverser->addVisitor(make($visitorClass, [$option, $data]));
         }
