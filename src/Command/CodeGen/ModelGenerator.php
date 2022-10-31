@@ -190,7 +190,7 @@ class ModelGenerator extends BaseGenerator
         if (collect($columns)
             ->filter(fn ($column) => in_array($column['column_name'], ['created_at', 'updated_at']))
             ->isEmpty()) {
-            $memberVariables[] = 'public $timestamps = false;';
+            $memberVariables[] = 'public bool $timestamps = false;';
         }
 
         return $this->replaceNamespace($stub, $name)
