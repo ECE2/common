@@ -17,6 +17,12 @@ class ConfigProvider
             'address' => sprintf('http://%s:%s', env('NACOS_HOST'), env('NACOS_PORT')),
         ];
 
+        Blueprint::macro('operators', function () {
+            $this->unsignedBigInteger('created_by')->default(0)->comment('创建者');
+            $this->unsignedBigInteger('updated_by')->default(0)->comment('更新者');
+            $this->index('created_by');
+        });
+
         return [
             'annotations' => [
                 'scan' => [
@@ -27,8 +33,6 @@ class ConfigProvider
                     'class_map' => [
                         // 替换原有的 ip 获取, 允许使用配置了的服务发现地址
                         IPReader::class => __DIR__ . '/../class_map/IPReader.php',
-                        // migation 增加操作人更新人方法
-                        Blueprint::class => __DIR__ . '/../class_map/Blueprint.php',
                         // 使用 RedisSecondMetaGenerator 替换 MetaGeneratorFactory 内返回, 主要使用 秒级 来达到减小雪花 ID 长度
                         \Hyperf\Snowflake\MetaGeneratorFactory::class => __DIR__ . '/../class_map/MetaGeneratorFactory.php',
                         // 替换 Filesystem 增加自定义函数, 主要 getUrl
