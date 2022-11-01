@@ -28,7 +28,7 @@ class %CLASS% extends AbstractController
      * @throws NotFoundExceptionInterface
      * @return ResponseInterface
      */
-    #[PostMapping('save')]
+    #[PostMapping()]
     public function save()
     {
         return $this->success($this->service->create($this->request->all()));
@@ -40,7 +40,7 @@ class %CLASS% extends AbstractController
      * @throws NotFoundExceptionInterface
      * @return ResponseInterface
      */
-    #[DeleteMapping('delete')]
+    #[DeleteMapping()]
     public function delete()
     {
         return $this->success($this->service->model::destroy((array) $this->request->input('id')));
@@ -53,7 +53,7 @@ class %CLASS% extends AbstractController
      * @throws NotFoundExceptionInterface
      * @return ResponseInterface
      */
-    #[PutMapping('update/{id}')]
+    #[PutMapping('{id}')]
     public function update($id)
     {
         return $this->success($this->service->update($id, $this->request->all()));
@@ -65,7 +65,7 @@ class %CLASS% extends AbstractController
      * @throws NotFoundExceptionInterface
      * @return ResponseInterface
      */
-    #[GetMapping('index')]
+    #[GetMapping()]
     public function index()
     {
         return $this->success($this->service->getPageList($this->request->all()));
@@ -78,7 +78,7 @@ class %CLASS% extends AbstractController
      * @throws NotFoundExceptionInterface
      * @return ResponseInterface
      */
-    #[GetMapping('detail/{id}')]
+    #[GetMapping('{id}')]
     public function detail($id)
     {
         return $this->success($this->service->detail($id));
