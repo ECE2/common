@@ -53,7 +53,7 @@ class %CLASS% extends AbstractController
      * @throws NotFoundExceptionInterface
      * @return ResponseInterface
      */
-    #[PutMapping('{id}')]
+    #[PutMapping('{id:\d+}')]
     public function update($id)
     {
         return $this->success($this->service->update($id, $this->request->all()));
@@ -78,7 +78,7 @@ class %CLASS% extends AbstractController
      * @throws NotFoundExceptionInterface
      * @return ResponseInterface
      */
-    #[GetMapping('{id}')]
+    #[GetMapping('{id:\d+}')]
     public function detail($id)
     {
         return $this->success($this->service->detail($id));
