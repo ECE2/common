@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Ece2\Common\Abstracts;
 
 use App\Model\SystemDept;
-use Ece2\Common\Annotation\Transaction;
 use Ece2\Common\Exception\BusinessException;
-use Ece2\Common\Exception\HttpException;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Collection;
 use Hyperf\Database\Model\Model;
+use Hyperf\DbConnection\Annotation\Transactional;
 use Hyperf\HttpServer\Response;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
@@ -283,7 +282,7 @@ abstract class AbstractService
      * @throws \Psr\Container\NotFoundExceptionInterface
      * @return bool
      */
-    #[Transaction]
+    #[Transactional]
     public function import(string $dto, ?\Closure $closure = null)
     {
         return collection_import($dto, $this->model, $closure);
