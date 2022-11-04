@@ -80,6 +80,7 @@ return (new PhpCsFixer\Config())
             ->exclude('public')
             ->exclude('runtime')
             ->exclude('vendor')
+            ->notName('_ide_helper.php')
             ->in(__DIR__)
     )
     ->setUsingCache(false);
