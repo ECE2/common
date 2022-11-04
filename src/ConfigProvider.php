@@ -18,6 +18,7 @@ class ConfigProvider
         ];
 
         Blueprint::macro('operators', function () {
+            /** @var Blueprint $this */
             $this->unsignedBigInteger('created_by')->default(0)->comment('创建者');
             $this->unsignedBigInteger('updated_by')->default(0)->comment('更新者');
             $this->index('created_by');
@@ -228,6 +229,12 @@ class ConfigProvider
                     'description' => 'Annotation DbQueryExecutedListener',
                     'source' => __DIR__ . '/../publish/DbQueryExecutedListener.php',
                     'destination' => BASE_PATH . '/app/Listener/DbQueryExecutedListener.php',
+                ],
+                [
+                    'id' => '_ide_helper.php',
+                    'description' => 'publish _ide_helper.php',
+                    'source' => __DIR__ . '/../publish/_ide_helper.php',
+                    'destination' => BASE_PATH . '/_ide_helper.php',
                 ],
             ],
         ];
