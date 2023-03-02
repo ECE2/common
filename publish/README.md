@@ -1,12 +1,12 @@
 ## 说明
 
 ### 启动
-1. 本地有 PHP + Swoole 环境的情况
+* 本地有 PHP + Swoole 环境的情况
 ``` shell
 sh start_hyerf.sh [dev (加上后可以本地开发热更新)] 
 ```
 
-2. 使用 Docker 启动
+* 使用 Docker 启动
 ```shell
 sh start_hyperf.sh docker
 ...
@@ -14,7 +14,7 @@ sh start_hyperf.sh docker
 /data/project # sh start_hyerf.sh [dev (加上后可以本地开发热更新)]
 ```
 
-当本地开启多个后端接口服务时, 端口冲突的话, 使用以下命令修改端口后直接启动
+PS: 当本地开启多个后端接口服务时, 端口冲突的话, 使用以下命令修改端口后直接启动
 ```shell
 docker run -it \
     -p 9501:9501 -p 9504:9504 \
@@ -30,6 +30,21 @@ docker run -it \
 ### 要求
 * 环境 PHP8
 
+### 开发
+1. 按照数据表生成对应 model service controller 文件
+```shell
+php bin/hyperf.php gen:code --with-comments {表名}
+```
+2. 初始化 mysql 表和数据
+```shell
+php bin/hyperf.php migrate --seed
+```
+3. 开发环境下 trace 收集是 100%, 看 db query 啥的在 zipkin 里, 拿着 api 返回的 traceId 值搜索
+4. 注意: 使用 Inject 注解进来的实例是单例, (总的来说, 在常驻环境下, 都得注意污染, 比如 Controller 也是个单例), 在开发时, 比如有一个成员变量 $a = 0, 单次 request $a ++ 后, 后面的 request 里 $a 不再是 0 (除非重启服务)
+5. Model 的 fillable 变量需要保持和数据库统一, 不然会写入缺掉内容等
+
+... 未完待续
+
 ### 本地调试
 1. xdebug 使用 [yasd](https://github.com/swoole/yasd)
 2. .env SCAN_CACHEABLE 为 true 才能 debug
@@ -42,4 +57,10 @@ docker run -it \
 可以使用
 ```shell
 kill -9 $(ps aux | grep "php bin/hyperf" | awk '{print $2}')
+```
+
+也有可能是, 取决于启动的方式, 正在后台执行中的进程名
+
+```shell
+kill -9 $(ps aux | grep "watch" | awk '{print $2}')
 ```

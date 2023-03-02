@@ -1,39 +1,60 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of api template.
- */
+
 namespace Ece2\Common\Model\Scopes;
 
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Model;
 use Hyperf\Database\Model\Scope;
-use Hyperf\Utils\Context;
+use Hyperf\Context\Context;
 
 /**
  * 公司隔离
+ * TODO 待使用验证
  */
 class CompanyIsolateScope implements Scope
 {
     public function apply(Builder $builder, Model $model)
     {
-        // 上下文里获取, admin 项目用的 jwt 会写入上下文, 其他项目可以手动写入匿名函数返回管理员数据
-        $companyId = [];
-        try {
-            if (($userResolver = Context::get('currentAdmin')) && is_callable($userResolver)) {
-                $admin = $userResolver();
-                if (isset($admin['company_id'])) {
-                    $companyId = [$admin['company_id']];
-                }
+        $builder->where($model->getQualifiedCompanyIdColumn(), static::getCompanyId());
+    }
+
+    public function extend(Builder $builder)
+    {
+        // 去掉公司隔离
+        $builder->macro('withCompanyIsolateExcept', function (Builder $builder, $withCompanyIsolateExcept = true) {
+            if (! $withCompanyIsolateExcept) {
+                return $builder->withoutCompanyIsolateExcept();
             }
-        } catch (\Exception $e) {
-        }
-        // 如果上下文没有, 允许设置全局公司 ID
-        if (empty($companyId)) {
-            $companyId = Context::get('GlobalCompanyId', [0]);
+
+            return $builder->withoutGlobalScope($this);
+        });
+
+        // 公司隔离
+        $builder->macro('withoutCompanyIsolateExcept', function (Builder $builder) {
+            $model = $builder->getModel();
+
+            $builder
+                ->withoutGlobalScope($this)
+                ->where($model->getQualifiedCompanyIdColumn(), static::getCompanyId());
+
+            return $builder;
+        });
+    }
+
+    public static function getCompanyId()
+    {
+        // 优先使用 设置的全局公司 ID
+        if (! empty($companyId = Context::get('GlobalCompanyId', 0))) {
+            return $companyId;
         }
 
-        $builder->whereIn($model->getTable() . '.company_id', $companyId);
+        // 上下文里获取, admin 项目用的 jwt 会写入上下文, 其他项目可以手动写入匿名函数返回管理员数据
+        try {
+            return identity()->company_id ?? 0;
+        } catch (\Exception $e) {
+            return 0;
+        }
     }
 }

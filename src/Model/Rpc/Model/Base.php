@@ -4,33 +4,35 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Model\Rpc\Model;
 
+use Ece2\Common\Model\Traits\HasRelationshipsForRpc;
 use Hyperf\DbConnection\Model\Model as BaseModel;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 abstract class Base extends BaseModel
 {
-    protected $guarded = [];
+    use HasRelationshipsForRpc;
 
-    protected static $service;
+    protected array $guarded = [];
+
+    /**
+     * model 对应的远程 service
+     * @return mixed
+     */
+    abstract protected static function getService();
 
     /**
      * 用于 rpc 连表查询.
      * @param mixed $ids
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      * @return array
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
      */
     public static function get($ids = [])
     {
         return array_map(
-            static fn ($model) => new static($model),
-            static::getService()->getByIds($ids)['data'] ?? []
+            static fn($model) => new static($model),
+            static::getService()?->getByIds($ids)['data'] ?? []
         );
-    }
-
-    protected static function getService()
-    {
-        return static::$service;
     }
 }

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common;
 
-use Hyperf\Paginator\LengthAwarePaginator;
-use Hyperf\Paginator\Paginator;
+use Hyperf\Database\Schema\Blueprint;
 use Hyperf\ServiceGovernance\IPReader;
 
 class ConfigProvider
@@ -18,6 +17,13 @@ class ConfigProvider
             'address' => sprintf('http://%s:%s', env('NACOS_HOST'), env('NACOS_PORT')),
         ];
 
+        Blueprint::macro('operators', function () {
+            /** @var Blueprint $this */
+            $this->unsignedBigInteger('created_by')->default(0)->comment('创建者');
+            $this->unsignedBigInteger('updated_by')->default(0)->comment('更新者');
+            $this->index('created_by');
+        });
+
         return [
             'annotations' => [
                 'scan' => [
@@ -28,9 +34,15 @@ class ConfigProvider
                     'class_map' => [
                         // 替换原有的 ip 获取, 允许使用配置了的服务发现地址
                         IPReader::class => __DIR__ . '/../class_map/IPReader.php',
-                        // 替换原有分页器, 更换 toArray 字段
-                        LengthAwarePaginator::class => __DIR__ . '/../class_map/LengthAwarePaginator.php',
-                        Paginator::class => __DIR__ . '/../class_map/Paginator.php',
+                        // 使用 RedisSecondMetaGenerator 替换 MetaGeneratorFactory 内返回, 主要使用 秒级 来达到减小雪花 ID 长度
+                        \Hyperf\Snowflake\MetaGeneratorFactory::class => __DIR__ . '/../class_map/MetaGeneratorFactory.php',
+                        // 替换 Filesystem 增加自定义函数, 主要 getUrl
+                        \League\Flysystem\Filesystem::class => __DIR__ . '/../class_map/Filesystem.php',
+                        // 替换 (ali oss) Adapter 增加自定义函数, 主要 getUrl
+                        \Hyperf\Flysystem\OSS\Adapter::class => __DIR__ . '/../class_map/Adapter.php',
+                    ],
+                    'ignore_annotations' => [
+                        'required',
                     ],
                 ],
             ],
@@ -61,18 +73,6 @@ class ConfigProvider
                     'description' => 'replace AbstractController',
                     'source' => __DIR__ . '/../publish/AbstractController.php',
                     'destination' => BASE_PATH . '/app/Controller/AbstractController.php',
-                ],
-                [
-                    'id' => 'AppExceptionHandler',
-                    'description' => 'replace AppExceptionHandler',
-                    'source' => __DIR__ . '/../publish/AppExceptionHandler.php',
-                    'destination' => BASE_PATH . '/app/Exception/Handler/AppExceptionHandler.php',
-                ],
-                [
-                    'id' => 'BusinessException',
-                    'description' => 'replace BusinessException',
-                    'source' => __DIR__ . '/../publish/BusinessException.php',
-                    'destination' => BASE_PATH . '/app/Exception/BusinessException.php',
                 ],
                 [
                     'id' => 'ErrorCode',
@@ -147,16 +147,40 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/config/autoload/metric.php',
                 ],
                 [
-                    'id' => 'config:routes',
-                    'description' => 'replace routes config',
-                    'source' => __DIR__ . '/../publish/config/routes.php',
-                    'destination' => BASE_PATH . '/config/routes.php',
+                    'id' => 'config:dependencies',
+                    'description' => 'replace config dependencies',
+                    'source' => __DIR__ . '/../publish/config/dependencies.php',
+                    'destination' => BASE_PATH . '/config/autoload/dependencies.php',
                 ],
                 [
                     'id' => 'config:config',
                     'description' => 'replace config config',
                     'source' => __DIR__ . '/../publish/config/config.php',
                     'destination' => BASE_PATH . '/config/config.php',
+                ],
+                [
+                    'id' => 'config:routes',
+                    'description' => 'replace config routes',
+                    'source' => __DIR__ . '/../publish/config/routes.php',
+                    'destination' => BASE_PATH . '/config/routes.php',
+                ],
+                [
+                    'id' => 'config:redis',
+                    'description' => 'replace config redis',
+                    'source' => __DIR__ . '/../publish/config/redis.php',
+                    'destination' => BASE_PATH . '/config/autoload/redis.php',
+                ],
+                [
+                    'id' => 'config:snowflake',
+                    'description' => 'replace config snowflake',
+                    'source' => __DIR__ . '/../publish/config/snowflake.php',
+                    'destination' => BASE_PATH . '/config/autoload/snowflake.php',
+                ],
+                [
+                    'id' => 'config:amqp',
+                    'description' => 'replace config amqp',
+                    'source' => __DIR__ . '/../publish/config/amqp.php',
+                    'destination' => BASE_PATH . '/config/autoload/amqp.php',
                 ],
                 [
                     'id' => 'start_hyperf_shell',
@@ -195,10 +219,22 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/Dockerfile',
                 ],
                 [
-                    'id' => 'create_model_has_attachments_table',
-                    'description' => 'create_model_has_attachments_table',
-                    'source' => __DIR__ . '/../publish/1111_01_11_111111_create_model_has_attachments_table.php',
-                    'destination' => BASE_PATH . '/migrations/1111_01_11_111111_create_model_has_attachments_table.php',
+                    'id' => 'seeders:initialization',
+                    'description' => 'seeders:initialization',
+                    'source' => __DIR__ . '/../publish/initialization.php',
+                    'destination' => BASE_PATH . '/seeders/initialization.php',
+                ],
+                [
+                    'id' => 'DbQueryExecutedListener',
+                    'description' => 'Annotation DbQueryExecutedListener',
+                    'source' => __DIR__ . '/../publish/DbQueryExecutedListener.php',
+                    'destination' => BASE_PATH . '/app/Listener/DbQueryExecutedListener.php',
+                ],
+                [
+                    'id' => '_ide_helper.php',
+                    'description' => 'publish _ide_helper.php',
+                    'source' => __DIR__ . '/../publish/_ide_helper.php',
+                    'destination' => BASE_PATH . '/_ide_helper.php',
                 ],
             ],
         ];

@@ -23,6 +23,13 @@ return [
             'options' => [
                 'endpoint_url' => env('ZIPKIN_ENDPOINT_URL', 'http://localhost:9411/api/v2/spans'),
                 'timeout' => env('ZIPKIN_TIMEOUT', 1),
+                'headers' => [
+                    // 阿里 SLS trace 才有用
+                    'x-sls-otel-project' => env('SLS_OTEL_PROJECT', ''),
+                    'x-sls-otel-instance-id' => env('SLS_OTEL_INSTANCE_ID', ''),
+                    'x-sls-otel-ak-id' => env('SLS_OTEL_AK_ID', ''),
+                    'x-sls-otel-ak-secret' => env('SLS_OTEL_AK_SECRET', '')
+                ]
             ],
             // 开发/测试 环境 100% 收集, 其他环境 1% 收集率
             'sampler' => in_array(env('APP_ENV', 'dev'), ['dev', 'stage'], true) ? \Zipkin\Samplers\BinarySampler::createAsAlwaysSample() : \Zipkin\Samplers\PercentageSampler::create(0.02),

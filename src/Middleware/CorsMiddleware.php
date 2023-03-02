@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Middleware;
 
-use Hyperf\Utils\Context;
+use Hyperf\Context\Context;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -14,7 +14,7 @@ class CorsMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (env('APP_ENV') === 'dev') {
+        if (config('app_env') === 'dev') {
             $response = Context::get(ResponseInterface::class)
                 ?->withHeader('Access-Control-Allow-Origin', '*')
                 ->withHeader('Access-Control-Allow-Credentials', 'true')

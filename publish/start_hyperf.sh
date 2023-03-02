@@ -11,11 +11,11 @@ fi
 run_in_docker="$1" # 是否 Docker 启动
 if [ "$run_in_docker" = "docker" ]; then
   docker run -it \
-    -p 9501:9501 -p 9504:9504 \
     --privileged -u root \
     --entrypoint /bin/sh \
     -v $(pwd):/data/project \
     -w /data/project \
+    --network host \
     hyperf/hyperf:8.0-alpine-v3.12-swoole
   exit
 fi

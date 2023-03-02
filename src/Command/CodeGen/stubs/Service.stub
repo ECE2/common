@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+%USES%
+use Ece2\Common\Abstracts\AbstractService;
+use Hyperf\Di\Annotation\Inject;
+
+class %CLASS% extends AbstractService
+{
+    /**
+     * @var %MODEL_CLASS%
+     */
+    #[Inject]
+    public $model;
+}
