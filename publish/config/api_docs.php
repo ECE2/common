@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types=1);
+
+use function Hyperf\Support\env;
+
 return [
     // enable false 将不会启动 swagger 服务
     'enable' => env('APP_ENV') !== 'prod',

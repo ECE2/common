@@ -12,6 +12,8 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
+use function Hyperf\Support\make;
+
 if (! function_exists('ip')) {
     /**
      * 获取 ip

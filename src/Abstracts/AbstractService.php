@@ -13,7 +13,9 @@ use Hyperf\DbConnection\Annotation\Transactional;
 use Hyperf\HttpServer\Response;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
+
 use function PHPUnit\Framework\throwException;
+use function Hyperf\Support\make;
 
 /**
  * @mixin Builder

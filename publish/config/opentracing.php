@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use function Hyperf\Support\env;
+
 return [
     'default' => env('TRACER_DRIVER', 'zipkin'),
     'enable' => [
@@ -28,8 +30,8 @@ return [
                     'x-sls-otel-project' => env('SLS_OTEL_PROJECT', ''),
                     'x-sls-otel-instance-id' => env('SLS_OTEL_INSTANCE_ID', ''),
                     'x-sls-otel-ak-id' => env('SLS_OTEL_AK_ID', ''),
-                    'x-sls-otel-ak-secret' => env('SLS_OTEL_AK_SECRET', '')
-                ]
+                    'x-sls-otel-ak-secret' => env('SLS_OTEL_AK_SECRET', ''),
+                ],
             ],
             // 开发/测试 环境 100% 收集, 其他环境 1% 收集率
             'sampler' => in_array(env('APP_ENV', 'dev'), ['dev', 'stage'], true) ? \Zipkin\Samplers\BinarySampler::createAsAlwaysSample() : \Zipkin\Samplers\PercentageSampler::create(0.02),

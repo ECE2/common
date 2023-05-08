@@ -1,10 +1,10 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of api template.
- */
+
 use Hyperf\Metric\Adapter\Prometheus\Constants;
+
+use function Hyperf\Support\env;
 
 return [
     // To disable hyperf/metric temporarily, set default driver to noop.

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Ece2\Common;
 
 use Hyperf\Database\Schema\Blueprint;
-use Hyperf\ServiceGovernance\IPReader;
+use Hyperf\Support\IPReader;
+
+use function Hyperf\Support\env;
 
 class ConfigProvider
 {
@@ -217,12 +219,6 @@ class ConfigProvider
                     'description' => 'replace Dockerfile',
                     'source' => __DIR__ . '/../publish/Dockerfile',
                     'destination' => BASE_PATH . '/Dockerfile',
-                ],
-                [
-                    'id' => 'seeders:initialization',
-                    'description' => 'seeders:initialization',
-                    'source' => __DIR__ . '/../publish/initialization.php',
-                    'destination' => BASE_PATH . '/seeders/initialization.php',
                 ],
                 [
                     'id' => 'DbQueryExecutedListener',

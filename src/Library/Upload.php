@@ -14,6 +14,8 @@ use Hyperf\HttpMessage\Upload\UploadedFile;
 use Hyperf\Utils\Str;
 use League\Flysystem\Filesystem;
 
+use function Hyperf\Support\env;
+
 class Upload
 {
     /**

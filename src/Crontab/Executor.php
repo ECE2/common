@@ -24,6 +24,8 @@ use Swoole\Timer;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
+use function Hyperf\Support\make;
+
 class Executor
 {
     /**

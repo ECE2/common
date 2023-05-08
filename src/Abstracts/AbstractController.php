@@ -7,18 +7,18 @@ namespace Ece2\Common\Abstracts;
 use Ece2\Common\Library\TraceId;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpMessage\Stream\SwooleStream;
-use Hyperf\HttpServer\Request;
-use Hyperf\HttpServer\Response;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Utils\Codec\Json;
 use Psr\Container\ContainerInterface;
 
 abstract class AbstractController
 {
     #[Inject]
-    protected Request $request;
+    protected RequestInterface $request;
 
     #[Inject]
-    protected Response $response;
+    protected ResponseInterface $response;
 
     #[Inject]
     protected ContainerInterface $container;

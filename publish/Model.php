@@ -6,6 +6,6 @@ namespace App\Model;
 
 use Ece2\Common\Abstracts\AbstractModel as BaseModel;
 
-abstract class Model extends BaseModel
+abstract class Model extends BaseModel implements Cache
 {
 }

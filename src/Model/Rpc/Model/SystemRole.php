@@ -8,6 +8,8 @@ use App\Model\SystemDept;
 use Ece2\Common\JsonRpc\Contract\SystemRoleServiceInterface;
 use Hyperf\Di\Annotation\Inject;
 
+use function Hyperf\Support\make;
+
 class SystemRole extends Base
 {
     protected static function getService()

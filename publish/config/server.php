@@ -1,12 +1,12 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of api template.
- */
+
 use Hyperf\Server\Event;
 use Hyperf\Server\Server;
 use Swoole\Constant;
+
+use function Hyperf\Support\env;
 
 return [
     'mode' => 2, // SWOOLE_PROCESS

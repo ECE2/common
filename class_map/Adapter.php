@@ -16,7 +16,6 @@ use League\Flysystem\Config;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\UnableToWriteFile;
-use OSS\Core\OssUtil;
 use OSS\OssClient;
 
 class Adapter implements FilesystemAdapter
@@ -100,7 +99,6 @@ class Adapter implements FilesystemAdapter
      */
     public function __construct($config = [])
     {
-        $this->config = $config;
         $this->bucket = $config['bucket'];
         $accessId = $config['accessId'];
         $accessSecret = $config['accessSecret'];
@@ -111,9 +109,22 @@ class Adapter implements FilesystemAdapter
         $token = $config['token'] ?? null;
         $proxy = $config['proxy'] ?? null;
 
-        $this->client = new OssClient($accessId, $accessSecret, $endpoint, $isCName, $token, $proxy);
+        $this->client = new OssClient(
+            $accessId,
+            $accessSecret,
+            $endpoint,
+            $isCName,
+            $token,
+            $proxy,
+        );
+
         $this->client->setTimeout($timeout);
         $this->client->setConnectTimeout($connectTimeout);
+    }
+
+    public function directoryExists(string $path): bool
+    {
+        return $this->client->doesObjectExist($this->bucket, $path);
     }
 
     public function fileExists(string $path): bool
@@ -207,7 +218,12 @@ class Adapter implements FilesystemAdapter
     public function fileSize(string $path): FileAttributes
     {
         $response = $this->client->getObjectMeta($this->bucket, $path);
-        return new FileAttributes($path, $response['content-length']);
+
+        $fileSize = null;
+        if (isset($response['content-length'])) {
+            $fileSize = (int) $response['content-length'];
+        }
+        return new FileAttributes($path, $fileSize);
     }
 
     public function listContents(string $path, bool $deep): iterable

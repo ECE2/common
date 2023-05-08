@@ -12,9 +12,10 @@ declare(strict_types=1);
 namespace Hyperf\Snowflake;
 
 use Hyperf\Contract\ConfigInterface;
-use Hyperf\Snowflake\MetaGenerator\RedisMilliSecondMetaGenerator;
 use Hyperf\Snowflake\MetaGenerator\RedisSecondMetaGenerator;
 use Psr\Container\ContainerInterface;
+
+use function Hyperf\Support\make;
 
 class MetaGeneratorFactory
 {

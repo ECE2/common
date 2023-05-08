@@ -12,6 +12,8 @@ use Hyperf\Command\Annotation\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
+use function Hyperf\Support\make;
+
 #[Command]
 class GenerateCommand extends HyperfCommand
 {

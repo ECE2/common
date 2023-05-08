@@ -23,6 +23,8 @@ use PhpParser\PrettyPrinterAbstract;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function Hyperf\Support\make;
+
 class ModelGenerator extends BaseGenerator
 {
     protected ConnectionResolverInterface $resolver;

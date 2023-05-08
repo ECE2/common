@@ -9,8 +9,9 @@ use Ece2\Common\Model\Traits\HasRelationshipsForRpc;
 use Hyperf\DbConnection\Model\Model as BaseModel;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\ModelCache\Cacheable;
+use Hyperf\ModelCache\CacheableInterface;
 
-abstract class AbstractModel extends BaseModel
+abstract class AbstractModel extends BaseModel implements CacheableInterface
 {
     use HasRelationshipsForRpc;
     use Cacheable;

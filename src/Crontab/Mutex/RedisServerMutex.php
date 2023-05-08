@@ -12,6 +12,8 @@ use Hyperf\Utils\Coordinator\Constants;
 use Hyperf\Utils\Coordinator\CoordinatorManager;
 use Hyperf\Utils\Coroutine;
 
+use function Hyperf\Support\env;
+
 class RedisServerMutex implements ServerMutex
 {
     private null|string $macAddress;

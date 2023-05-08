@@ -7,6 +7,8 @@ namespace Ece2\Common\Crontab\Mutex;
 use Ece2\Common\Crontab\Crontab;
 use Hyperf\Redis\RedisFactory;
 
+use function Hyperf\Support\env;
+
 class RedisTaskMutex implements TaskMutex
 {
     public function __construct(private RedisFactory $redisFactory)

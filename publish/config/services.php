@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-// 文档: https://hyperf.wiki/2.2/#/zh-cn/json-rpc
+use function Hyperf\Support\env;
+
 $consumersRegistry = [
     'protocol' => 'nacos',
     'address' => sprintf('http://%s:%s', env('NACOS_HOST'), env('NACOS_PORT')),

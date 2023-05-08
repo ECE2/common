@@ -10,6 +10,8 @@ use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
 use Hyperf\Di\Annotation\Inject;
 use HyperfExt\Sms\Sms;
 
+use function Hyperf\Support\make;
+
 /**
  * @property int $id
  * @property string $username

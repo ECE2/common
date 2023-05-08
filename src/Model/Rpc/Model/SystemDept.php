@@ -8,6 +8,8 @@ use Ece2\Common\JsonRpc\Contract\SystemDeptServiceInterface;
 use Hyperf\Cache\Annotation\Cacheable;
 use Hyperf\Di\Annotation\Inject;
 
+use function Hyperf\Support\make;
+
 /**
  * @property int $id 主键
  * @property int $parent_id 父ID
