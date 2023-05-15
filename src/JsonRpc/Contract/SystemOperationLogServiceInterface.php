@@ -2,7 +2,7 @@
 
 namespace Ece2\Common\JsonRpc\Contract;
 
-interface SystemOperLogServiceInterface
+interface SystemOperationLogServiceInterface
 {
     public function create(array $data);
 }

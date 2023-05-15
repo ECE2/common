@@ -20,12 +20,12 @@ abstract class AbstractModel extends BaseModel implements CacheableInterface
     /**
      * 状态: 可用.
      */
-    public const ENABLE = '0';
+    public const ENABLE = 1;
 
     /**
      * 状态: 不可用.
      */
-    public const DISABLE = '1';
+    public const DISABLE = 2;
 
     /**
      * 允许前端提交的最大单页数据数量.

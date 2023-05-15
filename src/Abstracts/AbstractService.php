@@ -359,4 +359,16 @@ abstract class AbstractService
 
         return (count($fields) < 1) ? ['*'] : array_values($fields);
     }
+
+    /**
+     * 数字更新操作
+     * @param int $id
+     * @param string $field
+     * @param int $value
+     * @return bool
+     */
+    public function numberOperation(int $id, string $field, int $value): bool
+    {
+        return $this->update($id, [ $field => $value]);
+    }
 }

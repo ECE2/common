@@ -9,7 +9,6 @@ use Ece2\Common\JsonRpc\Contract\SystemDeptServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
 use Hyperf\Di\Annotation\Inject;
 use HyperfExt\Sms\Sms;
-
 use function Hyperf\Support\make;
 
 /**
@@ -36,7 +35,7 @@ use function Hyperf\Support\make;
  * @property string $deleted_at
  * @property SystemDept $department
  */
-class SystemUser extends Base
+class User extends Base
 {
     /**
      * 通知方式: 短信.

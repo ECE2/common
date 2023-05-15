@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Middleware;
 
-use App\Model\SystemUser as BaseDBAdministrator;
-use Ece2\Common\Model\Rpc\Model\SystemUser as RpcAdministrator;
+use App\Model\User as BaseDBAdministrator;
+use Ece2\Common\Model\Rpc\Model\User as RpcAdministrator;
 use Hyperf\Rpc\Context as RpcContext;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;

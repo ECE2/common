@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Aspect;
 
-use App\Service\SystemUserService;
+use App\Service\UserService;
 use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
@@ -70,7 +70,7 @@ class PermissionAspect extends AbstractAspect
     protected function checkPermission(string $codeString, string $where): bool
     {
         if (is_base_system()) {
-            $codes = container()->get(SystemUserService::class)->getInfo()['codes'];
+            $codes = container()->get(UserService::class)->getInfo()['codes'];
         } else {
             $codes = container()->get(SystemUserServiceInterface::class)->getInfo(identity()?->getKey())['data']['codes'] ?? [];
         }

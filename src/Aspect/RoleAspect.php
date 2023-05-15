@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Aspect;
 
-use App\Service\SystemUserService;
+use App\Service\UserService;
 use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
@@ -60,7 +60,7 @@ class RoleAspect extends AbstractAspect
     protected function checkRole(string $codeString, string $where): bool
     {
         if (is_base_system()) {
-            $roles = container()->get(SystemUserService::class)->getInfo()['roles'] ?? [];
+            $roles = container()->get(UserService::class)->getInfo()['roles'] ?? [];
         } else {
             $roles = container()->get(SystemUserServiceInterface::class)->getInfo()['data']['roles'] ?? [];
         }

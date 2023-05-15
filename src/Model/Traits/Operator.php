@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Model\Traits;
 
-use App\Model\SystemUser;
-use \Ece2\Common\Model\Rpc\Model\SystemUser as SystemUserForRpc;
+use App\Model\User;
+use \Ece2\Common\Model\Rpc\Model\User as SystemUserForRpc;
 
 /**
  * @property SystemUser|SystemUserForRpc $createdByInstance
@@ -18,7 +18,7 @@ trait Operator
     public function createdByInstance()
     {
         if (is_base_system()) {
-            return $this->hasOne(SystemUser::class, 'id', $this->getCreatedByColumn());
+            return $this->hasOne(User::class, 'id', $this->getCreatedByColumn());
         } else {
             return $this->rpcHasOne(SystemUserForRpc::class, 'id', $this->getCreatedByColumn());
         }
@@ -27,7 +27,7 @@ trait Operator
     public function updatedByInstance()
     {
         if (is_base_system()) {
-            return $this->hasOne(SystemUser::class, 'id', $this->getCreatedByColumn());
+            return $this->hasOne(User::class, 'id', $this->getCreatedByColumn());
         } else {
             return $this->rpcHasOne(SystemUserForRpc::class, 'id', $this->getCreatedByColumn());
         }

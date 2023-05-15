@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Ece2\Common\Model\Scopes;
 
 use App\Model\SystemDept;
-use App\Model\SystemUser;
+use App\Model\User;
 use Ece2\Common\Exception\HttpException;
 use Ece2\Common\JsonRpc\Contract\SystemDeptServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
 use Ece2\Common\Model\Rpc\Model\SystemRole;
-use Ece2\Common\Model\Rpc\Model\SystemUser as SystemUserForRpc;
+use Ece2\Common\Model\Rpc\Model\User as UserForRpc;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Model;
 use Hyperf\Database\Model\Scope;
@@ -74,12 +74,12 @@ class DataPermissionScope implements Scope
 
                 protected function getUserDataScope(): void
                 {
-                    /* @var SystemUserForRpc|SystemUser $user */
+                    /* @var UserForRpc|User $user */
                     if (is_base_system()) {
-                        $user = SystemUser::findOrFail($this->userId);
+                        $user = User::findOrFail($this->userId);
                         $roles = $user->roles()->get(['id', 'data_scope']);
                     } else {
-                        $user = (new SystemUserForRpc(
+                        $user = (new UserForRpc(
                             container()->get(SystemUserServiceInterface::class)
                                 ->getInfo($this->userId)['data']['user'] ?? []
                         ));
@@ -99,16 +99,16 @@ class DataPermissionScope implements Scope
                     foreach ($roles as $role) {
                         switch ((int) $role->data_scope) {
                             // 如果是所有权限，跳出所有循环
-                            case 0: // SystemRole::ALL_SCOPE
+                            case 1: // SystemRole::ALL_SCOPE
                                 $this->userIds = [];
                                 break 2;
                             // 自定义数据权限
-                            case 1: // SystemRole::CUSTOM_SCOPE
+                            case 2: // SystemRole::CUSTOM_SCOPE
                                 if (is_base_system()) {
                                     $deptIds = $role->depts()->pluck('id')->toArray();
                                     $this->userIds = array_merge(
                                         $this->userIds,
-                                        SystemUser::query()->whereIn('dept_id', $deptIds)->pluck('id')->toArray()
+                                        User::query()->whereIn('dept_id', $deptIds)->pluck('id')->toArray()
                                     );
                                 } else {
                                     /** @var SystemRole $role */
@@ -122,11 +122,11 @@ class DataPermissionScope implements Scope
                                 $this->userIds[] = $this->userId;
                                 break;
                             // 本部门数据权限
-                            case 2: // SystemRole::SELF_DEPT_SCOPE
+                            case 3: // SystemRole::SELF_DEPT_SCOPE
                                 if (is_base_system()) {
                                     $this->userIds = array_merge(
                                         $this->userIds,
-                                        SystemUser::query()->where('dept_id', $user['dept_id'])->pluck('id')->toArray()
+                                        User::query()->where('dept_id', $user['dept_id'])->pluck('id')->toArray()
                                     );
                                 } else {
                                     $this->userIds = array_merge(
@@ -138,25 +138,25 @@ class DataPermissionScope implements Scope
                                 $this->userIds[] = $this->userId;
                                 break;
                             // 本部门及子部门数据权限
-                            case 3: // SystemRole::DEPT_BELOW_SCOPE
+                            case 4: // SystemRole::DEPT_BELOW_SCOPE
                                 $this->userIds = array_merge($this->userIds, $this->getDeptUser($user['dept_id']));
                                 $this->userIds[] = $this->userId;
                                 break;
                             // 自己的数据
-                            case 4: // SystemRole::SELF_SCOPE
+                            case 5: // SystemRole::SELF_SCOPE
                                 $this->userIds[] = $this->userId;
-                            // 全公司 (顶级部门下 包含所有子部门)
-                            // no break
-                            case 5: // SystemRole::COMPANY_SCOPE
-                                // 找到当前部门的顶级部门
-                                if (is_base_system()) {
-                                    $topLevelDept = $user->department?->topLevelDept();
-                                } else {
-                                    $topLevelDept = (new \Ece2\Common\Model\Rpc\Model\SystemDept(['id' => $user['dept_id']]))?->topLevelDept();
-                                }
-
-                                $this->userIds = array_merge($this->userIds, $topLevelDept !== null ? $this->getDeptUser($topLevelDept->getKey()) : []);
-                                $this->userIds[] = $this->userId;
+//                            // 全公司 (顶级部门下 包含所有子部门)
+//                            // no break
+//                            case 6: // SystemRole::COMPANY_SCOPE
+//                                // 找到当前部门的顶级部门
+//                                if (is_base_system()) {
+//                                    $topLevelDept = $user->department?->topLevelDept();
+//                                } else {
+//                                    $topLevelDept = (new \Ece2\Common\Model\Rpc\Model\SystemDept(['id' => $user['dept_id']]))?->topLevelDept();
+//                                }
+//
+//                                $this->userIds = array_merge($this->userIds, $topLevelDept !== null ? $this->getDeptUser($topLevelDept->getKey()) : []);
+//                                $this->userIds[] = $this->userId;
                                 // no break
                             default:
                                 break;
@@ -174,7 +174,7 @@ class DataPermissionScope implements Scope
                     if (is_base_system()) {
                         $deptIds = SystemDept::query()->whereRaw("FIND_IN_SET(?, level)", [$deptId])->pluck('id')->toArray();
                         $deptIds[] = $deptId;
-                        return SystemUser::query()->whereIn('dept_id', $deptIds)->pluck('id')->toArray();
+                        return User::query()->whereIn('dept_id', $deptIds)->pluck('id')->toArray();
                     }
                     $deptIds = array_column(container()->get(SystemDeptServiceInterface::class)->getByLevelFuzzy($deptId)['data'] ?? [], 'id');
                     $deptIds[] = $deptId;
