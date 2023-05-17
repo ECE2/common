@@ -103,9 +103,9 @@ abstract class AbstractService
      * @param mixed $field
      * @return int
      */
-    public function changeStatus(array $id, string $value, string $field = 'status')
+    public function changeStatus(mixed $id, mixed $value, string $field = 'status')
     {
-        return (string) $value === (string) $this->model::ENABLE ? $this->enable($id, $field) : $this->disable($id, $field);
+        return (int) $value === (int) $this->model::ENABLE ? $this->enable((array) $id, $field) : $this->disable((array) $id, $field);
     }
 
     /**
