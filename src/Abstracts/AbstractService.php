@@ -11,6 +11,7 @@ use Hyperf\Database\Model\Collection;
 use Hyperf\Database\Model\Model;
 use Hyperf\DbConnection\Annotation\Transactional;
 use Hyperf\HttpServer\Response;
+use Hyperf\Paginator\Paginator;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
 
@@ -29,6 +30,10 @@ abstract class AbstractService
 
     public function __call(string $name, array $arguments)
     {
+        if (method_exists(self::class, $name)) {
+            return self::$name(...$arguments);
+        }
+
         return $this->model::query()->{$name}(...$arguments);
     }
 
@@ -346,7 +351,7 @@ abstract class AbstractService
     {
         $attrs = $this->model->getFillable();
         foreach ($fields as $key => $field) {
-            if (! in_array(trim($field), $attrs)) {
+            if (!in_array(trim($field), $attrs) && mb_strpos(str_replace('AS', 'as', $field), 'as') === false) {
                 unset($fields[$key]);
             } else {
                 $fields[$key] = trim($field);
@@ -370,5 +375,21 @@ abstract class AbstractService
     public function numberOperation(int $id, string $field, int $value): bool
     {
         return $this->update($id, [ $field => $value]);
+    }
+
+    /**
+     * 数组数据转分页数据显示
+     * @param array|null $params
+     * @param string $pageName
+     * @return mixed
+     */
+    public function getArrayToPageList(?array $params = [], string $pageName = 'page')
+    {
+        $collect = $this->handleArraySearch(\Hyperf\Collection\collect($this->getArrayData($params)), $params);
+
+        $pageSize = (int) ($params['pageSize'] ?? AbstractModel::query()->getPerPage());
+        $page = (int) ($params[$pageName] ?? Paginator::resolveCurrentPage($pageName));
+
+        return make(Paginator::class, [$collect, $pageSize, $page]);
     }
 }

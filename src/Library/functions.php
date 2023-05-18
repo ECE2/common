@@ -14,6 +14,11 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 
 use function Hyperf\Support\make;
 
+/**
+ * 系统基座名称
+ */
+const SYSTEM_NAME = 'system';
+
 if (! function_exists('ip')) {
     /**
      * 获取 ip
@@ -79,10 +84,10 @@ if (! function_exists('identity_set')) {
 if (! function_exists('is_base_system')) {
     /**
      * 当前系统是否为基座.
-     * @param $system
+     * @param string $system
      * @return bool
      */
-    function is_base_system($system = 'system')
+    function is_base_system(string $system = SYSTEM_NAME)
     {
         return config('app_name') === $system;
     }
