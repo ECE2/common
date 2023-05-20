@@ -38,18 +38,6 @@ abstract class AbstractService
     }
 
     /**
-     * 新增数据.
-     * @param $data
-     * @return Model
-     */
-    public function create($data)
-    {
-        $this->filterExecuteAttributes($data);
-
-        return $this->model::create($data);
-    }
-
-    /**
      * 单个或批量从回收站恢复数据.
      * @return int
      */
