@@ -1,0 +1,33 @@
+<?php
+
+namespace {NAMESPACE};
+
+{USE}
+use App\Controller\AbstractController;
+use Hyperf\Di\Annotation\Inject;
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\DeleteMapping;
+use Hyperf\HttpServer\Annotation\GetMapping;
+use Hyperf\HttpServer\Annotation\PostMapping;
+use Hyperf\HttpServer\Annotation\PutMapping;
+use Ece2\Common\Annotation\Auth;
+use Ece2\Common\Annotation\OperationLog;
+use Ece2\Common\Annotation\Permission;
+use Psr\Http\Message\ResponseInterface;
+
+/**
+ * {COMMENT}
+ * Class {CLASS_NAME}
+ */
+#[Controller(prefix: "{CONTROLLER_ROUTE}"), Auth]
+class {CLASS_NAME} extends AbstractController
+{
+    /**
+     * 业务处理服务
+     * {SERVICE}
+     */
+    #[Inject]
+    protected {SERVICE} $service;
+
+    {FUNCTIONS}
+}
