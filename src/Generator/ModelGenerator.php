@@ -1,54 +1,36 @@
 <?php
 
-/** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
-/**
- * MineAdmin is committed to providing solutions for quickly building web applications
- * Please view the LICENSE file that was distributed with this source code,
- * For the full copyright and license information.
- * Thank you very much for using MineAdmin.
- *
- * @Author X.Mo<root@imoi.cn>
- * @Link   https://gitee.com/xmo/MineAdmin
- */
-
 declare(strict_types=1);
-namespace Mine\Generator;
+
+namespace Ece2\Common\Generator;
 
 use App\Model\SettingGenerateTable;
-use App\Setting\Service\SettingGenerateColumnService;
+use App\Service\SettingGenerateColumnService;
 use Ece2\Common\Interfaces\CodeGenerator;
-use Hyperf\Support\Filesystem\Filesystem;
 use Ece2\Common\Exception\NormalStatusException;
 use Hyperf\Stringable\Str;
+use Hyperf\Support\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
+use function Hyperf\Support\make;
+use function Hyperf\Support\env;
+
 /**
  * 模型生成
- * Class ModelGenerator
- * @package Mine\Generator
  */
 class ModelGenerator extends BaseGenerator implements CodeGenerator
 {
-    /**
-     * @var SettingGenerateTable
-     */
     protected SettingGenerateTable $model;
 
-    /**
-     * @var string
-     */
     protected string $codeContent;
 
-    /**
-     * @var Filesystem
-     */
     protected Filesystem $filesystem;
 
     /**
      * 设置生成信息
      * @param SettingGenerateTable $model
-     * @return ModelGenerator
+     * @return $this
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
@@ -56,7 +38,7 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
     {
         $this->model = $model;
         $this->filesystem = make(Filesystem::class);
-        if (empty($model->module_name) || empty($model->menu_name)) {
+        if (empty($model->menu_name)) {
             throw new NormalStatusException(t('setting.gen_code_edit'));
         }
         $this->setNamespace($this->model->namespace);
@@ -70,27 +52,17 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
      */
     public function generator(): void
     {
-        $module = Str::title($this->model->module_name[0]) . mb_substr($this->model->module_name, 1);
         if ($this->model->generate_type === 1) {
-            $path = BASE_PATH . "/runtime/generate/php/app/{$module}/Model/";
+            $path = BASE_PATH . '/runtime/generate/php/app/Model/';
         } else {
-            $path = BASE_PATH . "/app/{$module}/Model/";
+            $path = BASE_PATH . '/app/Model/';
         }
         $this->filesystem->exists($path) || $this->filesystem->makeDirectory($path, 0755, true, true);
 
         $command = [
-            'command'  => 'mine:model-gen',
-            '--module' => $this->model->module_name,
-            '--table'  => $this->model->table_name
+            'command' => 'mine:model-gen',
+            '--table' => $this->model->table_name
         ];
-
-        if (! Str::contains($this->model->table_name, Str::lower($this->model->module_name))) {
-            throw new NormalStatusException(t('setting.gen_model_error'), 500);
-        }
-
-        if (mb_strlen($this->model->table_name) === mb_strlen($this->model->module_name)) {
-            throw new NormalStatusException(t('setting.gen_model_error'), 500);
-        }
 
         $input = new ArrayInput($command);
         $output = new NullOutput();
@@ -99,22 +71,22 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
         $application = $this->container->get(\Hyperf\Contract\ApplicationInterface::class);
         $application->setAutoExit(false);
 
-        $modelName  = Str::studly(str_replace(env('DB_PREFIX'), '', $this->model->table_name));
+        $modelName = Str::studly(str_replace(env('DB_PREFIX'), '', $this->model->table_name));
 
         if ($application->run($input, $output) === 0) {
 
             // 对模型文件处理
             if ($modelName[strlen($modelName) - 1] == 's' && $modelName[strlen($modelName) - 2] != 's') {
                 $oldName = Str::substr($modelName, 0, (strlen($modelName) - 1));
-                $oldPath = BASE_PATH . "/app/{$module}/Model/{$oldName}.php";
-                $sourcePath = BASE_PATH . "/app/{$module}/Model/{$modelName}.php";
+                $oldPath = BASE_PATH . "/app/Model/{$oldName}.php";
+                $sourcePath = BASE_PATH . "/app/Model/{$modelName}.php";
                 $this->filesystem->put(
                     $sourcePath,
                     str_replace($oldName, $modelName, $this->filesystem->sharedGet($oldPath))
                 );
                 @unlink($oldPath);
             } else {
-                $sourcePath = BASE_PATH . "/app/{$module}/Model/{$modelName}.php";
+                $sourcePath = BASE_PATH . "/app/Model/{$modelName}.php";
             }
 
             if (!empty($this->model->options['relations'])) {
@@ -126,7 +98,7 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
 
             // 压缩包下载
             if ($this->model->generate_type === 1) {
-                $toPath = BASE_PATH . "/runtime/generate/php/app/{$module}/Model/{$modelName}.php";
+                $toPath = BASE_PATH . "/runtime/generate/php/app/Model/{$modelName}.php";
 
                 $isFile = is_file($sourcePath);
 
@@ -155,7 +127,7 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getTemplatePath(): string
     {
-        return $this->getStubDir().'model.stub';
+        return $this->getStubDir() . 'model.stub';
     }
 
     /**
@@ -246,7 +218,7 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
         );
         $columns = [];
         foreach ($data as $column) {
-            $columns[] = "'".$column['column_name']."'";
+            $columns[] = "'" . $column['column_name'] . "'";
         }
 
         return implode(', ', $columns);
@@ -264,8 +236,8 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
             foreach ($this->model->options['relations'] as $relation) {
                 $content = $this->filesystem->sharedGet($path . $relation['type'] . '.stub');
                 $content = str_replace(
-                    [ '{RELATION_NAME}', '{MODEL_NAME}', '{TABLE_NAME}', '{FOREIGN_KEY}', '{LOCAL_KEY}' ],
-                    [ $relation['name'], $relation['model'], str_replace($prefix, '', $relation['table']), $relation['foreignKey'], $relation['localKey'] ],
+                    ['{RELATION_NAME}', '{MODEL_NAME}', '{TABLE_NAME}', '{FOREIGN_KEY}', '{LOCAL_KEY}'],
+                    [$relation['name'], $relation['model'], str_replace($prefix, '', $relation['table']), $relation['foreignKey'], $relation['localKey']],
                     $content
                 );
                 $phpCode .= $content;

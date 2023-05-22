@@ -1,18 +1,8 @@
 <?php
-/** @noinspection PhpExpressionResultUnusedInspection */
-/** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
-/**
- * MineAdmin is committed to providing solutions for quickly building web applications
- * Please view the LICENSE file that was distributed with this source code,
- * For the full copyright and license information.
- * Thank you very much for using MineAdmin.
- *
- * @Author X.Mo<root@imoi.cn>
- * @Link   https://gitee.com/xmo/MineAdmin
- */
 
 declare(strict_types=1);
-namespace Mine\Generator;
+
+namespace Ece2\Common\Generator;
 
 use App\Model\SettingGenerateTable;
 use Ece2\Common\Interfaces\CodeGenerator;
@@ -20,32 +10,24 @@ use Hyperf\Support\Filesystem\Filesystem;
 use Ece2\Common\Exception\NormalStatusException;
 use Hyperf\Stringable\Str;
 
+use function Hyperf\Support\make;
+use function Hyperf\Support\env;
+
 /**
  * JS API文件生成
- * Class ApiGenerator
- * @package Mine\Generator
  */
 class ApiGenerator extends BaseGenerator implements CodeGenerator
 {
-    /**
-     * @var SettingGenerateTable
-     */
     protected SettingGenerateTable $model;
 
-    /**
-     * @var string
-     */
     protected string $codeContent;
 
-    /**
-     * @var Filesystem
-     */
     protected Filesystem $filesystem;
 
     /**
      * 设置生成信息
      * @param SettingGenerateTable $model
-     * @return ApiGenerator
+     * @return $this
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
@@ -53,7 +35,7 @@ class ApiGenerator extends BaseGenerator implements CodeGenerator
     {
         $this->model = $model;
         $this->filesystem = make(Filesystem::class);
-        if (empty($model->module_name) || empty($model->menu_name)) {
+        if (empty($model->menu_name)) {
             throw new NormalStatusException(t('setting.gen_code_edit'));
         }
         return $this->placeholderReplace();
@@ -65,9 +47,8 @@ class ApiGenerator extends BaseGenerator implements CodeGenerator
     public function generator(): void
     {
         $filename = Str::camel(str_replace(env('DB_PREFIX'), '', $this->model->table_name));
-        $module = Str::lower($this->model->module_name);
-        $this->filesystem->makeDirectory(BASE_PATH . "/runtime/generate/vue/src/api/{$module}", 0755, true, true);
-        $path = BASE_PATH . "/runtime/generate/vue/src/api/{$module}/{$filename}.js";
+        $this->filesystem->makeDirectory(BASE_PATH . '/runtime/generate/vue/src/api', 0755, true, true);
+        $path = BASE_PATH . "/runtime/generate/vue/src/api/{$filename}.js";
         $this->filesystem->put($path, $this->replace()->getCodeContent());
     }
 
@@ -85,7 +66,7 @@ class ApiGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getTemplatePath(): string
     {
-        return $this->getStubDir().'/Api/main.stub';
+        return $this->getStubDir() . '/Api/main.stub';
     }
 
     /**
@@ -166,7 +147,7 @@ class ApiGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getComment(): string
     {
-        return $this->getBusinessName(). ' API JS';
+        return $this->getBusinessName() . ' API JS';
     }
 
     /**
@@ -175,7 +156,7 @@ class ApiGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getRequestRoute(): string
     {
-        return Str::lower($this->model->module_name) . '/' . $this->getShortBusinessName();
+        return $this->getShortBusinessName();
     }
 
     /**
@@ -193,11 +174,7 @@ class ApiGenerator extends BaseGenerator implements CodeGenerator
      */
     public function getShortBusinessName(): string
     {
-        return Str::camel(str_replace(
-            Str::lower($this->model->module_name),
-            '',
-            str_replace(env('DB_PREFIX'), '', $this->model->table_name)
-        ));
+        return Str::camel(str_replace(env('DB_PREFIX'), '', $this->model->table_name));
     }
 
     /**

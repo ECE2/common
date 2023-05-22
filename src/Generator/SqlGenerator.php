@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Generator;
 
+use App\Model\Menu;
 use App\Model\SettingGenerateTable;
 use Ece2\Common\Exception\NormalStatusException;
 use Ece2\Common\Interfaces\CodeGenerator;
 use Hyperf\DbConnection\Db;
+use Hyperf\Stringable\Str;
 use Hyperf\Support\Filesystem\Filesystem;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+
+use function Hyperf\Support\make;
+use function Hyperf\Support\env;
 
 /**
  * 菜单SQL文件生成
@@ -37,8 +42,8 @@ class SqlGenerator extends BaseGenerator implements CodeGenerator
     {
         $this->model = $model;
         $this->adminId = $adminId;
-        $this->filesystem = \Hyperf\Support\make(Filesystem::class);
-        if (empty($model->module_name) || empty($model->menu_name)) {
+        $this->filesystem = make(Filesystem::class);
+        if (empty($model->menu_name)) {
             throw new NormalStatusException(t('setting.gen_code_edit'));
         }
         return $this->placeholderReplace();
@@ -75,7 +80,7 @@ class SqlGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getTemplatePath(): string
     {
-        return $this->getStubDir().'/Sql/main.stub';
+        return $this->getStubDir() . '/Sql/main.stub';
     }
 
     /**
@@ -174,7 +179,7 @@ class SqlGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getTableName(): string
     {
-        return env('DB_PREFIX') . (SystemMenu::getModel())->getTable();
+        return env('DB_PREFIX') . (Menu::getModel())->getTable();
     }
 
     /**
@@ -184,7 +189,7 @@ class SqlGenerator extends BaseGenerator implements CodeGenerator
     protected function getLevel(): string
     {
         if ($this->model->belong_menu_id !== 0) {
-            $model = SystemMenu::find($this->model->belong_menu_id, ['id', 'level']);
+            $model = Menu::find($this->model->belong_menu_id, ['id', 'level']);
             return $model->level . ',' . $model->id;
         } else {
             return '0';
@@ -197,7 +202,7 @@ class SqlGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getCode(): string
     {
-        return Str::lower($this->model->module_name) . ':' . $this->getShortBusinessName();
+        return $this->getShortBusinessName();
     }
 
     /**
@@ -206,7 +211,7 @@ class SqlGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getRoute(): string
     {
-        return Str::lower($this->model->module_name) . '/' . $this->getShortBusinessName();
+        return $this->getShortBusinessName();
     }
 
 
@@ -216,7 +221,7 @@ class SqlGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getVueTemplate(): string
     {
-        return Str::lower($this->model->module_name) . '/' . $this->getShortBusinessName() . '/index';
+        return $this->getShortBusinessName() . '/index';
     }
 
     /**
@@ -225,11 +230,7 @@ class SqlGenerator extends BaseGenerator implements CodeGenerator
      */
     public function getShortBusinessName(): string
     {
-        return Str::camel(str_replace(
-            Str::lower($this->model->module_name),
-            '',
-            str_replace(env('DB_PREFIX'), '', $this->model->table_name)
-        ));
+        return Str::camel(str_replace(env('DB_PREFIX'), '', $this->model->table_name));
     }
 
     /**
@@ -238,7 +239,7 @@ class SqlGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getAdminId(): string
     {
-        return (string) $this->adminId;
+        return (string)$this->adminId;
     }
 
     /**

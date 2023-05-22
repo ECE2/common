@@ -12,7 +12,7 @@ abstract class BaseGenerator
 
     protected string $namespace;
 
-    public const NO  = 1;
+    public const NO = 1;
 
     public const YES = 2;
 

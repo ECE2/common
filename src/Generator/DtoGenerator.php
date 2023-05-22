@@ -1,16 +1,9 @@
 <?php
-/**
- * MineAdmin is committed to providing solutions for quickly building web applications
- * Please view the LICENSE file that was distributed with this source code,
- * For the full copyright and license information.
- * Thank you very much for using MineAdmin.
- *
- * @Author X.Mo<root@imoi.cn>
- * @Link   https://gitee.com/xmo/MineAdmin
- */
+
 
 declare(strict_types=1);
-namespace Mine\Generator;
+
+namespace Ece2\Common\Generator;
 
 use App\Model\SettingGenerateColumn;
 use App\Model\SettingGenerateTable;
@@ -20,47 +13,38 @@ use Hyperf\Support\Filesystem\Filesystem;
 use Ece2\Common\Exception\NormalStatusException;
 use Hyperf\Stringable\Str;
 
+use function Hyperf\Support\make;
+use function Hyperf\Support\env;
+
 class DtoGenerator extends BaseGenerator implements CodeGenerator
 {
-    /**
-     * @var SettingGenerateTable
-     */
     protected SettingGenerateTable $model;
 
-    /**
-     * @var string
-     */
     protected string $codeContent;
 
-    /**
-     * @var Filesystem
-     */
     protected Filesystem $filesystem;
 
-    /**
-     * @var Collection
-     */
     protected Collection $columns;
 
     /**
      * 设置生成信息
      * @param SettingGenerateTable $model
-     * @return DtoGenerator
+     * @return $this
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function setGenInfo(SettingGenerateTable $model): DtoGenerator
     {
         $this->model = $model;
-        $this->filesystem = \Hyperf\Support\make(Filesystem::class);
-        if (empty($model->module_name) || empty($model->menu_name)) {
+        $this->filesystem = make(Filesystem::class);
+        if (empty($model->menu_name)) {
             throw new NormalStatusException(t('setting.gen_code_edit'));
         }
         $this->setNamespace($this->model->namespace);
 
         $this->columns = SettingGenerateColumn::query()
             ->where('table_id', $model->id)->orderByDesc('sort')
-            ->get([ 'column_name', 'column_comment' ]);
+            ->get(['column_name', 'column_comment']);
 
         return $this->placeholderReplace();
     }
@@ -70,11 +54,10 @@ class DtoGenerator extends BaseGenerator implements CodeGenerator
      */
     public function generator(): void
     {
-        $module = Str::title($this->model->module_name[0]) . mb_substr($this->model->module_name, 1);
         if ($this->model->generate_type === 1) {
-            $path = BASE_PATH . "/runtime/generate/php/app/{$module}/Dto/";
+            $path = BASE_PATH . '/runtime/generate/php/app/Dto/';
         } else {
-            $path = BASE_PATH . "/app/{$module}/Dto/";
+            $path = BASE_PATH . '/app/Dto/';
         }
         $this->filesystem->exists($path) || $this->filesystem->makeDirectory($path, 0755, true, true);
         $this->filesystem->put($path . "{$this->getClassName()}.php", $this->replace()->getCodeContent());
@@ -95,7 +78,7 @@ class DtoGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getTemplatePath(): string
     {
-        return $this->getStubDir().'/dto.stub';
+        return $this->getStubDir() . '/dto.stub';
     }
 
     /**
@@ -162,7 +145,7 @@ class DtoGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getComment(): string
     {
-        return $this->model->menu_name. 'Dto （导入导出）';
+        return $this->model->menu_name . 'Dto （导入导出）';
     }
 
     /**
@@ -171,7 +154,7 @@ class DtoGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getClassName(): string
     {
-        return $this->getBusinessName().'Dto';
+        return $this->getBusinessName() . 'Dto';
     }
 
     /**

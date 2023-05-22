@@ -77,6 +77,12 @@ class ConfigProvider
                     'destination' => BASE_PATH . '/app/Controller/AbstractController.php',
                 ],
                 [
+                    'id' => 'AbstractService',
+                    'description' => 'replace AbstractService',
+                    'source' => __DIR__ . '/../publish/AbstractService.php',
+                    'destination' => BASE_PATH . '/app/Service/AbstractService.php',
+                ],
+                [
                     'id' => 'ErrorCode',
                     'description' => 'initialization ErrorCode',
                     'source' => __DIR__ . '/../publish/ErrorCode.php',

@@ -1,16 +1,8 @@
-<?php /** @noinspection PhpIllegalStringOffsetInspection */
-/**
- * MineAdmin is committed to providing solutions for quickly building web applications
- * Please view the LICENSE file that was distributed with this source code,
- * For the full copyright and license information.
- * Thank you very much for using MineAdmin.
- *
- * @Author X.Mo<root@imoi.cn>
- * @Link   https://gitee.com/xmo/MineAdmin
- */
+<?php
 
 declare(strict_types=1);
-namespace Mine\Generator;
+
+namespace Ece2\Common\Generator;
 
 use App\Model\SettingGenerateTable;
 use Ece2\Common\Interfaces\CodeGenerator;
@@ -18,32 +10,24 @@ use Hyperf\Support\Filesystem\Filesystem;
 use Ece2\Common\Exception\NormalStatusException;
 use Hyperf\Stringable\Str;
 
+use function Hyperf\Support\make;
+use function Hyperf\Support\env;
+
 /**
  * 服务类生成
- * Class ServiceGenerator
- * @package Mine\Generator
  */
 class ServiceGenerator extends BaseGenerator implements CodeGenerator
 {
-    /**
-     * @var SettingGenerateTable
-     */
     protected SettingGenerateTable $model;
 
-    /**
-     * @var string
-     */
     protected string $codeContent;
 
-    /**
-     * @var Filesystem
-     */
     protected Filesystem $filesystem;
 
     /**
      * 设置生成信息
      * @param SettingGenerateTable $model
-     * @return ServiceGenerator
+     * @return $this
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
@@ -51,7 +35,7 @@ class ServiceGenerator extends BaseGenerator implements CodeGenerator
     {
         $this->model = $model;
         $this->filesystem = make(Filesystem::class);
-        if (empty($model->module_name) || empty($model->menu_name)) {
+        if (empty($model->menu_name)) {
             throw new NormalStatusException(t('setting.gen_code_edit'));
         }
         $this->setNamespace($this->model->namespace);
@@ -63,11 +47,10 @@ class ServiceGenerator extends BaseGenerator implements CodeGenerator
      */
     public function generator(): void
     {
-        $module = Str::title($this->model->module_name[0]) . mb_substr($this->model->module_name, 1);
         if ($this->model->generate_type === 1) {
-            $path = BASE_PATH . "/runtime/generate/php/app/{$module}/Service/";
+            $path = BASE_PATH . '/runtime/generate/php/app/Service/';
         } else {
-            $path = BASE_PATH . "/app/{$module}/Service/";
+            $path = BASE_PATH . '/app/Service/';
         }
         $this->filesystem->exists($path) || $this->filesystem->makeDirectory($path, 0755, true, true);
         $this->filesystem->put($path . "{$this->getClassName()}.php", $this->replace()->getCodeContent());
@@ -96,7 +79,7 @@ class ServiceGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getTemplatePath(): string
     {
-        return $this->getStubDir().$this->getType().'/service.stub';
+        return $this->getStubDir() . $this->getType() . '/service.stub';
     }
 
     /**
@@ -132,7 +115,7 @@ class ServiceGenerator extends BaseGenerator implements CodeGenerator
             '{USE}',
             '{COMMENT}',
             '{CLASS_NAME}',
-            '{MAPPER}',
+            '{MODEL}',
             '{FIELD_ID}',
             '{FIELD_PID}'
         ];
@@ -148,7 +131,7 @@ class ServiceGenerator extends BaseGenerator implements CodeGenerator
             $this->getUse(),
             $this->getComment(),
             $this->getClassName(),
-            $this->getMapperName(),
+            $this->getModelName(),
             $this->getFieldIdName(),
             $this->getFieldPidName(),
         ];
@@ -169,7 +152,7 @@ class ServiceGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getComment(): string
     {
-        return $this->model->menu_name. '服务类';
+        return $this->model->menu_name . '服务类';
     }
 
     /**
@@ -179,7 +162,7 @@ class ServiceGenerator extends BaseGenerator implements CodeGenerator
     protected function getUse(): string
     {
         return <<<UseNamespace
-use {$this->getNamespace()}\\Mapper\\{$this->getBusinessName()}Mapper;
+use {$this->getNamespace()}\\Model\\{$this->getBusinessName()};
 UseNamespace;
     }
 
@@ -189,16 +172,16 @@ UseNamespace;
      */
     protected function getClassName(): string
     {
-        return $this->getBusinessName().'Service';
+        return $this->getBusinessName() . 'Service';
     }
 
     /**
-     * 获取Mapper类名称
+     * 获取 Model 类名称
      * @return string
      */
-    protected function getMapperName(): string
+    protected function getModelName(): string
     {
-        return $this->getBusinessName().'Mapper';
+        return $this->getBusinessName();
     }
 
     /**
@@ -208,7 +191,7 @@ UseNamespace;
     protected function getFieldIdName(): string
     {
         if ($this->getType() == 'Tree') {
-            if ( $this->model->options['tree_id'] ?? false ) {
+            if ($this->model->options['tree_id'] ?? false) {
                 return $this->model->options['tree_id'];
             } else {
                 return 'id';
@@ -224,7 +207,7 @@ UseNamespace;
     protected function getFieldPidName(): string
     {
         if ($this->getType() == 'Tree') {
-            if ( $this->model->options['tree_pid'] ?? false ) {
+            if ($this->model->options['tree_pid'] ?? false) {
                 return $this->model->options['tree_pid'];
             } else {
                 return 'parent_id';

@@ -9,5 +9,5 @@
     #[GetMapping("read/{id}"), Permission("{READ_PERMISSION}")]
     public function read(int $id): ResponseInterface
     {
-        return $this->success($this->service->read($id));
+        return $this->success($this->service->find($id));
     }

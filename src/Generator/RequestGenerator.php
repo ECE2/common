@@ -1,18 +1,8 @@
 <?php
-/** @noinspection PhpExpressionResultUnusedInspection */
-/** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
-/**
- * MineAdmin is committed to providing solutions for quickly building web applications
- * Please view the LICENSE file that was distributed with this source code,
- * For the full copyright and license information.
- * Thank you very much for using MineAdmin.
- *
- * @Author X.Mo<root@imoi.cn>
- * @Link   https://gitee.com/xmo/MineAdmin
- */
 
 declare(strict_types=1);
-namespace Mine\Generator;
+
+namespace Ece2\Common\Generator;
 
 use App\Model\SettingGenerateColumn;
 use App\Model\SettingGenerateTable;
@@ -21,37 +11,26 @@ use Hyperf\Support\Filesystem\Filesystem;
 use Ece2\Common\Exception\NormalStatusException;
 use Hyperf\Stringable\Str;
 
+use function Hyperf\Support\make;
+use function Hyperf\Support\env;
+
 /**
  * 验证器生成
- * Class RequestGenerator
- * @package Mine\Generator
  */
 class RequestGenerator extends BaseGenerator implements CodeGenerator
 {
-    /**
-     * @var SettingGenerateTable
-     */
     protected SettingGenerateTable $model;
 
-    /**
-     * @var string
-     */
     protected string $codeContent;
 
-    /**
-     * @var Filesystem
-     */
     protected Filesystem $filesystem;
 
-    /**
-     * @var array
-     */
     protected array $columns;
 
     /**
      * 设置生成信息
      * @param SettingGenerateTable $model
-     * @return RequestGenerator
+     * @return $this
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
@@ -59,18 +38,18 @@ class RequestGenerator extends BaseGenerator implements CodeGenerator
     {
         $this->model = $model;
         $this->filesystem = make(Filesystem::class);
-        if (empty($model->module_name) || empty($model->menu_name)) {
+        if (empty($model->menu_name)) {
             throw new NormalStatusException(t('setting.gen_code_edit'));
         }
         $this->setNamespace($this->model->namespace);
 
         $this->columns = SettingGenerateColumn::query()
             ->where('table_id', $model->id)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('is_required', self::YES);
             })
             ->orderByDesc('sort')
-            ->get([ 'column_name', 'column_comment', 'is_insert', 'is_edit' ])->toArray();
+            ->get(['column_name', 'column_comment', 'is_insert', 'is_edit'])->toArray();
 
         return $this->placeholderReplace();
     }
@@ -80,11 +59,10 @@ class RequestGenerator extends BaseGenerator implements CodeGenerator
      */
     public function generator(): void
     {
-        $module = Str::title($this->model->module_name[0]) . mb_substr($this->model->module_name, 1);
         if ($this->model->generate_type === 1) {
-            $path = BASE_PATH . "/runtime/generate/php/app/{$module}/Request/";
+            $path = BASE_PATH . '/runtime/generate/php/app/Request/';
         } else {
-            $path = BASE_PATH . "/app/{$module}/Request/";
+            $path = BASE_PATH . '/app/Request/';
         }
         $this->filesystem->exists($path) || $this->filesystem->makeDirectory($path, 0755, true, true);
         $this->filesystem->put($path . "{$this->getClassName()}.php", $this->replace()->getCodeContent());
@@ -228,7 +206,7 @@ class RequestGenerator extends BaseGenerator implements CodeGenerator
         $space = '            ';
         return sprintf(
             "%s//%s 验证\n%s'%s' => 'required',\n",
-            $space,  $column['column_comment'],
+            $space, $column['column_comment'],
             $space, $column['column_name']
         );
     }

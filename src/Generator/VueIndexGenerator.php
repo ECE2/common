@@ -12,6 +12,9 @@ use Hyperf\Collection\Collection;
 use Hyperf\Stringable\Str;
 use Hyperf\Support\Filesystem\Filesystem;
 
+use function Hyperf\Support\make;
+use function Hyperf\Support\env;
+
 /**
  * Vue index文件生成
  */
@@ -44,8 +47,8 @@ class VueIndexGenerator extends BaseGenerator implements CodeGenerator
     public function setGenInfo(SettingGenerateTable $model): VueIndexGenerator
     {
         $this->model = $model;
-        $this->filesystem = \Hyperf\Support\make(Filesystem::class);
-        if (empty($model->module_name) || empty($model->menu_name)) {
+        $this->filesystem = make(Filesystem::class);
+        if (empty($model->menu_name)) {
             throw new NormalStatusException(t('setting.gen_code_edit'));
         }
         $this->columns = SettingGenerateColumn::query()
@@ -63,10 +66,9 @@ class VueIndexGenerator extends BaseGenerator implements CodeGenerator
      */
     public function generator(): void
     {
-        $module = Str::lower($this->model->module_name);
-        $path = BASE_PATH . "/runtime/generate/vue/src/views/{$module}/{$this->getShortBusinessName()}/index.vue";
+        $path = BASE_PATH . "/runtime/generate/vue/src/views/{$this->getShortBusinessName()}/index.vue";
         $this->filesystem->makeDirectory(
-            BASE_PATH . "/runtime/generate/vue/src/views/{$module}/{$this->getShortBusinessName()}",
+            BASE_PATH . "/runtime/generate/vue/src/views/{$this->getShortBusinessName()}",
             0755, true, true
         );
         $this->filesystem->put($path, $this->replace()->getCodeContent());
@@ -124,7 +126,6 @@ class VueIndexGenerator extends BaseGenerator implements CodeGenerator
             '{BUSINESS_EN_NAME}',
             '{INPUT_NUMBER}',
             '{SWITCH_STATUS}',
-            '{MODULE_NAME}',
             '{PK}',
         ];
     }
@@ -142,7 +143,6 @@ class VueIndexGenerator extends BaseGenerator implements CodeGenerator
             $this->getBusinessEnName(),
             $this->getInputNumber(),
             $this->getSwitchStatus(),
-            $this->getModuleName(),
             $this->getPk(),
         ];
     }
@@ -153,7 +153,7 @@ class VueIndexGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getCode(): string
     {
-        return Str::lower($this->model->module_name) . ':' . $this->getShortBusinessName();
+        return $this->getShortBusinessName();
     }
 
     /**
@@ -212,7 +212,7 @@ class VueIndexGenerator extends BaseGenerator implements CodeGenerator
                 ];
             }
         }
-        $requestRoute = Str::lower($this->model->module_name) . '/' . $this->getShortBusinessName();
+        $requestRoute = $this->getShortBusinessName();
         // 导入
         if (Str::contains($this->model->generate_menus, 'import')) {
             $options['import'] = [
@@ -328,14 +328,6 @@ class VueIndexGenerator extends BaseGenerator implements CodeGenerator
     }
 
     /**
-     * @return string
-     */
-    protected function getModuleName(): string
-    {
-        return Str::lower($this->model->module_name);
-    }
-
-    /**
      * 返回主键
      * @return string
      */
@@ -390,11 +382,7 @@ class VueIndexGenerator extends BaseGenerator implements CodeGenerator
      */
     public function getShortBusinessName(): string
     {
-        return Str::camel(str_replace(
-            Str::lower($this->model->module_name),
-            '',
-            str_replace(env('DB_PREFIX'), '', $this->model->table_name)
-        ));
+        return Str::camel(str_replace(env('DB_PREFIX'), '', $this->model->table_name));
     }
 
     /**

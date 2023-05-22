@@ -1,11 +1,10 @@
 <?php
+
 declare (strict_types=1);
 
 namespace {NAMESPACE};
 
-use Mine\MineModel;
-
-class {CLASS_NAME} extends MineModel
+class {CLASS_NAME} extends Model
 {
     /**
      * The table associated with the model.

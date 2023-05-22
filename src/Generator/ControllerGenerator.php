@@ -6,10 +6,13 @@ namespace Ece2\Common\Generator;
 
 use App\Model\SettingGenerateTable;
 use App\Model\SettingGenerateColumn;
+use Ece2\Common\Exception\NormalStatusException;
 use Ece2\Common\Interfaces\CodeGenerator;
 use Hyperf\Stringable\Str;
 use Hyperf\Support\Filesystem\Filesystem;
+
 use function Hyperf\Support\make;
+use function Hyperf\Support\env;
 
 /**
  * 控制器生成
@@ -33,7 +36,9 @@ class ControllerGenerator extends BaseGenerator implements CodeGenerator
     {
         $this->model = $model;
         $this->filesystem = make(Filesystem::class);
-
+        if (empty($model->menu_name)) {
+            throw new NormalStatusException(t('setting.gen_code_edit'));
+        }
         $this->setNamespace($this->model->namespace);
         return $this->placeholderReplace();
     }
@@ -43,11 +48,10 @@ class ControllerGenerator extends BaseGenerator implements CodeGenerator
      */
     public function generator(): void
     {
-        $module = Str::title($this->model->module_name[0]) . mb_substr($this->model->module_name, 1);
         if ($this->model->generate_type === 1) {
-            $path = BASE_PATH . "/runtime/generate/php/app/{$module}/Controller/";
+            $path = BASE_PATH . '/runtime/generate/php/app/Controller/';
         } else {
-            $path = BASE_PATH . "/app/{$module}/Controller/";
+            $path = BASE_PATH . '/app/Controller/';
         }
         if (!empty($this->model->package_name)) {
             $path .= Str::title($this->model->package_name) . '/';
@@ -155,7 +159,7 @@ class ControllerGenerator extends BaseGenerator implements CodeGenerator
             $this->getControllerRoute(),
             $this->getFunctions(),
             $this->getRequestName(),
-            sprintf('%s, %s', Str::lower($this->model->module_name) . ':' . $this->getShortBusinessName(), $this->getMethodRoute('index')),
+            sprintf('%s, %s', $this->getShortBusinessName(), $this->getMethodRoute('index')),
             $this->getMethodRoute('recycle'),
             $this->getMethodRoute('save'),
             $this->getMethodRoute('read'),
@@ -234,8 +238,7 @@ UseNamespace;
     protected function getControllerRoute(): string
     {
         return sprintf(
-            '%s/%s',
-            Str::lower($this->model->module_name),
+            '%s',
             $this->getShortBusinessName()
         );
     }
@@ -270,8 +273,7 @@ UseNamespace;
     protected function getMethodRoute(string $route): string
     {
         return sprintf(
-            '%s:%s:%s',
-            Str::lower($this->model->module_name),
+            '%s:%s',
             $this->getShortBusinessName(),
             $route
         );
@@ -364,11 +366,7 @@ UseNamespace;
      */
     public function getShortBusinessName(): string
     {
-        return Str::camel(str_replace(
-            Str::lower($this->model->module_name),
-            '',
-            str_replace(env('DB_PREFIX'), '', $this->model->table_name)
-        ));
+        return Str::camel(str_replace(env('DB_PREFIX'), '', $this->model->table_name));
     }
 
 
