@@ -60,8 +60,8 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
         $this->filesystem->exists($path) || $this->filesystem->makeDirectory($path, 0755, true, true);
 
         $command = [
-            'command' => 'mine:model-gen',
-            '--table' => $this->model->table_name
+            'command' => 'gen:model',
+            'table' => $this->model->table_name,
         ];
 
         $input = new ArrayInput($command);
@@ -70,10 +70,8 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
         /** @var \Symfony\Component\Console\Application $application */
         $application = $this->container->get(\Hyperf\Contract\ApplicationInterface::class);
         $application->setAutoExit(false);
-
-        $modelName = Str::studly(str_replace(env('DB_PREFIX'), '', $this->model->table_name));
-
         if ($application->run($input, $output) === 0) {
+            $modelName = Str::studly(str_replace(env('DB_PREFIX'), '', $this->model->table_name));
 
             // 对模型文件处理
             if ($modelName[strlen($modelName) - 1] == 's' && $modelName[strlen($modelName) - 2] != 's') {

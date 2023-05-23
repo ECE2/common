@@ -7,10 +7,10 @@ use Ece2\Common\Office\Excel\XlsWriter;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\ServiceGovernance\IPReaderInterface;
 use Hyperf\Snowflake\IdGeneratorInterface;
-use Hyperf\Utils\ApplicationContext;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Hyperf\Context\ApplicationContext;
 
 use function Hyperf\Support\make;
 

@@ -1,14 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
 namespace {NAMESPACE};
 
-use Mine\MineFormRequest;
+use Ece2\Common\Abstracts\AbstractRequest;
 
 /**
  * {COMMENT}
  */
-class {CLASS_NAME} extends MineFormRequest
+class {CLASS_NAME} extends AbstractRequest
 {
     /**
      * 公共规则
