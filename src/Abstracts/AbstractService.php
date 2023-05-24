@@ -6,6 +6,7 @@ namespace Ece2\Common\Abstracts;
 
 use App\Model\SystemDept;
 use Ece2\Common\Exception\BusinessException;
+use Hyperf\Contract\LengthAwarePaginatorInterface;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Collection;
 use Hyperf\Database\Model\Model;
@@ -373,11 +374,18 @@ abstract class AbstractService
      */
     public function getArrayToPageList(?array $params = [], string $pageName = 'page')
     {
-        $collect = $this->handleArraySearch(\Hyperf\Collection\collect($this->getArrayData($params)), $params);
+        /** @var \Hyperf\Collection\Collection $item */
+        $item = $this->handleArraySearch(\Hyperf\Collection\collect($this->getArrayData($params)), $params);
 
+        $total = $item->count();
         $pageSize = (int) ($params['pageSize'] ?? AbstractModel::query()->getPerPage());
         $page = (int) ($params[$pageName] ?? Paginator::resolveCurrentPage($pageName));
 
-        return make(Paginator::class, [$collect, $pageSize, $page]);
+        return make(LengthAwarePaginatorInterface::class, [
+            $item->slice(($page - 1) * $pageSize, $pageSize)->values(),
+            $total,
+            $pageSize,
+            $page
+        ]);
     }
 }

@@ -30,7 +30,7 @@ abstract class AbstractModel extends BaseModel implements CacheableInterface
     /**
      * 允许前端提交的最大单页数据数量.
      */
-    public const MAX_PAGE_SIZE = 500;
+    public const MAX_PAGE_SIZE = 999;
 
     /**
      * 隐藏的字段列表.

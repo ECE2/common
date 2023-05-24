@@ -62,6 +62,7 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
         $command = [
             'command' => 'gen:model',
             'table' => $this->model->table_name,
+            '--with-comments' => true,
         ];
 
         $input = new ArrayInput($command);
