@@ -382,7 +382,7 @@ abstract class AbstractService
         $page = (int) ($params[$pageName] ?? Paginator::resolveCurrentPage($pageName));
 
         return make(LengthAwarePaginatorInterface::class, [
-            $this->getCurrentArrayPageBefore($item->slice(($page - 1) * $pageSize, $pageSize)->values()),
+            $this->getCurrentArrayPageBefore($item->slice(($page - 1) * $pageSize, $pageSize)->values()->toArray()),
             $total,
             $pageSize,
             $page
