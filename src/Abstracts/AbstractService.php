@@ -11,12 +11,9 @@ use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Collection;
 use Hyperf\Database\Model\Model;
 use Hyperf\DbConnection\Annotation\Transactional;
-use Hyperf\HttpServer\Response;
 use Hyperf\Paginator\Paginator;
-use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
 
-use function PHPUnit\Framework\throwException;
 use function Hyperf\Support\make;
 
 /**
