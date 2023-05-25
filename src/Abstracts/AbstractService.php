@@ -382,10 +382,24 @@ abstract class AbstractService
         $page = (int) ($params[$pageName] ?? Paginator::resolveCurrentPage($pageName));
 
         return make(LengthAwarePaginatorInterface::class, [
-            $item->slice(($page - 1) * $pageSize, $pageSize)->values(),
+            $this->getCurrentArrayPageBefore($item->slice(($page - 1) * $pageSize, $pageSize)->values()),
             $total,
             $pageSize,
             $page
         ]);
     }
+
+    /**
+     * 数组当前页数据返回之前处理器，默认对key重置
+     * @param array $data
+     * @param array $params
+     * @return array
+     */
+    protected function getCurrentArrayPageBefore(array &$data, array $params = []): array
+    {
+
+        sort($data);
+        return $data;
+    }
+
 }
