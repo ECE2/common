@@ -11,6 +11,7 @@ use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Collection;
 use Hyperf\Database\Model\Model;
 use Hyperf\DbConnection\Annotation\Transactional;
+use Hyperf\ModelCache\Manager;
 use Hyperf\Paginator\Paginator;
 use Psr\Http\Message\ResponseInterface;
 
@@ -36,6 +37,22 @@ abstract class AbstractService
     }
 
     /**
+     * 从回收站获取列表数据（带分页）
+     * @param array|null $params
+     * @param bool $isScope
+     * @return LengthAwarePaginatorInterface
+     */
+    public function getPageListByRecycle(?array $params = null, bool $dataPermission = true)
+    {
+        if ($params['select'] ?? null) {
+            $params['select'] = explode(',', $params['select']);
+        }
+        $params['recycle'] = true;
+
+        return $this->getPageList($params, $dataPermission);
+    }
+
+    /**
      * 单个或批量从回收站恢复数据.
      * @return int
      */
@@ -51,6 +68,23 @@ abstract class AbstractService
     public function readByRecycle(array $id, array $columns = ['*'])
     {
         return $this->model::query()->withTrashed()->find($id, $columns);
+    }
+
+    /**
+     * 单个或批量软删除数据
+     * @param array $ids
+     * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function delete(array $ids): bool
+    {
+        $this->model::destroy($ids);
+
+        $manager = container()->get(Manager::class);
+        $manager?->destroy($ids, $this->model::class);
+
+        return true;
     }
 
     /**
@@ -74,17 +108,6 @@ abstract class AbstractService
         $this->filterExecuteAttributes($data, true);
 
         return $this->model::query()->findOrFail($id)?->update($data);
-    }
-
-    /**
-     * 按条件更新数据.
-     * @return int
-     */
-    public function updateByCondition(array $condition, array $data)
-    {
-        $this->filterExecuteAttributes($data, true);
-
-        return $this->model::query()->where($condition)->update($data);
     }
 
     /**
@@ -266,7 +289,7 @@ abstract class AbstractService
             $filename = $this->model->getTable();
         }
 
-        return make(Collection::class)->export($dto, $filename, $this->getList($params, extend: $extend)->toArray());
+        return collection_export($this->getList($params, extend: $extend)->toArray(), $dto, $filename);
     }
 
     /**

@@ -13,6 +13,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Hyperf\Context\ApplicationContext;
 
 use function Hyperf\Support\make;
+use function Hyperf\Config\config;
 
 /**
  * 系统基座名称
@@ -280,7 +281,7 @@ if (! function_exists('collection_export')) {
             $excel = $excelDrive === 'xlsWriter' ? new XlsWriter($dto) : new PhpOffice($dto);
         }
 
-        return $excel->collection_export($filename, is_null($closure) ? $arr : $closure);
+        return $excel->export($filename, is_null($closure) ? $arr : $closure);
     }
 }
 
