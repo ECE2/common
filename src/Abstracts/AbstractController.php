@@ -47,7 +47,7 @@ abstract class AbstractController
      */
     public function error(string $message = '', int $code = 500, array $data = [])
     {
-        return $this->response->_error($message, $code, $data);
+        return $this->_error($message, $code, $data);
     }
 
     /**
