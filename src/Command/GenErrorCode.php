@@ -90,6 +90,7 @@ class GenErrorCode extends HyperfCommand
             [$_lang_key, $_code_index] = $this->_gen_lang_code($_const_name, $code_max);
             $const_new[] = sprintf($error_code_stub, $_lang_key, $_const_name, $_code_index);
             $constants[$_const_name] = $_code_index;
+            $this->line($_const_name . ' Added');
         }
 
         // 如果有新的异常常量
@@ -106,6 +107,7 @@ class GenErrorCode extends HyperfCommand
             [$_lang_key,] = $this->_gen_lang_code($_const_name, $code_max);
             if (empty($langCfg[$_lang_key])) {
                 $lang_new[] = sprintf($lang_stub, $_lang_key, $_lang_key);
+                $this->line($_lang_key . ' Added');
             }
         }
 
@@ -115,6 +117,8 @@ class GenErrorCode extends HyperfCommand
             $content = trim($content, " \n\r\]\),;") . ",\n" . implode($lang_new) . "];\n";
             file_put_contents($lang_file, $content);
         }
+
+        $this->info('error code generate successfully.');
     }
 
     protected function _gen_lang_code($const_name, $code)
