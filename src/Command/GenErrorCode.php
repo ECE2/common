@@ -106,7 +106,7 @@ class GenErrorCode extends HyperfCommand
         foreach ($constants as $_const_name => $_code) {
             [$_lang_key,] = $this->_gen_lang_code($_const_name, $code_max);
             if (empty($langCfg[$_lang_key])) {
-                $lang_new[] = sprintf($lang_stub, $_lang_key, $_lang_key);
+                $lang_new[] = sprintf($lang_stub, $_lang_key, str_replace('_', ' ', $_lang_key));
                 $this->line($_lang_key . ' Added');
             }
         }

@@ -1,52 +1,65 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://doc.hyperf.io
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf-cloud/hyperf/blob/master/LICENSE
+ */
 
 namespace Ece2\Common\Exception\Handler;
 
-use Ece2\Common\Library\Log;
+use Ece2\Common\Exception\AppException;
 use Ece2\Common\Library\TraceId;
 use Hyperf\ExceptionHandler\ExceptionHandler;
-use Hyperf\HttpMessage\Exception\HttpException;
 use Hyperf\HttpMessage\Stream\SwooleStream;
-use Hyperf\ServiceGovernance\IPReaderInterface;
+use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Utils\ApplicationContext;
-use Hyperf\Utils\Codec\Json;
 use Psr\Http\Message\ResponseInterface;
-use Swoole\Http\Status;
 use Throwable;
 
 class AppExceptionHandler extends ExceptionHandler
 {
-    /**
-     * @param HttpException $throwable
-     * @return ResponseInterface
-     */
+
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        Log::error(sprintf('%s[%s] in %s', $throwable->getMessage(), $throwable->getLine(), $throwable->getFile()));
-        config('app_env') === 'dev' && Log::error($throwable->getTraceAsString());
-
-        $statusCode = $throwable->getCode() ?: Status::INTERNAL_SERVER_ERROR;
-        if ($throwable instanceof HttpException) {
-            $statusCode = $throwable->getStatusCode();
+        $code = $throwable->getCode();
+        $http_status = $code;
+        if ($code > 999) {
+            $http_status = substr((string) $code, 0, 3);
         }
 
-        return $response
-            ->withStatus($statusCode)
-            ->withAddedHeader('content-type', 'application/json; charset=utf-8')
-            ->withBody(new SwooleStream(Json::encode([
-                'success' => false,
-                'code' => $throwable->getCode(),
-                'message' => $throwable->getMessage(),
-                'data' => [],
-                'traceId' => TraceId::get(),
-                'host' => host(),
-            ])));
+        $data = array(
+            'success' => false,
+            'code' => $code,
+            'message' => $throwable->getMessage(),
+            'data' => [],
+            'traceId' => TraceId::get(),
+            'host' => host(),
+        );
+
+//        $exception_data = Context::get('exception_data', null);
+//        if ($exception_data != null) {
+//            $data['result'] = $exception_data;
+//        }
+
+        // 阻止异常冒泡
+        $this->stopPropagation();
+
+        return $response->withStatus($http_status)
+            ->withHeader('Content-type', 'text/json; charset=utf-8')
+            ->withHeader('Access-Control-Allow-Credentials', 'true')
+            ->withHeader('Access-Control-Allow-Origin', ApplicationContext::getContainer()->get(RequestInterface::class)->header('origin'))
+            ->withHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, X_Requested_With, Content-Type, Accept')
+            ->withHeader('Access-Control-Allow-Methods', '*')
+            ->withBody(new SwooleStream(json_encode($data, JSON_UNESCAPED_UNICODE)));
     }
 
     public function isValid(Throwable $throwable): bool
     {
-        return true;
+        return $throwable instanceof AppException;
     }
 }
