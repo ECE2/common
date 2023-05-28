@@ -45,6 +45,51 @@ class NamespaceCI
     }
 
     /**
+     * 获取指定异常
+     * @param string $file 文件路径
+     * @param string $exception_name 异常名称
+     * @return array
+     */
+    public static function get_exception($file, $exception_name = 'AppException')
+    {
+
+        $files = self::scan($file);
+        $exceptions = array();
+        foreach ($files as $_file) {
+            $exceptions[] = self::parse_exception($_file, $exception_name);
+        }
+
+        return $exceptions;
+    }
+
+    /**
+     * @param string $file 文件路径
+     * @param string $exception_name 异常类名称
+     * @return string
+     */
+    public static function parse_exception($file, $exception_name)
+    {
+        $contents = file_get_contents($file);
+        $exception = '';
+        $getting_exception = false;
+        foreach (token_get_all($contents) as $token) {
+            if (is_array($token) && $token[0] == T_STRING && false !== preg_match('/' . $exception_name . '$/i', $token[1])) {
+                $getting_exception = true;
+            }
+
+            if ($getting_exception === true) {
+                if (is_array($token) && in_array($token[0], [T_STRING, T_PAAMAYIM_NEKUDOTAYIM])) {
+                    $exception .= $token[1];
+                } elseif ($token === ';') {
+                    $getting_exception = false;
+                }
+            }
+        }
+
+        return $exception;
+    }
+
+    /**
      * @param string $file 文件/目录路径
      * @return array
      */
@@ -54,7 +99,7 @@ class NamespaceCI
         $files = self::scan($file);
         $classes = array();
         foreach ($files as $_file) {
-            $classes[] = self::parse_file($_file, T_CLASS);
+            $classes[] = self::parse_ci($_file, T_CLASS);
         }
 
         return $classes;
@@ -70,7 +115,7 @@ class NamespaceCI
         $files = self::scan($file);
         $interfaces = array();
         foreach ($files as $_file) {
-            $interfaces[] = self::parse_file($_file, T_INTERFACE);
+            $interfaces[] = self::parse_ci($_file, T_INTERFACE);
         }
 
         return $interfaces;
@@ -81,7 +126,7 @@ class NamespaceCI
      * @param int $token_name 常量
      * @return array
      */
-    public static function parse_file($file, $token_name)
+    public static function parse_ci($file, $token_name)
     {
         // Grab the contents of the file
         $contents = file_get_contents($file);

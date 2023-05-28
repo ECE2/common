@@ -1,0 +1,4 @@
+    /**
+     * @Message("messages.%s")
+     */
+    public const %s = %s;
