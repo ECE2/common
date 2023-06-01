@@ -28,10 +28,6 @@ class AppExceptionHandler extends ExceptionHandler
     {
         $code = $throwable->getCode();
         $http_status = $code;
-        if ($code > 999) {
-            $http_status = substr((string) $code, 0, 3);
-        }
-
         $data = array(
             'success' => false,
             'code' => $code,
@@ -40,6 +36,15 @@ class AppExceptionHandler extends ExceptionHandler
             'traceId' => TraceId::get(),
             'host' => host(),
         );
+        if ($throwable instanceof AppException) {
+            if ($code > 999) {
+                $http_status = substr((string) $code, 0, 3);
+            }
+        } else {
+            $http_status = 500;
+            $data['code'] = -1;
+            $data['message'] = 'Internal Server Error.';
+        }
 
 //        $exception_data = Context::get('exception_data', null);
 //        if ($exception_data != null) {
@@ -60,6 +65,6 @@ class AppExceptionHandler extends ExceptionHandler
 
     public function isValid(Throwable $throwable): bool
     {
-        return $throwable instanceof AppException;
+        return true;
     }
 }
