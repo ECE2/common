@@ -148,10 +148,10 @@ class Upload
     public function getStorageMode(): string
     {
         if (is_base_system()) {
-            return container()->get(SettingConfigService::class)->getConfigByKey('site_storage_mode')['value'] ?? 'local';
+            return container()->get(SettingConfigService::class)->getConfigByKey('upload_mode')['value'] ?? 'local';
         }
 
-        return container()->get(SettingConfigServiceInterface::class)->getConfigByKey('site_storage_mode')['value'] ?? 'local';
+        return container()->get(SettingConfigServiceInterface::class)->getConfigByKey('upload_mode')['value'] ?? 'local';
     }
 
     /**
