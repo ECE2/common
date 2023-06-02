@@ -33,10 +33,10 @@ abstract class AbstractModel extends BaseModel implements CacheableInterface
     public const MAX_PAGE_SIZE = 999;
 
     /**
-     * 隐藏的字段列表.
-     * @var string[]
+     * 不能大规模分配的属性.
+     * @var array
      */
-    protected array $hidden = ['deleted_at'];
+    protected array $guarded = [];
 
     /**
      * 允许前端传长度.
