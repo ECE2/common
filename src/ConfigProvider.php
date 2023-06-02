@@ -239,6 +239,12 @@ class ConfigProvider
                     'source' => __DIR__ . '/../publish/_ide_helper.php',
                     'destination' => BASE_PATH . '/_ide_helper.php',
                 ],
+                [
+                    'id' => 'create_model_has_attachments_table',
+                    'description' => 'create_model_has_attachments_table',
+                    'source' => __DIR__ . '/../publish/1111_01_11_111111_create_model_has_attachments_table.php',
+                    'destination' => BASE_PATH . '/migrations/1111_01_11_111111_create_model_has_attachments_table.php',
+                ],
             ],
         ];
     }
