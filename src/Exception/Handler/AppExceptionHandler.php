@@ -45,6 +45,8 @@ class AppExceptionHandler extends ExceptionHandler
             $data['code'] = -1;
             $data['message'] = 'Internal Server Error.';
         }
+        console()->info($throwable->getMessage());
+        console()->info($throwable->getTraceAsString());
 
 //        $exception_data = Context::get('exception_data', null);
 //        if ($exception_data != null) {
