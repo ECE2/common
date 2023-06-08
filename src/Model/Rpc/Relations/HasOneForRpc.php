@@ -6,7 +6,9 @@ namespace Ece2\Common\Model\Rpc\Relations;
 
 use Ece2\Common\Model\Rpc\Model\Base;
 use Hyperf\Database\Model\Relations\HasOne;
-use Hyperf\Utils\Arr;
+use Hyperf\Collection\Arr;
+
+use function Hyperf\Collection\collect;
 
 class HasOneForRpc extends HasOne
 {

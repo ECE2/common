@@ -13,7 +13,7 @@ use Hyperf\Di\Exception\Exception;
 use Ece2\Common\Annotation\Permission;
 use Ece2\Common\Exception\NoPermissionException;
 use Hyperf\HttpServer\Request;
-use Hyperf\Utils\Arr;
+use Hyperf\Collection\Arr;
 
 #[Aspect]
 class PermissionAspect extends AbstractAspect

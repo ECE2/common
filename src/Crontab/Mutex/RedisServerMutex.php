@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Ece2\Common\Crontab\Mutex;
 
 use Ece2\Common\Crontab\Crontab;
+use Hyperf\Collection\Arr;
 use Hyperf\Redis\RedisFactory;
-use Hyperf\Utils\Arr;
-use Hyperf\Utils\Composer;
 use Hyperf\Utils\Coordinator\Constants;
 use Hyperf\Utils\Coordinator\CoordinatorManager;
 use Hyperf\Utils\Coroutine;
