@@ -53,4 +53,12 @@ abstract class AbstractModel extends BaseModel implements CacheableInterface
             return parent::getPerPage();
         }
     }
+
+    /**
+     * 覆盖 HasAttribute 的 json 编码.
+     */
+    protected function asJson(mixed $value): string|false
+    {
+        return json_encode($value, JSON_UNESCAPED_UNICODE);
+    }
 }
