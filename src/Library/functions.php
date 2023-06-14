@@ -317,3 +317,46 @@ if (! function_exists('array_to_tree')) {
         return array_values(array_filter($data, static fn ($split) => (int) $split[$parentField] === $parentId));
     }
 }
+
+if (! function_exists('id_card_verify_base')) {
+    // 计算身份证校验码，根据国家标准GB 11643-1999
+    function id_card_verify_base($id_card_base)
+    {
+
+        if (strlen($id_card_base) != 17) {
+            return false;
+        }
+
+        // 加权因子
+        $factor = array(7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2);
+
+        // 校验码对应值
+        $verify_number_list = array('1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2');
+        $checksum = 0;
+        for ($i = 0; $i < strlen($id_card_base); $i++) {
+            $checksum += substr($id_card_base, $i, 1) * $factor[$i];
+        }
+
+        $mod = $checksum % 11;
+        $verify_number = $verify_number_list[$mod];
+        return $verify_number;
+    }
+}
+
+if (! function_exists('id_card_checksum18')) {
+    // 18位身份证校验码有效性检查
+    function id_card_checksum18($id_card)
+    {
+
+        if (strlen($id_card) != 18) {
+            return false;
+        }
+
+        $id_card_base = substr($id_card, 0, 17);
+        if (id_card_verify_base($id_card_base) != strtoupper(substr($id_card, 17, 1))) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
