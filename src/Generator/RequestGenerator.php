@@ -235,12 +235,12 @@ class RequestGenerator extends BaseGenerator implements CodeGenerator
      */
     protected function getAttributes(): string
     {
-        $phpCode = '';
+        $phpCode = [];
         $path = $this->getStubDir() . '/Request/attribute.stub';
         foreach ($this->columns as $column) {
-            $phpCode .= $this->getAttributeCode($column);
+            $phpCode[] = $this->getAttributeCode($column);
         }
-        return str_replace('{LIST}', $phpCode, $this->filesystem->sharedGet($path));
+        return str_replace('{LIST}', implode("\n", $phpCode), $this->filesystem->sharedGet($path));
     }
 
     /**
@@ -251,7 +251,7 @@ class RequestGenerator extends BaseGenerator implements CodeGenerator
     {
         $space = '            ';
         return sprintf(
-            "%s'%s' => '%s',\n", $space, $column['column_name'], $column['column_comment']
+            "%s'%s' => '%s',", $space, $column['column_name'], $column['column_comment']
         );
     }
 
