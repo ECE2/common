@@ -206,7 +206,7 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
         foreach ($data as $column) {
             $propertys[] = sprintf(
                     ' * @property %s $%s %s',
-                    $this->formatPropertyType($column['column_type']),
+                    $column['column_name'] === 'deleted_at' ? 'string' : $this->formatPropertyType($column['column_type']),
                     $column['column_name'],
                     $column['column_comment']
                 ) . PHP_EOL;
@@ -220,18 +220,18 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
         return match ($type) {
             'tinyint', 'smallint', 'mediumint', 'int', 'bigint' => 'integer',
             'bool', 'boolean' => 'boolean',
-            default => null,
+            default => $type,
         };
     }
 
     protected function formatPropertyType(string $type): ?string
     {
-        $cast = $this->formatDatabaseType($type) ?? 'string';
+        $cast = $this->formatDatabaseType($type);
         return match ($cast) {
             'integer' => 'int',
-            'date', 'datetime' => '\Carbon\Carbon',
+            'date', 'datetime', 'timestamp' => '\Carbon\Carbon',
             'json' => 'array',
-            default => $cast,
+            default => 'string',
         };
     }
 

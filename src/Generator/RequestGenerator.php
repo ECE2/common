@@ -224,7 +224,7 @@ class RequestGenerator extends BaseGenerator implements CodeGenerator
     {
         $space = '            ';
         return sprintf(
-            "%s//%s 验证\n%s'%s' => 'required',",
+            "%s// %s 验证\n%s'%s' => 'required',",
             $space, $column['column_comment'],
             $space, $column['column_name']
         );
