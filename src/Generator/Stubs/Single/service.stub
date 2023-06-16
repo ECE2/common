@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace {NAMESPACE};
 
 {USE}
+use Hyperf\Di\Annotation\Inject;
 
 /**
  * {COMMENT}

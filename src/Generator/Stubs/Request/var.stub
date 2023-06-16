@@ -1,0 +1,9 @@
+
+    /**
+     * common rules.
+     *
+     * @var array
+     */
+    protected array $scenes = [
+        {SCENES}
+    ];

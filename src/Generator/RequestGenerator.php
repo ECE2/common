@@ -117,6 +117,7 @@ class RequestGenerator extends BaseGenerator implements CodeGenerator
             '{NAMESPACE}',
             '{COMMENT}',
             '{CLASS_NAME}',
+            '{VAR}',
             '{RULES}',
             '{ATTRIBUTES}',
         ];
@@ -131,6 +132,7 @@ class RequestGenerator extends BaseGenerator implements CodeGenerator
             $this->initNamespace(),
             $this->getComment(),
             $this->getClassName(),
+            $this->getVarName(),
             $this->getRules(),
             $this->getAttributes(),
         ];
@@ -164,33 +166,50 @@ class RequestGenerator extends BaseGenerator implements CodeGenerator
     }
 
     /**
+     * 获取成员变量名称
+     * @return string
+     */
+    protected function getVarName(): string
+    {
+        $createFields = [];
+        $updateFields = [];
+        $path = $this->getStubDir() . '/Request/var.stub';
+
+        foreach ($this->columns as $column) {
+            if ($column['is_insert'] == self::YES) {
+                $createFields[] = $column['column_name'];
+            }
+
+            if ($column['is_edit'] == self::YES) {
+                $updateFields[] = $column['column_name'];
+            }
+        }
+
+        $code = "'save' => ['" . implode("', '", $createFields) . "'],\n"
+            . "        'update' => ['" . implode("', '", $updateFields) . "'],";
+
+        return str_replace(['{SCENES}'], [$code], $this->filesystem->sharedGet($path));
+    }
+
+    /**
      * 获取验证数据规则
      * @return string
      */
     protected function getRules(): string
     {
         $phpContent = '';
-        $createCode = '';
-        $updateCode = '';
+        $createCode = [];
         $path = $this->getStubDir() . '/Request/rule.stub';
 
         foreach ($this->columns as $column) {
             if ($column['is_insert'] == self::YES) {
-                $createCode .= $this->getRuleCode($column);
-            }
-            if ($column['is_edit'] == self::YES) {
-                $updateCode .= $this->getRuleCode($column);
+                $createCode[] = $this->getRuleCode($column);
             }
         }
 
         $phpContent .= str_replace(
             ['{METHOD_COMMENT}', '{METHOD_NAME}', '{LIST}'],
-            ['新增数据验证规则', 'saveRules', $createCode],
-            $this->filesystem->sharedGet($path)
-        );
-        $phpContent .= str_replace(
-            ['{METHOD_COMMENT}', '{METHOD_NAME}', '{LIST}'],
-            ['更新数据验证规则', 'updateRules', $updateCode],
+            ['公共规则', 'rules', implode("\n", $createCode)],
             $this->filesystem->sharedGet($path)
         );
 
@@ -205,7 +224,7 @@ class RequestGenerator extends BaseGenerator implements CodeGenerator
     {
         $space = '            ';
         return sprintf(
-            "%s//%s 验证\n%s'%s' => 'required',\n",
+            "%s//%s 验证\n%s'%s' => 'required',",
             $space, $column['column_comment'],
             $space, $column['column_name']
         );

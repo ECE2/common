@@ -12,9 +12,9 @@ abstract class BaseGenerator
 
     protected string $namespace;
 
-    public const NO = 1;
+    public const NO = 2;
 
-    public const YES = 2;
+    public const YES = 1;
 
     public function __construct(protected ContainerInterface $container)
     {

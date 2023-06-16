@@ -4,23 +4,15 @@ declare(strict_types=1);
 
 namespace {NAMESPACE};
 
-use Ece2\Common\Abstracts\AbstractRequest;
+use Hyperf\Validation\Request\FormRequest;
 
 /**
  * {COMMENT}
  */
-class {CLASS_NAME} extends AbstractRequest
+class {CLASS_NAME} extends FormRequest
 {
-    /**
-     * 公共规则
-     */
-    public function commonRules(): array
-    {
-        return [];
-    }
-
+    {VAR}
     {RULES}
-
     {ATTRIBUTES}
 
 }

@@ -88,7 +88,7 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
                 $sourcePath = BASE_PATH . "/app/Model/{$modelName}.php";
             }
 
-            if (!empty($this->model->options['relations'])) {
+            if (! empty($this->model->options['relations'])) {
                 $this->filesystem->put(
                     $sourcePath,
                     preg_replace('/}$/', $this->getRelations() . "}", $this->filesystem->sharedGet($sourcePath))
@@ -159,9 +159,11 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
     {
         return [
             '{NAMESPACE}',
+            '{PROPERTY}',
             '{CLASS_NAME}',
             '{TABLE_NAME}',
             '{FILL_ABLE}',
+            '{CASTS}',
             '{RELATIONS}',
         ];
     }
@@ -173,9 +175,11 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
     {
         return [
             $this->initNamespace(),
+            $this->initProperty(),
             $this->getClassName(),
             $this->getTableName(),
             $this->getFillAble(),
+            $this->getCasts(),
             $this->getRelations(),
         ];
     }
@@ -187,6 +191,48 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
     protected function initNamespace(): string
     {
         return $this->getNamespace() . "\\Model";
+    }
+
+    /**
+     * 初始化属性
+     * @return string
+     */
+    protected function initProperty(): string
+    {
+        $data = make(SettingGenerateColumnService::class)->getList(
+            ['select' => 'column_name,column_comment,column_type', 'table_id' => $this->model->id]
+        );
+        $propertys = [];
+        foreach ($data as $column) {
+            $propertys[] = sprintf(
+                    ' * @property %s $%s %s',
+                    $this->formatPropertyType($column['column_type']),
+                    $column['column_name'],
+                    $column['column_comment']
+                ) . PHP_EOL;
+        }
+
+        return "/**\n" . implode($propertys) . " */";
+    }
+
+    protected function formatDatabaseType(string $type): ?string
+    {
+        return match ($type) {
+            'tinyint', 'smallint', 'mediumint', 'int', 'bigint' => 'integer',
+            'bool', 'boolean' => 'boolean',
+            default => null,
+        };
+    }
+
+    protected function formatPropertyType(string $type): ?string
+    {
+        $cast = $this->formatDatabaseType($type) ?? 'string';
+        return match ($cast) {
+            'integer' => 'int',
+            'date', 'datetime' => '\Carbon\Carbon',
+            'json' => 'array',
+            default => $cast,
+        };
     }
 
     /**
@@ -224,12 +270,32 @@ class ModelGenerator extends BaseGenerator implements CodeGenerator
     }
 
     /**
+     * 获取casts
+     */
+    protected function getCasts(): string
+    {
+        $data = make(SettingGenerateColumnService::class)->getList(
+            ['select' => 'column_name,column_type', 'table_id' => $this->model->id]
+        );
+        $columns = [];
+        foreach ($data as $column) {
+            if (substr($column['column_type'], -3) === 'int') {
+                $columns[] = "'{$column['column_name']}' => 'integer'";
+            } elseif ($column['column_type'] === 'timestamp') {
+                $columns[] = "'{$column['column_name']}' => 'datetime'";
+            }
+        }
+
+        return implode(', ', $columns);
+    }
+
+    /**
      * @return string
      */
     protected function getRelations(): string
     {
         $prefix = env('DB_PREFIX');
-        if (!empty($this->model->options['relations'])) {
+        if (! empty($this->model->options['relations'])) {
             $path = $this->getStubDir() . 'ModelRelation/';
             $phpCode = '';
             foreach ($this->model->options['relations'] as $relation) {

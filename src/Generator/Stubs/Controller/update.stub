@@ -8,7 +8,8 @@
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
     #[PutMapping("update/{id}"), Permission("{UPDATE_PERMISSION}"), OperationLog]
+    #[Scene]
     public function update(int $id, {REQUEST} $request): ResponseInterface
     {
-        return $this->service->update($id, $request->all()) ? $this->success() : $this->error();
+        return $this->service->update($id, $request->validated()) ? $this->success() : $this->error();
     }
