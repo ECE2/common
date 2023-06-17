@@ -11,18 +11,17 @@ declare(strict_types=1);
  */
 namespace Hyperf\Flysystem\OSS;
 
-use Hyperf\Utils\ResourceGenerator;
+use Hyperf\Support\ResourceGenerator;
 use League\Flysystem\Config;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\UnableToWriteFile;
+use OSS\Core\OssUtil;
 use OSS\OssClient;
 
 class Adapter implements FilesystemAdapter
 {
     // 自定义函数开始
-
-    protected $config;
 
     protected $cdnUrl;
 
@@ -97,7 +96,7 @@ class Adapter implements FilesystemAdapter
      *     'proxy' => null,
      * ]
      */
-    public function __construct($config = [])
+    public function __construct(protected $config = [])
     {
         $this->bucket = $config['bucket'];
         $accessId = $config['accessId'];
