@@ -8,7 +8,6 @@ use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\Rpc\Context;
-use Hyperf\RpcClient\AbstractServiceClient;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -33,9 +32,9 @@ class JsonRpcIdTransferAspect extends AbstractAspect
 
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
-        // 从当前上下文获取 admin 用户信息, 写入 json rpc 上下文
+        // 从当前上下文获取用户信息, 写入 json rpc 上下文
         if ($currentAdmin = identity()) {
-            $this->context->set('current.admin', $currentAdmin);
+            $this->context->set('current.user', $currentAdmin);
         }
 
         return $proceedingJoinPoint->process();

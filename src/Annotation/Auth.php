@@ -9,14 +9,14 @@ use Hyperf\Di\Annotation\AbstractAnnotation;
 
 /**
  * 用户登录验证.
- * @Annotation 
+ * @Annotation
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
 class Auth extends AbstractAnnotation
 {
     public string $scene;
 
-    public function __construct($value = 'default')
+    public function __construct($value = 'api')
     {
         parent::__construct($value);
 

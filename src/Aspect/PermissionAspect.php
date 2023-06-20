@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace Ece2\Common\Aspect;
 
 use App\Service\UserService;
+use Ece2\Common\Annotation\Permission;
+use Ece2\Common\Exception\NoPermissionException;
 use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\Di\Exception\Exception;
-use Ece2\Common\Annotation\Permission;
-use Ece2\Common\Exception\NoPermissionException;
 use Hyperf\HttpServer\Request;
-use Hyperf\Collection\Arr;
 
 #[Aspect]
 class PermissionAspect extends AbstractAspect

@@ -56,7 +56,7 @@ if (! function_exists('identity')) {
     /**
      * 获取上下文内的当前身份信息.
      */
-    function identity(): App\Model\User|null|Ece2\Common\Model\Rpc\Model\User
+    function identity()
     {
         if ($userResolver = context_get('identity')) {
             if (is_callable($userResolver)) {

@@ -46,6 +46,7 @@ return [
             'group_name' => env('NACOS_GROUP_NAME', 'DEFAULT_GROUP'),
             'namespace_id' => env('NACOS_NAMESPACE_ID', 'public'),
             'heartbeat' => 5,
+            'ephemeral' => true, // 临时实例, 主动心跳
         ],
     ],
 ];

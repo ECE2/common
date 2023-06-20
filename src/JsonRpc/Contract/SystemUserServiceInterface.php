@@ -13,7 +13,7 @@ interface SystemUserServiceInterface
     public function getUserDept(int $uid);
 
     /** 根据 token 获取用户信息 */
-    public function getInfoByJwtToken(string $jwtToken, string $scene = 'admin');
+    public function getInfoByJwtToken(string $jwtToken, string $scene = 'api');
 
     /** 获取用户信息 */
     public function getInfo($uid);

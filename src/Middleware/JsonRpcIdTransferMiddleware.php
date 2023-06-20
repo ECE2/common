@@ -30,16 +30,20 @@ class JsonRpcIdTransferMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        // 接收 rpc 的请求来时
         /** @var RpcContext $rc */
         $rc = $this->container->get(RpcContext::class);
-        if ($currentAdmin = $rc->get('current.admin')) {
-            if (is_base_system()) {
-                identity_set(static fn () => new BaseDBAdministrator($currentAdmin));
-            } else {
-                // 其他项目使用 rpc model 类
-                // 由 system 项目在 Ece2\Common\Aspect\JsonRpcIdTransferAspect 写入 rpc 上下文
-                identity_set(static fn () => new RpcAdministrator($currentAdmin));
-            }
+        // 获取 rpc 的上下文里的用户数据
+        if ($currentUser = $rc->get('current.user')) {
+            identity_set(static fn () => $currentUser);
+
+//            if (is_base_system()) {
+//                identity_set(static fn () => new BaseDBAdministrator($currentUser));
+//            } else {
+//                // 其他项目使用 rpc model 类
+//                // 由 system 项目在 Ece2\Common\Aspect\JsonRpcIdTransferAspect 写入 rpc 上下文
+//                identity_set(static fn () => new RpcAdministrator($currentUser));
+//            }
         }
 
         return $handler->handle($request);
