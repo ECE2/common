@@ -6,10 +6,11 @@ namespace Ece2\Common\Implement;
 
 use Ece2\Common\Exception\TokenException;
 use Ece2\Common\Interfaces\AuthenticationInterface;
-use Ece2\Common\JsonRpc\Contract\SystemMemberServiceInterface;
-use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
+use Hyperf\Collection\Arr;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Stringable\Str;
+
+use function Hyperf\Config\config;
 
 /**
  * 子应用鉴权 (走 rpc 到系统基础判断).
@@ -26,19 +27,21 @@ class SubAppAuthentication implements AuthenticationInterface
             throw new TokenException(t('jwt.no_token'));
         }
 
-        // 获取身份信息然后写入上下文
-        // TODO 这里不够优雅
-        if ($guard === 'api') {
-            $user = container()->get(SystemUserServiceInterface::class)->getInfoByJwtToken($token, $guard);
-        } else if ($guard === 'member') {
-            $user = container()->get(SystemMemberServiceInterface::class)->getInfoByJwtToken($token, $guard);
+        // 根据 common 公共组件包配置的 guards 相关获取 guard 对应的 rpc interface, 拿 token 换用户数据
+        $guardProvider = Arr::get(config('auth'), "guards_provider.$guard");
+        if (empty($rpcInterfaceName = $guardProvider['rpc_interface'] ?? '')) {
+            throw new TokenException('未找到 guard 对应的 interface, 请检查 common 包下的 JsonRpc/Contract/ 是否配置正确');
         }
+        $user = container()->get($rpcInterfaceName)->getInfoByJwtToken($token, $guard);
         if (! ($user['success'] ?? false) || empty($user['data'])) {
             throw new TokenException(t('jwt.no_token'));
         }
 
-        // TODO 这里最好能用 class 包一层
-        identity_set(static fn () => $user['data']);
+        // 然后写入上下文
+        if (empty($rpcModelName = $guardProvider['rpc_model'] ?? '')) {
+            throw new TokenException('未找到 guard 对应的 rpc model, 请检查 common 包下的 Model/Rpc/Model/ 是否配置正确');
+        }
+        identity_set(fn () => new ($rpcModelName)(array_merge($user['data'], ['guard' => $guard])));
 
         return true;
     }

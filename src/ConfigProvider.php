@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Ece2\Common;
 
+use Ece2\Common\Interfaces\JwtTokenAuthInfoInterface;
 use Ece2\Common\Library\NamespaceCI;
+use Hyperf\Collection\Arr;
 use Hyperf\Database\Schema\Blueprint;
+use Hyperf\Di\ReflectionManager;
 use Hyperf\Support\IPReader;
 
+use Symfony\Component\Finder\Finder;
 use function Hyperf\Support\env;
+use function Hyperf\Support\value;
 
 class ConfigProvider
 {
@@ -26,6 +31,13 @@ class ConfigProvider
             $this->unsignedBigInteger('updated_by')->default(0)->comment('更新者');
             $this->index('created_by');
         });
+
+        // json rpc contract 反射数据
+        $jsonRpcContractReflectionClass = ReflectionManager::getAllClasses([__DIR__ . '/JsonRpc/Contract']);
+        // rpc model 反射数据
+        $rpcModelReflectionClass = ReflectionManager::getAllClasses([__DIR__ . '/Model/Rpc/Model']);
+        // system model 反射数据
+        $systemModelReflectionClass = ReflectionManager::getAllClasses([BASE_PATH . '/app/Model']);
 
         return [
             'annotations' => [
@@ -49,19 +61,69 @@ class ConfigProvider
                     ],
                 ],
             ],
+            'auth' => [
+                // 会是以下这样: 'api' 是 auth.guards key, 也就是 Auth('api'), 当然默认值是 api, 也可以是 Auth('member')
+                //  [
+                //      'api' => [
+                //          'rpc_interface' => 'Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface',
+                //          'rpc_model' => 'Ece2\Common\Model\Rpc\Model\SystemUser',
+                //          'system_model' => 'App\Model\SystemUser',
+                //      ],
+                //      'member' => [
+                //          'rpc_interface' => 'Ece2\Common\JsonRpc\Contract\SystemMemberServiceInterface',
+                //          'rpc_model' => 'Ece2\Common\Model\Rpc\Model\SystemMember',
+                //          'system_model' => 'App\Model\SystemMember',
+                //      ]
+                //  ]
+                'guards_provider' => Arr::mapWithKeys(
+                    // 有 getInfoByJwtToken method 的 interface, (原本想用接口继承规范 getInfoByJwtToken 方法, 但是生成的代理类有问题, 会生成重复的 getInfoByJwtToken, 把父类的 getInfoByJwtToken 和子类的放在了一块)
+                    Arr::where($jsonRpcContractReflectionClass, fn (\ReflectionClass $reflectionClass) => $reflectionClass->hasMethod('getInfoByJwtToken')),
+                    function (\ReflectionClass $jsonRpcContractInterface) use ($rpcModelReflectionClass, $systemModelReflectionClass) {
+                        // 获取 getInfoByJwtToken 方法 scene 的默认值, 作为 guards key
+                        /** @var \ReflectionParameter $parameter */
+                        $parameter = Arr::first(
+                            $jsonRpcContractInterface->getMethod('getInfoByJwtToken')->getParameters(),
+                            fn(\ReflectionParameter $parameter) => $parameter->getName() === 'scene'
+                        );
+
+                        /** @var \ReflectionClass $rpcModel */
+                        $rpcModel = Arr::first(
+                            $rpcModelReflectionClass,
+                            // 从 Model/Rpc/Model 下, 找对应的 rpc model, 规则比如: 'rpc_interface' => SystemUserServiceInterface::class, 这里找的 rpc model 就是 SystemUser::class
+                            fn (\ReflectionClass $rpcModelClass) => $rpcModelClass->getShortName() === substr($jsonRpcContractInterface->getShortName(), 0, -16)
+                        );
+
+                        /** @var \ReflectionClass $systemModel */
+                        $systemModel = Arr::first(
+                            $systemModelReflectionClass,
+                            // 从 app/Model 下, 找对应的 system model, 规则比如: 'rpc_interface' => SystemUserServiceInterface::class, 这里找的 system model 就是 SystemUser::class
+                            fn (\ReflectionClass $systemModelClass) => $systemModelClass->getShortName() === substr($jsonRpcContractInterface->getShortName(), 0, -16)
+                        );
+
+                        return [
+                            $parameter->getDefaultValue() => [ // guard key
+                                'rpc_interface' => $jsonRpcContractInterface->getName(), // rpc service interface
+                                'rpc_model' => $rpcModel->getName(), // rpc 包装的 model
+                                'system_model' => $systemModel?->getName() ?? '', // 当 system 接收到 rpc 请求时包装的 model, 其他系统中 无用
+                            ]
+                        ];
+                    }
+                ),
+            ],
             'services' => [
-                'consumers' => value(function () use ($consumersRegistry) {
+                'consumers' => value(function () use ($consumersRegistry, $jsonRpcContractReflectionClass) {
                     $consumers = [];
                     // 这里示例自动创建代理消费者类的配置形式，顾存在 name 和 service 两个配置项，这里的做法不是唯一的，仅说明可以通过 PHP 代码来生成配置
                     // 下面的 FooServiceInterface 和 BarServiceInterface 仅示例多服务，并不是在文档示例中真实存在的
-                    $interfaces = NamespaceCI::get_interface(__DIR__ . '/JsonRpc/Contract');
-                    foreach ($interfaces as [$_ns, $_if]) {
+                    /** @var \ReflectionClass $class */
+                    foreach ($jsonRpcContractReflectionClass as $class) {
                         $consumers[] = [
-                            'name' => substr($_if, 0, -9),
-                            'service' => $_ns ? $_ns . '\\' . $_if : $_if,
+                            'name' => substr($class->getShortName(), 0, -9),
+                            'service' => $class->getName(),
                             'registry' => $consumersRegistry,
                         ];
                     }
+
                     return $consumers;
                 }),
             ],

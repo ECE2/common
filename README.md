@@ -30,3 +30,9 @@ php bin/hyperf.php vendor:publish ece2/common -f
 ```shell
 php bin/hyperf.php gen:code --with-comments --refresh-fillable {表名}
 ```
+
+### 用户身份传递
+
+* (Http 相关) 鉴权走的 src/Aspect/AuthAspect, 根据注解 Auth($guard) 对应的 AuthAspect 里的 AuthenticationInterface 对应实现来 check token
+* (RPC 相关) src/Aspect/JsonRpcIdTransferAspect 注入 RPC 请求前, 把当前 Http 写入上下文的用户信息写入 RPC 上下文
+* (RPC 相关) src/Middleware/JsonRpcIdTransferMiddleware 接收到 RPC 请求, 从 RPC 请求上下文获取用户信息

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Ece2\Common\Model\Scopes;
 
 use App\Model\SystemDept;
-use App\Model\User;
+use App\Model\SystemUser;
 use Ece2\Common\Exception\HttpException;
 use Ece2\Common\JsonRpc\Contract\SystemDeptServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
 use Ece2\Common\Model\Rpc\Model\SystemRole;
-use Ece2\Common\Model\Rpc\Model\User as UserForRpc;
+use Ece2\Common\Model\Rpc\Model\SystemUser as UserForRpc;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Model;
 use Hyperf\Database\Model\Scope;
@@ -74,9 +74,9 @@ class DataPermissionScope implements Scope
 
                 protected function getUserDataScope(): void
                 {
-                    /* @var UserForRpc|User $user */
+                    /* @var UserForRpc|SystemUser $user */
                     if (is_base_system()) {
-                        $user = User::findOrFail($this->userId);
+                        $user = SystemUser::findOrFail($this->userId);
                         $roles = $user->roles()->get(['id', 'data_scope']);
                     } else {
                         $user = (new UserForRpc(
@@ -108,7 +108,7 @@ class DataPermissionScope implements Scope
                                     $deptIds = $role->depts()->pluck('id')->toArray();
                                     $this->userIds = array_merge(
                                         $this->userIds,
-                                        User::query()->whereIn('dept_id', $deptIds)->pluck('id')->toArray()
+                                        SystemUser::query()->whereIn('dept_id', $deptIds)->pluck('id')->toArray()
                                     );
                                 } else {
                                     /** @var SystemRole $role */
@@ -126,7 +126,7 @@ class DataPermissionScope implements Scope
                                 if (is_base_system()) {
                                     $this->userIds = array_merge(
                                         $this->userIds,
-                                        User::query()->where('dept_id', $user['dept_id'])->pluck('id')->toArray()
+                                        SystemUser::query()->where('dept_id', $user['dept_id'])->pluck('id')->toArray()
                                     );
                                 } else {
                                     $this->userIds = array_merge(
@@ -174,7 +174,7 @@ class DataPermissionScope implements Scope
                     if (is_base_system()) {
                         $deptIds = SystemDept::query()->whereRaw("FIND_IN_SET(?, level)", [$deptId])->pluck('id')->toArray();
                         $deptIds[] = $deptId;
-                        return User::query()->whereIn('dept_id', $deptIds)->pluck('id')->toArray();
+                        return SystemUser::query()->whereIn('dept_id', $deptIds)->pluck('id')->toArray();
                     }
                     $deptIds = array_column(container()->get(SystemDeptServiceInterface::class)->getByLevelFuzzy($deptId)['data'] ?? [], 'id');
                     $deptIds[] = $deptId;

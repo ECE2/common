@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Model\Rpc\Model;
 
-use App\Sms\UniversalUserNotify;
-use Ece2\Common\JsonRpc\Contract\SystemDeptServiceInterface;
 use Ece2\Common\JsonRpc\Contract\SystemUserServiceInterface;
-use Hyperf\Di\Annotation\Inject;
-use HyperfExt\Sms\Sms;
+
 use function Hyperf\Support\make;
 
 /**
@@ -35,7 +32,7 @@ use function Hyperf\Support\make;
  * @property string $deleted_at
  * @property SystemDept $department
  */
-class User extends Base
+class SystemUser extends Base
 {
     /**
      * 通知方式: 短信.
@@ -72,9 +69,6 @@ class User extends Base
      * 用户类型: 企业管理用户.
      */
     public const TYPE_USER_BUSINESS_MANAGEMENT = '101';
-
-    #[Inject]
-    protected SystemDeptServiceInterface $systemDeptService;
 
     protected static function getService()
     {
