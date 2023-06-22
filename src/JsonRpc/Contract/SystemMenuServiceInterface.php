@@ -7,4 +7,8 @@ interface SystemMenuServiceInterface
     public function create($menu);
     
     public function findNameByCode(string $code);
+
+    public function deleteByModuleCode($name);
+
+    public function getMaxId();
 }
