@@ -35,4 +35,14 @@ abstract class AbstractJsonRpcService
             'data' => $data,
         ];
     }
+
+    public function getByIds(array $ids)
+    {
+        return $this->success($this->model::query()->find($ids)->toArray());
+    }
+
+    public function getByWhereRaw($sql, $bindings = [], $boolean = 'and')
+    {
+        return $this->success($this->model::query()->whereRaw($sql, $bindings, $boolean)->get()->toArray());
+    }
 }

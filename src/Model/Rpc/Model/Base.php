@@ -35,4 +35,19 @@ abstract class Base extends BaseModel
             static::getService()?->getByIds($ids)['data'] ?? []
         );
     }
+
+    /**
+     * 根据 where 条件获取数据. (同样用于 rpc 连表查询. 需要一些条件的查询情况).
+     * @param $sql
+     * @param $bindings
+     * @param $boolean
+     * @return Base[]
+     */
+    public static function getByWhereRaw($sql, $bindings = [], $boolean = 'and')
+    {
+        return array_map(
+            static fn($model) => new static($model),
+            static::getService()?->getByWhereRaw($sql, $bindings, $boolean)['data'] ?? []
+        );
+    }
 }

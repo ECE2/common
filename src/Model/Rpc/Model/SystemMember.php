@@ -14,4 +14,12 @@ class SystemMember extends Base
     {
         return make(SystemMemberServiceInterface::class);
     }
+
+    /**
+     * 地址.
+     */
+    public function address()
+    {
+        return $this->rpcHasMany(SystemMemberAddress::class, 'member_id');
+    }
 }

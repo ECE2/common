@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Model\Traits;
 
+use Ece2\Common\Model\Rpc\Relations\HasManyForRpc;
 use Ece2\Common\Model\Rpc\Relations\HasOneForRpc;
 use Ece2\Common\Model\Rpc\Relations\MorphToManyForRpc;
 use Hyperf\Database\Model\Builder;
@@ -33,6 +34,31 @@ trait HasRelationshipsForRpc
         $localKey = $localKey ?: $this->getKeyName();
 
         return $this->newRpcHasOne($instance->newQuery(), $this, $instance->getTable() . '.' . $foreignKey, $localKey);
+    }
+
+    /**
+     * Define a one-to-many relationship.
+     * ("改" 写基类函数 自定义 hasMany).
+     *
+     * @param string $related
+     * @param string $foreignKey
+     * @param string $localKey
+     * @return \Hyperf\Database\Model\Relations\HasMany
+     */
+    public function rpcHasMany($related, $foreignKey = null, $localKey = null): \Hyperf\Database\Model\Relations\HasMany
+    {
+        $instance = $this->newRelatedInstance($related);
+
+        $foreignKey = $foreignKey ?: $this->getForeignKey();
+
+        $localKey = $localKey ?: $this->getKeyName();
+
+        return $this->newRpcHasMany(
+            $instance->newQuery(),
+            $this,
+            $instance->getTable() . '.' . $foreignKey,
+            $localKey
+        );
     }
 
     /**
@@ -161,6 +187,18 @@ trait HasRelationshipsForRpc
     protected function newRpcHasOne(Builder $query, Model $parent, $foreignKey, $localKey)
     {
         return new HasOneForRpc($query, $parent, $foreignKey, $localKey);
+    }
+
+    /**
+     * Instantiate a new HasMany relationship.
+     *
+     * @param string $foreignKey
+     * @param string $localKey
+     * @return \Hyperf\Database\Model\Relations\HasMany
+     */
+    protected function newRpcHasMany(Builder $query, Model $parent, $foreignKey, $localKey)
+    {
+        return new HasManyForRpc($query, $parent, $foreignKey, $localKey);
     }
 
     /**
