@@ -76,28 +76,37 @@ class SystemUser extends Base
     }
 
     /**
-     * 非公司人员.
+     * 是否管理端用户.
+     * @return false
      */
-    public function nonCompanyUser(): bool
+    public function isManagement(): bool
     {
-        return in_array($this->user_type, [self::TYPE_USER_SUPER_ADMIN, self::TYPE_USER_OPERATION, self::TYPE_USER_GOVERNMENT_REGULATION]);
+        return true;
     }
 
-    /**
-     * 公司人员.
-     */
-    public function companyUser(): bool
-    {
-        return in_array($this->user_type, [self::TYPE_USER_BUSINESS_GENERALLY, self::TYPE_USER_BUSINESS_MANAGEMENT]);
-    }
-
-    /**
-     * 是否为超级管理员（创始人），用户禁用对创始人没用.
-     */
-    public function isSuperAdmin(): bool
-    {
-        return $this->user_type === self::TYPE_USER_SUPER_ADMIN;
-    }
+//    /**
+//     * 非公司人员.
+//     */
+//    public function nonCompanyUser(): bool
+//    {
+//        return in_array($this->user_type, [self::TYPE_USER_SUPER_ADMIN, self::TYPE_USER_OPERATION, self::TYPE_USER_GOVERNMENT_REGULATION]);
+//    }
+//
+//    /**
+//     * 公司人员.
+//     */
+//    public function companyUser(): bool
+//    {
+//        return in_array($this->user_type, [self::TYPE_USER_BUSINESS_GENERALLY, self::TYPE_USER_BUSINESS_MANAGEMENT]);
+//    }
+//
+//    /**
+//     * 是否为超级管理员（创始人），用户禁用对创始人没用.
+//     */
+//    public function isSuperAdmin(): bool
+//    {
+//        return $this->user_type === self::TYPE_USER_SUPER_ADMIN;
+//    }
 
     /**
      * 用户详情.

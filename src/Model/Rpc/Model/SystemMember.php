@@ -10,6 +10,15 @@ use function Hyperf\Support\make;
 
 class SystemMember extends Base
 {
+    /**
+     * 是否管理端用户.
+     * @return false
+     */
+    public function isManagement(): bool
+    {
+        return false;
+    }
+
     protected static function getService()
     {
         return make(SystemMemberServiceInterface::class);

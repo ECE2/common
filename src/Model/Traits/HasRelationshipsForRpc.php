@@ -6,10 +6,11 @@ namespace Ece2\Common\Model\Traits;
 
 use Ece2\Common\Model\Rpc\Relations\HasManyForRpc;
 use Ece2\Common\Model\Rpc\Relations\HasOneForRpc;
+use Ece2\Common\Model\Rpc\Relations\MorphManyForRpc;
 use Ece2\Common\Model\Rpc\Relations\MorphToManyForRpc;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Model;
-use Hyperf\Utils\Str;
+use Hyperf\Stringable\Str;
 
 /**
  * 数据库 model 关联 rpc 数据.
@@ -59,6 +60,32 @@ trait HasRelationshipsForRpc
             $instance->getTable() . '.' . $foreignKey,
             $localKey
         );
+    }
+
+    /**
+     * Define a polymorphic one-to-many relationship.
+     *
+     * @param  string  $related
+     * @param  string  $name
+     * @param  string|null  $type
+     * @param  string|null  $id
+     * @param  string|null  $localKey
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function rpcMorphMany($related, $name, $type = null, $id = null, $localKey = null)
+    {
+        $instance = $this->newRelatedInstance($related);
+
+        // Here we will gather up the morph type and ID for the relationship so that we
+        // can properly query the intermediate table of a relation. Finally, we will
+        // get the table and create the relationship instances for the developers.
+        [$type, $id] = $this->getMorphs($name, $type, $id);
+
+        $table = $instance->getTable();
+
+        $localKey = $localKey ?: $this->getKeyName();
+
+        return $this->newRpcMorphMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey);
     }
 
     /**
@@ -199,6 +226,21 @@ trait HasRelationshipsForRpc
     protected function newRpcHasMany(Builder $query, Model $parent, $foreignKey, $localKey)
     {
         return new HasManyForRpc($query, $parent, $foreignKey, $localKey);
+    }
+
+    /**
+     * Instantiate a new MorphMany relationship.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @param  string  $type
+     * @param  string  $id
+     * @param  string  $localKey
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    protected function newRpcMorphMany(Builder $query, Model $parent, $type, $id, $localKey)
+    {
+        return new MorphManyForRpc($query, $parent, $type, $id, $localKey);
     }
 
     /**
