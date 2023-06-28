@@ -96,7 +96,7 @@ class GenErrorCode extends HyperfCommand
         // 如果有新的异常常量
         if (! empty($const_new)) {
             $content = file_get_contents($code_file);
-            $content = trim($content, " \r\n\}") . "\n" . implode($const_new) . "}\n";
+            $content = trim($content, " \r\n\}") . "\n\n" . implode("\n", $const_new) . "}\n";
             file_put_contents($code_file, $content);
         }
 
