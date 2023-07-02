@@ -17,13 +17,11 @@ use Ece2\Common\Library\TraceId;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
 class AppExceptionHandler extends ExceptionHandler
 {
-
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
         $code = $throwable->getCode();
@@ -43,15 +41,11 @@ class AppExceptionHandler extends ExceptionHandler
         } else {
             $http_status = 500;
             $data['code'] = -1;
-            $data['message'] = 'Internal Server Error.';
+            $data['message'] = $data['message'] ?: 'Internal Server Error.';
         }
-        console()->info($throwable->getMessage());
-        console()->info($throwable->getTraceAsString());
-
-//        $exception_data = Context::get('exception_data', null);
-//        if ($exception_data != null) {
-//            $data['result'] = $exception_data;
-//        }
+        if (\Hyperf\Support\env('APP_ENV', 'dev') === 'dev') {
+            $data['trace'] = $throwable->getTrace();
+        }
 
         // 阻止异常冒泡
         $this->stopPropagation();
@@ -59,7 +53,7 @@ class AppExceptionHandler extends ExceptionHandler
         return $response->withStatus($http_status)
             ->withHeader('Content-type', 'text/json; charset=utf-8')
             ->withHeader('Access-Control-Allow-Credentials', 'true')
-            ->withHeader('Access-Control-Allow-Origin', ApplicationContext::getContainer()->get(RequestInterface::class)->header('origin'))
+            ->withHeader('Access-Control-Allow-Origin', container()->get(RequestInterface::class)->header('origin'))
             ->withHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, X_Requested_With, Content-Type, Accept')
             ->withHeader('Access-Control-Allow-Methods', '*')
             ->withBody(new SwooleStream(json_encode($data, JSON_UNESCAPED_UNICODE)));

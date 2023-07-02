@@ -21,11 +21,10 @@ class AppException extends ServerException
 
     public function __construct(int $code = 0, string $message = null, Throwable $previous = null)
     {
-
         if (is_null($message)) {
-            $message = trans(ErrorCode::getMessage($code));
+            $message = \Hyperf\Translation\trans(ErrorCode::getMessage($code));
         } else {
-            $message = trans(ErrorCode::getMessage($code), array('error' => $message));
+            $message = \Hyperf\Translation\trans(ErrorCode::getMessage($code), array('error' => $message)) ?: $message;
         }
 
         parent::__construct($message, $code, $previous);
