@@ -33,6 +33,11 @@ class DataPermissionScope implements Scope
          * @params array $initialUserIds 初始用户有的权限范围
          */
         $builder->macro('dataPermission', function (Builder $builder, ?int $userId = null, array $initialUserIds = []) {
+            // 如果非管理后台，则忽略数据权限
+            if (identity()?->isManagement() !== true) {
+                return $builder;
+            }
+
             $userId = $userId ?? (int) identity()?->getKey();
             if (empty($userId)) {
                 throw new HttpException(message: 'Data Scope missing user_id');
