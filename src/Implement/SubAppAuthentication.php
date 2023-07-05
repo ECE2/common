@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Implement;
 
+use App\Constants\ErrorCode;
+use Ece2\Common\Exception\AppException;
 use Ece2\Common\Exception\TokenException;
 use Ece2\Common\Interfaces\AuthenticationInterface;
 use Hyperf\Collection\Arr;
@@ -32,7 +34,15 @@ class SubAppAuthentication implements AuthenticationInterface
         if (empty($rpcInterfaceName = $guardProvider['rpc_interface'] ?? '')) {
             throw new TokenException('未找到 guard 对应的 interface, 请检查 common 包下的 JsonRpc/Contract/ 是否配置正确');
         }
-        $user = container()->get($rpcInterfaceName)->getInfoByJwtToken($token, $guard);
+
+        try {
+            $user = container()->get($rpcInterfaceName)->getInfoByJwtToken($token, $guard);
+        } catch (\Exception $e) {
+            console()->info($e->getMessage());
+            console()->info($e->getTraceAsString());
+            throw new AppException(ErrorCode::ERROR_401_MEMBER_NOT_LOGIN);
+        }
+
         if (! ($user['success'] ?? false) || empty($user['data'])) {
             throw new TokenException(t('jwt.no_token'));
         }
