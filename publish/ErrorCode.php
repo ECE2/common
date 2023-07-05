@@ -14,4 +14,9 @@ class ErrorCode extends AbstractConstants
      * @Message("Server Error！")
      */
     public const SERVER_ERROR = 500;
+
+    /**
+     * @Message("member_not_login")
+     */
+    public const ERROR_401_MEMBER_NOT_LOGIN = 40190001;
 }

@@ -41,8 +41,13 @@ class AppExceptionHandler extends ExceptionHandler
         } else {
             $http_status = 500;
             $data['code'] = -1;
-            $data['message'] = $data['message'] ?: 'Internal Server Error.';
+            if (\Hyperf\Support\env('APP_ENV', 'dev') !== 'dev') {
+                $data['message'] = 'Internal Server Error.';
+            }
         }
+
+        console()->info($throwable->getMessage());
+        console()->info($throwable->getTraceAsString());
         if (\Hyperf\Support\env('APP_ENV', 'dev') === 'dev') {
             $data['trace'] = $throwable->getTrace();
         }

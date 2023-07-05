@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Aspect;
 
+use App\Constants\ErrorCode;
 use Ece2\Common\Annotation\Auth;
+use Ece2\Common\Exception\AppException;
 use Ece2\Common\Exception\TokenException;
 use Ece2\Common\Interfaces\AuthenticationInterface;
 use Hyperf\Di\Annotation\Aspect;
@@ -29,10 +31,10 @@ class AuthAspect extends AbstractAspect
     }
 
     /**
-     * @throws Exception
+     * @return mixed
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
-     * @return mixed
+     * @throws Exception
      */
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
@@ -46,7 +48,15 @@ class AuthAspect extends AbstractAspect
             $auth = $annotationMetadata->class[Auth::class];
         }
 
-        if ($this->authentication->check('', $auth?->scene ?? 'api')) {
+        try {
+            $isCheck = $this->authentication->check('', $auth?->scene ?? 'api');
+        } catch (\Exception $e) {
+            console()->info($e->getMessage());
+            console()->info($e->getTraceAsString());
+            throw new AppException(ErrorCode::ERROR_401_MEMBER_NOT_LOGIN);
+        }
+
+        if ($isCheck) {
             return $proceedingJoinPoint->process();
         }
 
