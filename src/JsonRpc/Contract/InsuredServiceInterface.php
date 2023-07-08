@@ -11,4 +11,11 @@ interface InsuredServiceInterface
      * @return mixed
      */
     public function isVerified($insuredId, $memberId = 0);
+
+    /**
+     * 通过ID读取参保人
+     * @param array $ids
+     * @return mixed
+     */
+    public function getByIds(array $ids);
 }
