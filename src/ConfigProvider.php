@@ -32,6 +32,12 @@ class ConfigProvider
             $this->index('created_by');
         });
 
+        Blueprint::macro('company', function () {
+            /** @var Blueprint $this */
+            $this->unsignedBigInteger('company_id')->comment('公司 ID');
+            $this->index('company_id');
+        });
+
         // json rpc contract 反射数据
         $jsonRpcContractReflectionClass = ReflectionManager::getAllClasses([__DIR__ . '/JsonRpc/Contract']);
         // rpc model 反射数据

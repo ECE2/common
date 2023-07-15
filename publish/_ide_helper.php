@@ -11,5 +11,10 @@ namespace Hyperf\Database\Schema {
         {
             return \Hyperf\Database\Schema\Blueprint::operators();
         }
+
+        public function company()
+        {
+            return \Hyperf\Database\Schema\Blueprint::company();
+        }
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Ece2\Common\Model\Traits;
 
+use App\Model\Company;
 use Ece2\Common\Model\Scopes\CompanyIsolateScope;
+use Ece2\Common\Model\Rpc\Model\Company as CompanyForRpc;
 
 /**
  * @method static static|\Hyperf\Database\Model\Builder|\Hyperf\Database\Query\Builder withCompanyIsolateExcept(bool $withCompanyIsolateExcept = true)
@@ -12,6 +14,8 @@ use Ece2\Common\Model\Scopes\CompanyIsolateScope;
  */
 trait CompanyIsolate
 {
+    use HasRelationshipsForRpc;
+
     /**
      * 注册 scope
      * @return void
@@ -31,7 +35,7 @@ trait CompanyIsolate
 
         return $this->save();
     }
-    
+
     public function updateCompanyId()
     {
         if (! $this->exists && ! $this->isDirty($this->getCompanyIdColumn())) {
@@ -53,6 +57,19 @@ trait CompanyIsolate
 
     public function getQualifiedCompanyIdColumn()
     {
-        return $this->qualifyColumn($this->getDeletedAtColumn());
+        return $this->qualifyColumn($this->getCompanyIdColumn());
+    }
+
+    /**
+     * 所属公司.
+     * @return \Hyperf\Database\Model\Relations\BelongsTo
+     */
+    public function company()
+    {
+        if (is_base_system()) {
+            return $this->belongsTo(Company::class, $this->getCompanyIdColumn());
+        } else {
+            return $this->rpcBelongsTo(CompanyForRpc::class, $this->getCompanyIdColumn());
+        }
     }
 }

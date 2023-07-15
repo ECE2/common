@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Ece2\Common\Model\Rpc\Relations;
 
 use Ece2\Common\Model\Rpc\Model\Base;
-use Hyperf\Database\Model\Model;
 use Hyperf\Database\Model\Relations\BelongsToMany;
-use Hyperf\Database\Query\JoinClause;
 
 class BelongToManyForRpc extends BelongsToMany
 {

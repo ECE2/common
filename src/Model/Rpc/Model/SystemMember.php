@@ -6,10 +6,13 @@ namespace Ece2\Common\Model\Rpc\Model;
 
 use Ece2\Common\JsonRpc\Contract\SystemMemberServiceInterface;
 
+use Ece2\Common\Model\Traits\CompanyIsolate;
 use function Hyperf\Support\make;
 
 class SystemMember extends Base
 {
+    use CompanyIsolate;
+
     /**
      * 是否管理端用户.
      * @return false
