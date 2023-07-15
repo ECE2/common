@@ -97,9 +97,9 @@ if (! function_exists('is_base_system')) {
 if (! function_exists('redis')) {
     /**
      * 获取Redis实例.
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      * @return \Hyperf\Redis\Redis
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws \Psr\Container\ContainerExceptionInterface
      */
     function redis($poolName = 'default'): Hyperf\Redis\Redis
     {
@@ -358,5 +358,21 @@ if (! function_exists('id_card_checksum18')) {
         } else {
             return true;
         }
+    }
+}
+
+if (! function_exists('phpword_template_export')) {
+    /**
+     * @param string $template
+     * @param array $data
+     * @param string $filename
+     * @return bool
+     * @throws \PhpOffice\PhpWord\Exception\Exception
+     * @throws \PhpOffice\PhpWord\Writer\Exception
+     */
+    function phpword_template_export(string $template, array $data, string $filename, $clones = 0, $cloneBlock = 'block')
+    {
+        $word = new \Ece2\Common\Office\Word\PhpOffice($template);
+        return $word->export($filename, $template, $data, $clones, $cloneBlock);
     }
 }
