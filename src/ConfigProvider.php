@@ -34,7 +34,7 @@ class ConfigProvider
 
         Blueprint::macro('company', function () {
             /** @var Blueprint $this */
-            $this->unsignedBigInteger('company_id')->comment('公司 ID');
+            $this->unsignedBigInteger('company_id')->default(0)->comment('公司 ID');
             $this->index('company_id');
         });
 

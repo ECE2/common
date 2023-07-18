@@ -3,6 +3,7 @@
 namespace Ece2\Common\Model\Traits;
 
 use App\Model\CourierCompany;
+use Ece2\Common\Model\Rpc\Model\CourierCompany as CourierCompanyRpc;
 
 trait HasCourierCompany
 {
@@ -13,6 +14,10 @@ trait HasCourierCompany
      */
     public function courierCompany()
     {
-        return $this->rpcHasOne(CourierCompany::class, 'id', $this->courierCompanyColumnName ?: 'courier_company_id');
+        if (is_base_system()) {
+            return $this->hasOne(CourierCompany::class, 'id', $this->courierCompanyColumnName ?: 'courier_company_id');
+        } else {
+            return $this->rpcHasOne(CourierCompanyRpc::class, 'id', $this->courierCompanyColumnName ?: 'courier_company_id');
+        }
     }
 }

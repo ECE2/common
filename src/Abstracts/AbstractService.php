@@ -44,6 +44,8 @@ abstract class AbstractService
      */
     public function getPageListByRecycle(?array $params = null, bool $dataPermission = true)
     {
+        $dataPermission = false; // TODO 暂时关闭数据权限
+
         if ($params['select'] ?? null) {
             $params['select'] = explode(',', $params['select']);
         }
@@ -188,6 +190,8 @@ abstract class AbstractService
      */
     public function listQueryPreProcessing(?array $params, bool|array $dataPermission = true, callable $extend = null)
     {
+        $dataPermission = false; // TODO 暂时关闭数据权限
+
         $params['select'] = array_values(array_filter(is_string($params['select'] ?? '') ? explode(',', $params['select'] ?? '') : (array) $params['select']));
         $query = $this->handleQueryPreProcessing($this->model::query(), $params);
 
@@ -218,6 +222,8 @@ abstract class AbstractService
      */
     public function getList(?array $params = null, bool|array $dataPermission = true, callable $extend = null)
     {
+        $dataPermission = false; // TODO 暂时关闭数据权限
+
         return $this
             ->listQueryPreProcessing($params, $dataPermission, $extend)
             ->get();
@@ -228,6 +234,8 @@ abstract class AbstractService
      */
     public function getPageList(?array $params = null, bool|array $dataPermission = true, callable $extend = null)
     {
+        $dataPermission = false; // TODO 暂时关闭数据权限
+
         return $this
             ->listQueryPreProcessing($params, $dataPermission, $extend)
             ->paginate();
@@ -245,6 +253,8 @@ abstract class AbstractService
         string $parentField = 'parent_id',
         string $childrenField = 'children'
     ) {
+        $dataPermission = false; // TODO 暂时关闭数据权限
+
         return array_to_tree(
             $this
                 ->listQueryPreProcessing($params, $dataPermission, $extend)
