@@ -6,6 +6,8 @@ namespace Ece2\Common;
 
 use Ece2\Common\Interfaces\JwtTokenAuthInfoInterface;
 use Ece2\Common\Library\NamespaceCI;
+use Ece2\Common\Middleware\CompanyMiddleware;
+use Ece2\Common\Middleware\CorsMiddleware;
 use Hyperf\Collection\Arr;
 use Hyperf\Database\Schema\Blueprint;
 use Hyperf\Di\ReflectionManager;
@@ -135,7 +137,8 @@ class ConfigProvider
             ],
             'middlewares' => [
                 'http' => [
-                    \Ece2\Common\Middleware\CorsMiddleware::class,
+                    CorsMiddleware::class,
+//                    CompanyMiddleware::class,
                 ],
             ],
             'publish' => [

@@ -52,9 +52,9 @@ class CompanyIsolateScope implements Scope
             return $companyId;
         }
 
-        // 上下文里获取, admin 项目用的 jwt 会写入上下文, 其他项目可以手动写入匿名函数返回管理员数据
+        // 上下文里获取
         try {
-            return identity()->company_id ?? null;
+            return context_get('company');
         } catch (\Exception $e) {
             return null;
         }

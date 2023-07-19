@@ -82,6 +82,28 @@ if (! function_exists('identity_set')) {
     }
 }
 
+if (! function_exists('company')) {
+    /**
+     * 获取上下文内的当前公司信息.
+     * @return mixed
+     */
+    function company()
+    {
+        return context_get('company');
+    }
+}
+
+if (! function_exists('company_set')) {
+    /**
+     * 设置上下文内的当前公司信息.
+     * @return mixed
+     */
+    function company_set($value)
+    {
+        return context_set('company', $value);
+    }
+}
+
 if (! function_exists('is_base_system')) {
     /**
      * 当前系统是否为基座.
