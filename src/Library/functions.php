@@ -325,7 +325,7 @@ if (! function_exists('array_to_tree')) {
         $data = array_column($data, null, $idField);
 
         foreach ($data as &$item) {
-            $itemParentId = empty($item[$parentField]) ? 0 : (int) $item[$parentField];
+            $itemParentId = (int) ($item[$parentField] ?? -1);
             if ($itemParentId === $parentId) { // 顶级目录不操作
                 continue;
             }
@@ -336,7 +336,7 @@ if (! function_exists('array_to_tree')) {
         unset($item);
 
         // 过滤不是顶级目录
-        return array_values(array_filter($data, static fn ($split) => ! empty($split[$parentField]) && (int) $split[$parentField] === $parentId));
+        return array_values(array_filter($data, static fn ($split) => ((int) ($split[$parentField] ?? -1)) === $parentId));
     }
 }
 

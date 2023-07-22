@@ -8,6 +8,7 @@ use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Model;
 use Hyperf\Database\Model\Scope;
 use Hyperf\Context\Context;
+use Phalcon\Helper\Arr;
 
 /**
  * 公司隔离 (用于多租户系统).
@@ -17,7 +18,7 @@ class CompanyIsolateScope implements Scope
     public function apply(Builder $builder, Model $model)
     {
         $builder->when(
-            static::getCompanyId() !== null,
+            static::getCompanyId(),
             fn ($query, $companyId) => $query->where($model->getQualifiedCompanyIdColumn(), $companyId)
         );
     }
