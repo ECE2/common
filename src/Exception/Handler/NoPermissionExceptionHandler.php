@@ -23,6 +23,7 @@ class NoPermissionExceptionHandler extends ExceptionHandler
 
         return $response
             ->withAddedHeader('content-type', 'application/json; charset=utf-8')
+            ->withHeader('Trace-Id', TraceId::get())
             ->withStatus(Status::FORBIDDEN)
             ->withBody(new SwooleStream(Json::encode([
                 'success' => false,

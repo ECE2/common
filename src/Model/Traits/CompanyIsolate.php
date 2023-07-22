@@ -25,27 +25,17 @@ trait CompanyIsolate
         static::addGlobalScope(new CompanyIsolateScope());
     }
 
-    /**
-     *
-     * @return bool
-     */
-    public function touch(): bool
+    public function creating($event)
     {
-        $this->updateCompanyId();
-
-        return $this->save();
-    }
-
-    public function updateCompanyId()
-    {
-        if (! $this->exists && ! $this->isDirty($this->getCompanyIdColumn())) {
-            $this->setCompanyId(CompanyIsolateScope::getCompanyId());
-        }
+        $this->setCompanyId(CompanyIsolateScope::getCompanyId());
     }
 
     public function setCompanyId($value)
     {
-        $this->{$this->getCompanyIdColumn()} = $value;
+        // 没有值时才设置, 有些场景, 比如 $company->dept()->create() 时, 会有 company_id 的设置, 这里就跳过自动设置
+        if ($this->getAttribute($this->getCompanyIdColumn()) === null) {
+            $this->{$this->getCompanyIdColumn()} = $value;
+        }
 
         return $this;
     }

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Ece2\Common\JsonRpc\Contract;
+
 interface WarehouseCommodityCategoryServiceInterface
 {
     public function getByIds(array $ids);

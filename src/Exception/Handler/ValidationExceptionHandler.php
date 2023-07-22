@@ -22,6 +22,7 @@ class ValidationExceptionHandler extends ExceptionHandler
 
         return $response
             ->withAddedHeader('content-type', 'application/json; charset=utf-8')
+            ->withHeader('Trace-Id', TraceId::get())
             ->withStatus(Status::OK)
             ->withBody(new SwooleStream(Json::encode([
                 'success' => false,

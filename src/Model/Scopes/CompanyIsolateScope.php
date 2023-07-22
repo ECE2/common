@@ -48,15 +48,15 @@ class CompanyIsolateScope implements Scope
     public static function getCompanyId()
     {
         // 优先使用 设置的全局公司 ID
-        if (! empty($companyId = Context::get('GlobalCompanyId', null))) {
+        if (! empty($companyId = Context::get('GlobalCompanyId', 0))) {
             return $companyId;
         }
 
         // 上下文里获取
         try {
-            return context_get('company');
+            return company()?->getKey() ?? 0;
         } catch (\Exception $e) {
-            return null;
+            return 0;
         }
     }
 }

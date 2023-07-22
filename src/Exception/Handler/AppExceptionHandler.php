@@ -61,6 +61,7 @@ class AppExceptionHandler extends ExceptionHandler
             ->withHeader('Access-Control-Allow-Origin', container()->get(RequestInterface::class)->header('origin'))
             ->withHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, X_Requested_With, Content-Type, Accept')
             ->withHeader('Access-Control-Allow-Methods', '*')
+            ->withHeader('Trace-Id', TraceId::get())
             ->withBody(new SwooleStream(json_encode($data, JSON_UNESCAPED_UNICODE)));
     }
 
