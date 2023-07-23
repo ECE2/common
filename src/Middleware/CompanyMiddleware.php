@@ -32,11 +32,11 @@ class CompanyMiddleware implements MiddlewareInterface
             'sub_domain',
             Arr::first(explode('.', Arr::first($request->getHeader('host'))))
         );
-        if ($subDomain !== null && !is_numeric($subDomain)) {
+        if ($subDomain !== null && ! is_numeric($subDomain)) {
             if (is_base_system()) {
                 company_set(Company::query()->where('sub_domain', $subDomain)->first());
             } else {
-                company_set(new \Ece2\Common\Model\Rpc\Model\Company($this->companyService->getCompanyBySubDomain($subDomain)));
+                company_set(new \Ece2\Common\Model\Rpc\Model\Company($this->companyService->getCompanyBySubDomain($subDomain)['data'] ?? []));
             }
         }
 
