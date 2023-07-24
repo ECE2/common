@@ -27,12 +27,15 @@ class CompanyMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $subDomain = Arr::get(
-            array_merge($request->getParsedBody(), $request->getQueryParams()),
-            'sub_domain',
-            Arr::first(explode('.', Arr::first($request->getHeader('host'))))
-        );
-        if ($subDomain !== null && ! is_numeric($subDomain)) {
+        $subDomain = Arr::first(explode('.', Arr::first($request->getHeader('host'))));
+
+        // 允许 dev 环境传 sub_domain
+        if (\Hyperf\Config\config('app_env') === 'dev') {
+            $subDomain = array_merge($request->getParsedBody(), $request->getQueryParams())['sub_domain'] ?? \Hyperf\Support\env('SUB_DOMAIN') ?? $subDomain;
+            dump('当前开发环境, 传入的 sub_domain 为: ' . $subDomain);
+        }
+
+        if ($subDomain !== null && !is_numeric($subDomain)) {
             if (is_base_system()) {
                 company_set(Company::query()->where('sub_domain', $subDomain)->first());
             } else {
