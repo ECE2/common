@@ -16,4 +16,13 @@ interface SystemMemberServiceInterface
      * @return mixed
      */
     public function update(int $id, array $data);
+
+    /**
+     * 发送微信模板消息.
+     * @param $memberId
+     * @param $templateId
+     * @param $data
+     * @return mixed
+     */
+    public function sendWechatTemplateMessage($memberId, $templateId, $data = []);
 }
