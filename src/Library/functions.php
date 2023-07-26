@@ -55,6 +55,7 @@ if (! function_exists('container')) {
 if (! function_exists('identity')) {
     /**
      * 获取上下文内的当前身份信息.
+     * @return \App\Model\SystemUser|\Ece2\Common\Model\Rpc\Model\SystemUser
      */
     function identity()
     {
@@ -85,7 +86,7 @@ if (! function_exists('identity_set')) {
 if (! function_exists('company')) {
     /**
      * 获取上下文内的当前公司信息.
-     * @return mixed
+     * @return \App\Model\Company|\Ece2\Common\Model\Rpc\Model\Company
      */
     function company()
     {
