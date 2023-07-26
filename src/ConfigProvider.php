@@ -138,7 +138,7 @@ class ConfigProvider
             'middlewares' => [
                 'http' => [
                     CorsMiddleware::class,
-//                    CompanyMiddleware::class,
+                    CompanyMiddleware::class,
                 ],
             ],
             'publish' => [
