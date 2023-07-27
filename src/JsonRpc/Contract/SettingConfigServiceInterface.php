@@ -17,4 +17,6 @@ interface SettingConfigServiceInterface
      * @return array
      */
     public function getConfigByGroup(array $codes): array;
+
+    public function create($data);
 }
