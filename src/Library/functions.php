@@ -388,7 +388,7 @@ if (! function_exists('phpword_template_export')) {
      * @param string $template
      * @param array $data
      * @param string $filename
-     * @return bool
+     * @return \Psr\Http\Message\ResponseInterface
      * @throws \PhpOffice\PhpWord\Exception\Exception
      * @throws \PhpOffice\PhpWord\Writer\Exception
      */
