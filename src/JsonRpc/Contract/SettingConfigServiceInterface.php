@@ -18,5 +18,10 @@ interface SettingConfigServiceInterface
      */
     public function getConfigByGroup(array $codes): array;
 
+    /**
+     * 新增配置.
+     * @param array $data
+     * @return mixed
+     */
     public function create($data);
 }
