@@ -31,7 +31,7 @@ class CompanyMiddleware implements MiddlewareInterface
 
         // 允许 dev 环境传 sub_domain
         if (\Hyperf\Config\config('app_env') === 'dev') {
-            $subDomain = array_merge($request->getParsedBody(), $request->getQueryParams())['sub_domain'] ?? \Hyperf\Support\env('SUB_DOMAIN') ?? $subDomain;
+            $subDomain = \Hyperf\Support\env('SUB_DOMAIN') ?? $subDomain;
             dump('当前开发环境, 传入的 sub_domain 为: ' . $subDomain);
         }
 

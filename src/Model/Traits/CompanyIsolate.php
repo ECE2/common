@@ -25,11 +25,6 @@ trait CompanyIsolate
         static::addGlobalScope(new CompanyIsolateScope());
     }
 
-    public function creating($event)
-    {
-        $this->setCompanyId(CompanyIsolateScope::getCompanyId());
-    }
-
     public function setCompanyId($value)
     {
         // 没有值时才设置, 有些场景, 比如 $company->dept()->create() 时, 会有 company_id 的设置, 这里就跳过自动设置
