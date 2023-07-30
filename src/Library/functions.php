@@ -395,7 +395,7 @@ if (! function_exists('phpword_template_export')) {
      */
     function phpword_template_export(string $template, array $data, string $filename, $clones = 0, $cloneBlock = 'block')
     {
-        $word = new \Ece2\Common\Office\Word\PhpOffice($template);
+        $word = new \Ece2\Common\Office\Word\PhpOffice();
         return $word->export($filename, $template, $data, $clones, $cloneBlock);
     }
 }

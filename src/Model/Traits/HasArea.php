@@ -24,4 +24,13 @@ trait HasArea
     {
         return $this->rpcHasOne(Area::class, 'id', $this->districtColumnName ?: 'district');
     }
+
+    /**
+     * 全地址.
+     * @return mixed|string
+     */
+    public function getFullAddress()
+    {
+        return ($this->provinceInfo['name'] ?? '') + ($this->cityInfo['name'] ?? '') + ($this->districtInfo['name'] ?? '');
+    }
 }
