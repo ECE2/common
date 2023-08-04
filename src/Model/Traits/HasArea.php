@@ -6,6 +6,11 @@ namespace Ece2\Common\Model\Traits;
 
 use Ece2\Common\Model\Rpc\Model\Area;
 
+/**
+ * @property Area $provinceInfo
+ * @property Area $cityInfo
+ * @property Area $districtInfo
+ */
 trait HasArea
 {
     use HasRelationshipsForRpc;
@@ -31,6 +36,6 @@ trait HasArea
      */
     public function getFullAddress()
     {
-        return ($this->provinceInfo['name'] ?? '') + ($this->cityInfo['name'] ?? '') + ($this->districtInfo['name'] ?? '');
+        return ($this->provinceInfo['name'] ?? '') . ($this->cityInfo['name'] ?? '') . ($this->districtInfo['name'] ?? '');
     }
 }

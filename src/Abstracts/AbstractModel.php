@@ -6,11 +6,15 @@ namespace Ece2\Common\Abstracts;
 
 use Ece2\Common\Model\Traits\DataPermission;
 use Ece2\Common\Model\Traits\HasRelationshipsForRpc;
+use Hyperf\Database\Model\ModelIDE;
 use Hyperf\DbConnection\Model\Model as BaseModel;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\ModelCache\Cacheable;
 use Hyperf\ModelCache\CacheableInterface;
 
+/**
+ * @mixin ModelIDE
+ */
 abstract class AbstractModel extends BaseModel implements CacheableInterface
 {
     use HasRelationshipsForRpc;
