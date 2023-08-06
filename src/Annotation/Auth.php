@@ -14,12 +14,13 @@ use Hyperf\Di\Annotation\AbstractAnnotation;
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
 class Auth extends AbstractAnnotation
 {
-    public string $scene;
-
-    public function __construct($value = 'api')
-    {
-        parent::__construct($value);
-
-        $this->bindMainProperty('scene', [ $value ]);
+    /**
+     * @param string $scene 验证场景
+     * @param bool $mustLogin 必须登录,不然抛错
+     */
+    public function __construct(
+        public string $scene = 'api',
+        public bool $mustLogin = true
+    ) {
     }
 }

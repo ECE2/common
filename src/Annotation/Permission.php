@@ -15,24 +15,12 @@ use Hyperf\Di\Annotation\AbstractAnnotation;
 class Permission extends AbstractAnnotation
 {
     /**
-     * 菜单代码
-     * @var string
+     * @param string|null $code 菜单代码
+     * @param string $where 多个菜单代码, 过滤条件 为 OR 时, 检查有一个通过则全部通过 为 AND 时, 检查有一个不通过则全不通过
      */
-    public string $code;
-
-    /**
-     * 多个菜单代码, 过滤条件
-     * 为 OR 时, 检查有一个通过则全部通过
-     * 为 AND 时, 检查有一个不通过则全不通过
-     * @var string
-     */
-    public string $where;
-
-    public function __construct($value = null, $where = 'OR')
-    {
-        parent::__construct($value);
-
-        $this->bindMainProperty('code', [$value]);
-        $this->bindMainProperty('where', [$where]);
+    public function __construct(
+        public ?string $code = null,
+        public string $where = 'OR'
+    ) {
     }
 }

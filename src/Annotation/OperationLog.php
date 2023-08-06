@@ -15,15 +15,10 @@ use Hyperf\Di\Annotation\AbstractAnnotation;
 class OperationLog extends AbstractAnnotation
 {
     /**
-     * 菜单名称
-     * @var string
+     * @param string $menuName 菜单名称
      */
-    public string $menuName;
-
-    public function __construct($value = '')
-    {
-        parent::__construct($value);
-
-        $this->bindMainProperty('menuName', [$value]);
+    public function __construct(
+        public string $menuName = ''
+    ) {
     }
 }

@@ -22,6 +22,9 @@ class SystemMember extends Base
         return false;
     }
 
+    /**
+     * @return SystemMemberServiceInterface
+     */
     protected static function getService()
     {
         return make(SystemMemberServiceInterface::class);
@@ -33,5 +36,16 @@ class SystemMember extends Base
     public function address()
     {
         return $this->rpcHasMany(SystemMemberAddress::class, 'member_id');
+    }
+
+    /**
+     * 向用户发送微信模板消息.
+     * @param $templateId
+     * @param $data
+     * @return mixed
+     */
+    public function sendWechatTemplateMessage($templateId, $data = [])
+    {
+        return self::getService()->sendWechatTemplateMessage($this->getKey(), $templateId, $data);
     }
 }

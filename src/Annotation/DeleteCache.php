@@ -15,15 +15,10 @@ use Hyperf\Di\Annotation\AbstractAnnotation;
 class DeleteCache extends AbstractAnnotation
 {
     /**
-     * 缓存 key, 多个以逗号分开
-     * @var string
+     * @param string|null $keys 缓存 key, 多个以逗号分开
      */
-    public string $keys;
-
-    public function __construct($value = null)
-    {
-        parent::__construct($value);
-
-        $this->bindMainProperty('keys', [$value]);
+    public function __construct(
+        public ?string $keys = null
+    ) {
     }
 }

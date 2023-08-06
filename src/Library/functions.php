@@ -54,8 +54,8 @@ if (! function_exists('container')) {
 
 if (! function_exists('identity')) {
     /**
-     * 获取上下文内的当前身份信息.
-     * @return \App\Model\SystemUser|\Ece2\Common\Model\Rpc\Model\SystemUser
+     * 获取上下文内的当前身份信息 (不同的 guard 不同的用户).
+     * @return \App\Model\SystemUser|\Ece2\Common\Model\Rpc\Model\SystemUser|\App\Model\SystemMember|\Ece2\Common\Model\Rpc\Model\SystemMember
      */
     function identity()
     {

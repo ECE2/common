@@ -9,6 +9,7 @@ use Ece2\Common\Annotation\Auth;
 use Ece2\Common\Exception\AppException;
 use Ece2\Common\Exception\TokenException;
 use Ece2\Common\Interfaces\AuthenticationInterface;
+use Hyperf\Di\Annotation\AnnotationCollector;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
@@ -41,6 +42,7 @@ class AuthAspect extends AbstractAspect
         $annotationMetadata = $proceedingJoinPoint->getAnnotationMetadata();
 
         // 优先 method, 其次 class
+        /** @var Auth $auth */
         $auth = null;
         if (isset($annotationMetadata->method[Auth::class])) {
             $auth = $annotationMetadata->method[Auth::class];
@@ -51,12 +53,12 @@ class AuthAspect extends AbstractAspect
         try {
             $isCheck = $this->authentication->check('', $auth?->scene ?? 'api');
         } catch (\Exception $e) {
-            console()->info($e->getMessage());
-            console()->info($e->getTraceAsString());
-            throw new AppException(ErrorCode::ERROR_401_MEMBER_NOT_LOGIN);
+            if ($auth?->mustLogin ?? true) {
+                throw new AppException(ErrorCode::ERROR_401_MEMBER_NOT_LOGIN);
+            }
         }
 
-        if ($isCheck) {
+        if ($isCheck || !($auth?->mustLogin ?? true)) {
             return $proceedingJoinPoint->process();
         }
 
