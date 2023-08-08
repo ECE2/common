@@ -17,6 +17,12 @@ class CompanyIsolateScope implements Scope
 {
     public function apply(Builder $builder, Model $model)
     {
+        // 超管无视公司隔离
+        $identity = identity();
+        if ($identity && method_exists($identity, 'isSuperAdmin') && $identity->isSuperAdmin()) {
+            return;
+        }
+
         $builder->when(
             static::getCompanyId(),
             fn ($query, $companyId) => $query->where($model->getQualifiedCompanyIdColumn(), $companyId)
