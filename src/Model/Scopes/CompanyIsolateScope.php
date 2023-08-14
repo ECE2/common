@@ -17,9 +17,10 @@ class CompanyIsolateScope implements Scope
 {
     public function apply(Builder $builder, Model $model)
     {
-        // 超管无视公司隔离
+        // 超管无视公司隔离 && 使用超管身份
         $identity = identity();
-        if ($identity && method_exists($identity, 'isSuperAdmin') && $identity->isSuperAdmin()) {
+        $useSuperAdmin = context_get('useSuperAdmin');
+        if ($identity && method_exists($identity, 'isSuperAdmin') && $identity->isSuperAdmin() && $useSuperAdmin) {
             return;
         }
 

@@ -18,7 +18,7 @@ class CorsMiddleware implements MiddlewareInterface
             $response = Context::get(ResponseInterface::class)
                 ?->withHeader('Access-Control-Allow-Origin', '*')
                 ->withHeader('Access-Control-Allow-Credentials', 'true')
-                ->withHeader('Access-Control-Allow-Headers', 'DNT,Keep-Alive,User-Agent,Cache-Control,Content-Type,Authorization');
+                ->withHeader('Access-Control-Allow-Headers', '*');
 
             Context::set(ResponseInterface::class, $response);
             if ($request->getMethod() === 'OPTIONS') {
