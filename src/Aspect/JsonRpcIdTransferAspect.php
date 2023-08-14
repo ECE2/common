@@ -37,6 +37,11 @@ class JsonRpcIdTransferAspect extends AbstractAspect
             $this->context->set('current.user', $currentAdmin);
         }
 
+        // 传递公司信息
+        if ($currentCompany = company()) {
+            $this->context->set('current.company', $currentCompany);
+        }
+
         return $proceedingJoinPoint->process();
     }
 }
