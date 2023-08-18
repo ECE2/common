@@ -22,12 +22,6 @@ class ConfigProvider
 {
     public function __invoke(): array
     {
-        // 文档: https://hyperf.wiki/2.2/#/zh-cn/json-rpc
-        $consumersRegistry = [
-            'protocol' => 'nacos',
-            'address' => sprintf('http://%s:%s', env('NACOS_HOST'), env('NACOS_PORT')),
-        ];
-
         Blueprint::macro('operators', function () {
             /** @var Blueprint $this */
             $this->unsignedBigInteger('created_by')->default(0)->comment('创建者');
@@ -120,21 +114,19 @@ class ConfigProvider
                 ),
             ],
             'services' => [
-                'consumers' => value(function () use ($consumersRegistry, $jsonRpcContractReflectionClass) {
-                    $consumers = [];
-                    // 这里示例自动创建代理消费者类的配置形式，顾存在 name 和 service 两个配置项，这里的做法不是唯一的，仅说明可以通过 PHP 代码来生成配置
-                    // 下面的 FooServiceInterface 和 BarServiceInterface 仅示例多服务，并不是在文档示例中真实存在的
-                    /** @var \ReflectionClass $class */
-                    foreach ($jsonRpcContractReflectionClass as $class) {
-                        $consumers[] = [
+                // 文档: https://hyperf.wiki/3.0/#/zh-cn/json-rpc?id=%e8%87%aa%e5%8a%a8%e5%88%9b%e5%bb%ba%e4%bb%a3%e7%90%86%e6%b6%88%e8%b4%b9%e8%80%85%e7%b1%bb
+                'consumers' => array_values(array_map(
+                        static fn (\ReflectionClass $class) => [
                             'name' => substr($class->getShortName(), 0, -9),
                             'service' => $class->getName(),
-                            'registry' => $consumersRegistry,
-                        ];
-                    }
-
-                    return $consumers;
-                }),
+                            'registry' => [
+                                'protocol' => 'nacos',
+                                'address' => sprintf('http://%s:%s', env('NACOS_HOST'), env('NACOS_PORT')),
+                            ],
+                        ],
+                        $jsonRpcContractReflectionClass
+                    )
+                ),
             ],
             'middlewares' => [
                 'http' => [
