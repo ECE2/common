@@ -7,8 +7,11 @@ namespace Ece2\Common\Middleware;
 use App\JsonRpc\Service\SystemCompanyService;
 use App\Model\Company;
 use Ece2\Common\JsonRpc\Contract\SystemCompanyServiceInterface;
+use Hyperf\Codec\Json;
 use Hyperf\Collection\Arr;
 use Hyperf\Di\Annotation\Inject;
+use HyperfExtension\Jwt\Jwt;
+use HyperfExtension\Jwt\JwtFactory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -20,27 +23,29 @@ class CompanyMiddleware implements MiddlewareInterface
     public SystemCompanyServiceInterface $companyService;
 
     /**
-     * 根据请求 host (c1232.test.qiang-ji.com) 的 c1232 子域名获取到对应的 company 信息, 优先使用提交的 sub_domain 参数, 并写入上下文
      * @param ServerRequestInterface $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $subDomain = Arr::first(explode('.', Arr::first($request->getHeader('host'))));
-
-        // 允许 dev 环境传 sub_domain
-        if (\Hyperf\Config\config('app_env') === 'dev') {
-            $subDomain = \Hyperf\Support\env('SUB_DOMAIN') ?? $subDomain;
-            dump('当前开发环境, 传入的 sub_domain 为: ' . $subDomain);
+        $payload = [];
+        try {
+            // 固定从 jwt 取 company_id
+            $token = '';
+            $header = $request->getHeaderLine('Authorization');
+            if ($header && preg_match('/' . 'Bearer' . '\s*(\S+)\b/i', $header, $matches)) {
+                $token = $matches[1];
+            }
+            $payload = Json::decode(base64_decode(explode('.', $token)[1] ?? ''));
+        } catch (\Exception $e) {
         }
 
-        if ($subDomain !== null && !is_numeric($subDomain)) {
-            if (is_base_system()) {
-                company_set(Company::query()->where('sub_domain', $subDomain)->first());
-            } else {
-                company_set(new \Ece2\Common\Model\Rpc\Model\Company($this->companyService->getCompanyBySubDomain($subDomain)['data'] ?? []));
-            }
+        // 取公司
+        if (!empty($companydId = $payload['company_id'] ?? null)) {
+            company_set(is_base_system() ?
+                Company::query()->find($companydId) :
+                new \Ece2\Common\Model\Rpc\Model\Company($this->companyService->getByIds([$companydId])['data'][0] ?? []));
         }
 
         return $handler->handle($request);

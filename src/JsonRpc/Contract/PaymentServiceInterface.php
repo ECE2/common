@@ -19,4 +19,6 @@ interface PaymentServiceInterface
      * @return array
      */
     public function refund(string $tradeNo, int $refundAmount): array;
+
+    public function getByWhereRaw($sql, $bindings = [], $boolean = 'and');
 }
