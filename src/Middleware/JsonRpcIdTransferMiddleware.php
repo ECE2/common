@@ -56,10 +56,10 @@ class JsonRpcIdTransferMiddleware implements MiddlewareInterface
             }
         }
 
-//        // 获取 rpc 的上下文里公司数据
-//        if ($currentCompany = $rc->get('current.company')) {
-//            company_set(is_base_system() ? new Company($currentCompany) : new CompanyForRpc($currentCompany));
-//        }
+        // 获取 rpc 的上下文里公司数据
+        if ($currentCompany = $rc->get('current.company')) {
+            company_set(is_base_system() ? new Company($currentCompany) : new CompanyForRpc($currentCompany));
+        }
 
         // 获取 rpc 的上下文里 useSuperAdmin 数据
         context_set('userSuperAdmin', $rc->get('userSuperAdmin'));

@@ -17,6 +17,11 @@ class CompanyIsolateScope implements Scope
 {
     public function apply(Builder $builder, Model $model)
     {
+        // RPC 请求下, 不使用公司隔离
+        if (!empty(container()->get(\Hyperf\Rpc\Context::class)->getData())) {
+            return;
+        }
+
         // 超管无视公司隔离 && 使用超管身份
         $identity = identity();
         $useSuperAdmin = context_get('useSuperAdmin');
