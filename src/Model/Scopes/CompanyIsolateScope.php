@@ -18,7 +18,7 @@ class CompanyIsolateScope implements Scope
     public function apply(Builder $builder, Model $model)
     {
         // RPC 请求下, 不使用公司隔离
-        if (!empty(container()->get(\Hyperf\Rpc\Context::class)->getData())) {
+        if (context_get('isRpcRequest') ?? false) {
             return;
         }
 

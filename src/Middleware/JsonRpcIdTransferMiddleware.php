@@ -63,6 +63,8 @@ class JsonRpcIdTransferMiddleware implements MiddlewareInterface
 
         // 获取 rpc 的上下文里 useSuperAdmin 数据
         context_set('userSuperAdmin', $rc->get('userSuperAdmin'));
+        // 标识在 rpc 请求下
+        context_set('isRpcRequest', true);
 
         return $handler->handle($request);
     }
